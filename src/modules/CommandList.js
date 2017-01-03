@@ -748,6 +748,7 @@ Commands.list = {
         Logger.print("Unbanned IP: " + ip);
     },
     playerlist: function (gameServer, split) {
+        if (!gameServer.clients.length) return Logger.warn("No bots or players are currently connected to the server!");
         Logger.print("\nCurrent players: " + gameServer.clients.length);
         Logger.print('Do "playerlist m" or "pl m" to list minions\n');
         Logger.print(" ID     | IP              | P | CELLS | SCORE  |   POSITION   | " + fillChar('NICK', ' ', gameServer.config.playerMaxNickLength) + " "); // Fill space
