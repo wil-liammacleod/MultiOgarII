@@ -874,6 +874,7 @@ GameServer.prototype.randomPos = function() {
 };
 
 GameServer.prototype.spawnCells = function(pos) {
+    // spawn food at random size
     var maxCount = this.config.foodMinAmount - this.nodesFood.length;
     var spawnCount = Math.min(maxCount, this.config.foodSpawnAmount);
     for (var i = 0; i < spawnCount; i++) {
@@ -885,11 +886,12 @@ GameServer.prototype.spawnCells = function(pos) {
         cell.setColor(this.getRandomColor());
         this.addNode(cell);
     }
+    // spawn viruses (safely)
     maxCount = this.config.virusMinAmount - this.nodesVirus.length;
     spawnCount = Math.min(maxCount, 2);
     for (var i = 0; i < spawnCount; i++) {
-        for (var i = 0; i < 10 && this.willCollide(pos, this.config.virusMinSize); i++) {
-            pos = this.randomPos();
+        if (this.willCollide(pos, this.config.virusMinSize)) {
+            continue; // do not spawn
         }
         var v = new Entity.Virus(this, null, pos, this.config.virusMinSize);
         this.addNode(v);
@@ -947,10 +949,13 @@ GameServer.prototype.willCollide = function(pos, size) {
         maxx: pos.x + size,
         maxy: pos.y + size
     };
+    var sq = bound.minx * bound.minx + bound.miny * bound.miny;
+    if (sq + (size * size) <= (size * 2)) {
+        return null; // not safe => try again
+    }
     return this.quadTree.any(
         bound, function(item) {
-            return item.cell.cellType == 0  // check players
-                || item.cell.cellType == 2; // check viruses
+            return item.cell.cellType == 0; // check players
         });
 };
 
