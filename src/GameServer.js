@@ -955,7 +955,7 @@ GameServer.prototype.willCollide = function(pos, size) {
     }
     return this.quadTree.any(
         bound, function(item) {
-            return item.cell.cellType == 0; // check players
+            return item.cell.cellType != 3; // don't check ejected
         });
 };
 
