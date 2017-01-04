@@ -548,6 +548,24 @@ GameServer.prototype.mainLoop = function() {
     
     // Loop main functions
     if (this.run) {
+        // Move moving nodes first
+        for (var i = 0; i < this.movingNodes.length; i++) {
+            cell1 = this.movingNodes[i];
+            if (!cell1 || cell1.isRemoved) continue;
+            this.moveCell(cell1);
+            this.updateNodeQuad(cell1);
+            if (!cell1.isMoving)
+                this.movingNodes.splice(i, 1);
+            // scan and check for ejected mass / virus collisions
+            this.quadTree.find(cell1.quadItem.bound, function(item) {
+                if (item.cell == cell1) return;
+                var m = self.checkCellCollision(cell1, item.cell);
+                if (cell1.cellType == 3 && item.cell.cellType == 3 && !self.config.mobilePhysics)
+                    self.resolveRigidCollisionE(m, self.border);
+                else
+                    self.resolveCollision(m);
+            });
+        }
         // move cells and scan for collisions
         for (var i in this.clients) {
             var client = this.clients[i].playerTracker;
@@ -571,24 +589,6 @@ GameServer.prototype.mainLoop = function() {
                         self.resolveCollision(m);
                 });
             }
-        }
-        // Move moving nodes
-        for (var i = 0; i < this.movingNodes.length; i++) {
-            cell1 = this.movingNodes[i];
-            if (!cell1 || cell1.isRemoved) continue;
-            this.moveCell(cell1);
-            this.updateNodeQuad(cell1);
-            if (!cell1.isMoving)
-                this.movingNodes.splice(i, 1);
-            // scan and check for ejected mass / virus collisions
-            this.quadTree.find(cell1.quadItem.bound, function(item) {
-                if (item.cell == cell1) return;
-                var m = self.checkCellCollision(cell1, item.cell);
-                if (cell1.cellType == 3 && item.cell.cellType == 3 && !self.config.mobilePhysics)
-                    self.resolveRigidCollisionE(m, self.border);
-                else
-                    self.resolveCollision(m);
-            });
         }
         if ((this.tickCounter % this.config.spawnInterval) == 0) {
             this.spawnCells(this.randomPos());
