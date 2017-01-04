@@ -31,9 +31,6 @@ MotherCell.prototype.canEat = function (cell) {
 };
 
 MotherCell.prototype.onUpdate = function () {
-    if (this._size <= this.motherCellMinSize) {
-        return;
-    }
     var maxFood = this.gameServer.config.foodMaxAmount;
     if (this.gameServer.nodesFood.length >= maxFood) {
         return;
