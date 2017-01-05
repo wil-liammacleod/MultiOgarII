@@ -56,7 +56,6 @@ Commands.list = {
                     "│ replace [PlayerID] [entity]  │ Replaces a player with an entity          │\n"+
                     "│ pop [PlayerID]               │ Pops a player with a virus                │\n"+
                     "| explode [PlayerID]           | Explodes a player into ejected mass       |\n"+
-                    "│ play [PlayerID]              │ Disable/enables a player from spawning    │\n"+
                     "│                                                                          │\n"+
                     "│                          ----Server Commands----                         │\n"+
                     "│                                                                          │\n"+
@@ -124,17 +123,17 @@ Commands.list = {
     },
     reset: function (gameServer, split) {
         Logger.warn("Removed " + gameServer.nodes.length + " nodes");
-        while (gameServer.nodes.length > 0) {
+        while (gameServer.nodes.length) {
             gameServer.removeNode(gameServer.nodes[0]);
         }
         // just to make sure the jobs done
-        while (gameServer.nodesEjected.length > 0) {
+        while (gameServer.nodesEjected.length) {
             gameServer.removeNode(gameServer.nodesEjected[0]);
         }
-        while (gameServer.nodesFood.length > 0) {
+        while (gameServer.nodesFood.length) {
             gameServer.removeNode(gameServer.nodesFood[0]);
         }
-        while (gameServer.nodesVirus.length > 0) {
+        while (gameServer.nodesVirus.length) {
             gameServer.removeNode(gameServer.nodesVirus[0]);
         }
         Commands.list.killall(gameServer, split);
@@ -350,12 +349,8 @@ Commands.list = {
             Logger.warn("Please specify a valid player ID!");
             return;
         }
-        
-        var color = {
-            r: 0,
-            g: 0,
-            b: 0
-        };
+        // Get colors
+        var color = { r: 0, g: 0, b: 0 };
         color.r = Math.max(Math.min(parseInt(split[2]), 255), 0);
         color.g = Math.max(Math.min(parseInt(split[3]), 255), 0);
         color.b = Math.max(Math.min(parseInt(split[4]), 255), 0);
@@ -763,11 +758,8 @@ Commands.list = {
             
             // list minions
             if (client.isMi) {
-                if (typeof type == "undefined" || type == "" || type != "m") {
-                    continue;
-                } else if (type == "m") {
-                    ip = "[MINION]";
-                }
+                if (type != "m") continue;
+                else ip = "[MINION]";
             }
             
             // ID with 3 digits length
@@ -904,7 +896,7 @@ Commands.list = {
     },
     spawn: function (gameServer, split) {
         var ent = split[1];
-        if (typeof ent == "undefined" || ent == "" || (ent != "virus" && ent != "food" && ent != "mothercell")) {
+        if (ent != "virus" && ent != "food" && ent != "mothercell") {
             Logger.warn("Please specify either virus, food, or mothercell");
             return;
         }
@@ -957,7 +949,7 @@ Commands.list = {
             return;
         }
         var ent = split[2];
-        if (typeof ent == "undefined" || ent == "" || (ent != "virus" && ent != "food" && ent != "mothercell")) {
+        if (ent != "virus" && ent != "food" && ent != "mothercell") {
             Logger.warn("Please specify either virus, food, or mothercell");
             return;
         }
@@ -1037,35 +1029,10 @@ Commands.list = {
             }
         }
     },
-    play: function (gameServer, split) {
-        var id = parseInt(split[1]);
-        if (isNaN(id)) {
-            Logger.warn("Please specify a valid player ID!");
-            return;
-        }
-        for (var i in gameServer.clients) {
-            if (gameServer.clients[i].playerTracker.pID == id) {
-                var client = gameServer.clients[i].playerTracker;
-                client.disableSpawn = !client.disableSpawn;
-                if (client.disableSpawn) {
-                    Commands.list.kill(gameServer, split);
-                    Logger.print("Disabled spawning for " + client.getFriendlyName());
-                } else {
-                    Logger.print("Enabled spawning for " + client.getFriendlyName());
-                }
-            }
-        }
-    },
     lms: function (gameServer, split) {
-        for (var i in gameServer.clients) {
-            var client = gameServer.clients[i].playerTracker;
-            var state = false;
-            state = !state;
-            if (state) client.disableSpawn = true;
-            else client.disableSpawn = false;
-        }
-        if (state) Logger.print("Started last man standing");
-        else Logger.print("Stopped last man standing");
+        gameServer.disableSpawn = !gameServer.disableSpawn;
+        var s = gameServer.disableSpawn ? "Started" : "Ended";
+        Logger.print(s + " last man standing");
     },
     
     // Aliases for commands
