@@ -1033,6 +1033,7 @@ Commands.list = {
                     }
                     cell.setSize(gameServer.config.playerMinSize);
                 }
+                Logger.print("Successfully exploded " + client.getFriendlyName());
             }
         }
     },
