@@ -48,6 +48,7 @@ function GameServer() {
     this.timerLoopBind = null;
     this.mainLoopBind = null;
     this.tickCounter = 0;
+    this.disableSpawn = false;
 
     // Config
     this.config = {
@@ -900,7 +901,7 @@ GameServer.prototype.spawnCells = function(pos) {
 };
 
 GameServer.prototype.spawnPlayer = function(player, pos) {
-    if (player.disableSpawn) return;
+    if (this.disableSpawn) return; // not allowed to spawn!
     
     // Check for special start size(s)
     var size = this.config.playerStartSize;
