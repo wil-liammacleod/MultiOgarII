@@ -64,7 +64,6 @@ function PlayerTracker(gameServer, socket) {
     this.frozen = false;
     this.customspeed = 0;
     this.rec = false;
-    this.disableSpawn = false;
     
     // Minions
     this.miQ = 0;
