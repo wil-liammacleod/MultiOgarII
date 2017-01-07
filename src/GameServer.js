@@ -57,37 +57,37 @@ function GameServer() {
         
         serverTimeout: 300,         // Seconds to keep connection alive for non-responding client
         serverWsModule: 'ws',       // WebSocket module: 'ws' or 'uws' (install npm package before using uws)
-        serverMaxConnections: 128,   // Maximum number of connections to the server. (0 for no limit)
-        serverPort: 443,            // Server port
-        serverBind: '0.0.0.0',      // Network interface binding
-        serverTracker: 0,           // Set to 1 if you want to show your server on the tracker http://ogar.mivabe.nl/master
-        serverGamemode: 0,          // Gamemode, 0 = FFA, 1 = Teams
-        serverBots: 0,              // Number of player bots to spawn
-        serverViewBaseX: 1920,      // Base client screen resolution. Used to calculate view area. Warning: high values may cause lag
+        serverMaxConnections: 500,  // Maximum number of connections to the server. (0 for no limit)
+        serverPort: 443,            // Server port which will be used to listen for incoming connections
+        serverBind: '0.0.0.0',      // Server network interface which will be used to listen for incoming connections (0.0.0.0 for all IPv4 interfaces)
+        serverTracker: 0,           // Set to 1 if you want to show your server on the tracker http://ogar.mivabe.nl/master (check that your server port is opened for external connections first!)
+        serverGamemode: 0,          // Gamemodes: 0 = FFA, 1 = Teams, 2 = Experimental, 3 = Rainbow
+        serverBots: 0,              // Number of player bots to spawn (Experimental)
+        serverViewBaseX: 1920,      // Base view distance of players. Warning: high values may cause lag! Min value is 1920x1080
         serverViewBaseY: 1080,      // min value is 1920x1080
-        serverMinScale: 0.15,       // Min scale for player (low value leads to lags due to large visible area)
-        serverSpectatorScale: 0.4,  // Scale (field of view) used for free roam spectators (low value leads to lags, vanilla=0.4, old vanilla=0.25)
+        serverMinScale: 0.15,       // Minimum viewbox scale for player (low value leads to lags due to large visible area for big cell)
+        serverSpectatorScale: 0.4,  // Scale (field of view) used for free roam spectators (low value leads to lags, vanilla = 0.4, old vanilla = 0.25)
         serverStatsPort: 88,        // Port for stats server. Having a negative number will disable the stats server.
         serverStatsUpdate: 60,      // Update interval of server stats in seconds
         mobilePhysics: 0,           // Whether or not the server uses mobile agar.io physics
         
         serverMaxLB: 10,            // Controls the maximum players displayed on the leaderboard.
-        serverChat: 1,              // Set to 1 to allow chat; 0 to disable chat.
-        serverChatAscii: 1,         // Set to 1 to disable non-ANSI letters in the chat (english only mode)
+        serverChat: 1,              // Allows the usage of server chat. 0 = no chat, 1 = use chat.
+        serverChatAscii: 1,         // Set to 1 to disable non-ANSI letters in the chat (english only)
         serverName: 'MultiOgar-Edited #1', // Server name
         serverWelcome1: 'Welcome to MultiOgar-Edited!',      // First server welcome message
-        serverWelcome2: '',         // Second server welcome message (for info, etc)
+        serverWelcome2: '',         // Second server welcome message (optional, for info, etc)
         clientBind: '',             // Only allow connections to the server from specified client (eg: http://agar.io - http://mywebsite.com - http://more.com) [Use ' - ' to seperate different websites]
         
-        serverIpLimit: 4,           // Maximum number of connections from the same IP (0 for no limit)
+        serverIpLimit: 4,           // Controls the maximum number of connections from the same IP (0 for no limit)
         serverMinionIgnoreTime: 30, // minion detection disable time on server startup [seconds]
         serverMinionThreshold: 10,  // max connections within serverMinionInterval time period, which l not be marked as minion
         serverMinionInterval: 1000, // minion detection interval [milliseconds]
         serverScrambleLevel: 1,     // Toggles scrambling of coordinates. 0 = No scrambling, 1 = lightweight scrambling. 2 = full scrambling (also known as scramble minimap); 3 - high scrambling (no border)
         playerBotGrow: 0,           // Cells greater than 625 mass cannot grow from cells under 17 mass (set to 1 to disable)
         
-        borderWidth: 14142,         // Map border size (Vanilla value: 14142)
-        borderHeight: 14142,        // Map border size (Vanilla value: 14142)
+        borderWidth: 14142.135623730952,  // Map border size (Vanilla value: 14142)
+        borderHeight: 14142.135623730952, // Map border size (Vanilla value: 14142)
         
         foodMinSize: 10,            // Minimum food size (vanilla 10)
         foodMaxSize: 20,            // Maximum food size (vanilla 20)
@@ -95,39 +95,40 @@ function GameServer() {
         foodMaxAmount: 2000,        // Maximum food cells on the map
         foodSpawnAmount: 30,        // The number of food to spawn per interval
         foodMassGrow: 1,            // Enable food mass grow ?
-        spawnInterval: 20,          // The interval between each food cell spawn in ticks (1 tick = 50 ms)
+        spawnInterval: 20,          // The interval between each food cell spawn in ticks (1 tick = 40 ms)
         
-        virusMinSize: 100,          // Minimum virus size (vanilla 100)
-        virusMaxSize: 140,          // Maximum virus size (vanilla 140)
+        virusMinSize: 100,          // Minimum virus size. (vanilla: mass = val*val/100 = 100 mass)
+        virusMaxSize: 141.421356237, // Maximum virus size (vanilla: mass = val*val/100 = 200 mass)
         virusMinAmount: 50,         // Minimum number of viruses on the map.
         virusMaxAmount: 100,        // Maximum number of viruses on the map. If this number is reached, then ejected cells will pass through viruses.
         motherCellMaxMass: 0,       // Maximum amount of mass a mothercell is allowed to have (0 for no limit)
         
-        ejectSize: 38,              // Size of ejected cells (vanilla 38)
-        ejectSizeLoss: 43,          // Eject size which will be substracted from player cell (vanilla 43?)
-        ejectCooldown: 3,           // min ticks between ejects
+        ejectSize: 40,              // vanilla: mass = val*val/100 = 16 mass
+        ejectSizeLoss: 45,          // Eject size which will be substracted from player cell (vanilla: mass = val*val/100 = 20 mass?)
+        ejectCooldown: 3,           // Tick count until a player can eject mass again in ticks (1 tick = 40 ms)
         ejectSpawnPercent: 0.5,     // Chance for a player to spawn from ejected mass. 0.5 = 50% (set to 0 to disable)
         ejectVirus: 0,              // Whether or not players can eject viruses instead of mass
         
-        playerMinSize: 32,          // Minimym size of the player cell (mass = 32*32/100 = 10.24)
-        playerMaxSize: 1500,        // Maximum size of the player cell (mass = 1500*1500/100 = 22500)
-        playerMinSplitSize: 60,     // Minimum player cell size allowed to split (mass = 60*60/100 = 36) 
-        playerStartSize: 64,        // Start size of the player cell (mass = 64*64/100 = 41)
-        playerMaxCells: 16,         // Max cells the player is allowed to have
-        playerSpeed: 1,             // Player speed multiplier
-        playerDecayRate: .002,      // Amount of player cell size lost per second
+        playerMinSize: 31.6227766017, // Minimum size a player cell can decay too. (vanilla: val*val/100 = 10 mass)
+        playerMaxSize: 1500,        // Maximum size a player cell can achive before auto-splitting. (vanilla: mass = val*val/100 = 22500 mass)
+        playerMinSplitSize: 60,     // Mimimum size a player cell has to be to split. (vanilla: mass = val*val/100 = 36 mass)
+        playerMinEjectSize: 56.56854249, // Minimum size a player cell has to be to eject mass. (vanilla: mass = val*val/100 = 32 mass)
+        playerStartSize: 31.6227766017, // Start size of the player cell. (vanilla: mass = val*val/100 = 10 mass)
+        playerMaxCells: 16,         // Maximum cells a player is allowed to have.
+        playerSpeed: 1,             // Player speed multiplier (1 = normal speed, 2 = twice the normal speed)
+        playerDecayRate: 0.998,     // Amount of player cell size lost per second
         playerDecayCap: 0,          // Maximum mass a cell can have before it's decayrate multiplies by 10. (0 to disable)
         playerRecombineTime: 30,    // Base time in seconds before a cell is allowed to recombine
         playerMaxNickLength: 15,    // Maximum nick length
-        playerDisconnectTime: 60,   // The time in seconds it takes for a player cell to be removed after disconnection (If set to -1, cells are never removed)
+        playerDisconnectTime: 80,   // Time in seconds before a disconnected player's cells are removed (Set to -1 to never remove)
         
-        minionStartSize: 32,        // Start size of minions (mass = 32*32/100 = 10.24)
-        minionMaxStartSize: 32,     // Maximum value of random start size for minions (set value higher than minionStartSize to enable)
+        minionStartSize: 31.6227766017, // Start size of minions (mass = 32*32/100 = 10.24)
+        minionMaxStartSize: 31.6227766017, // Maximum value of random start size for minions (set value higher than minionStartSize to enable)
         disableERTP: 1,             // Whether or not to disable ERTP controls for minions. (must use ERTPcontrol script in /scripts) (Set to 0 to enable)
         disableQ: 0,                // Whether or not to disable Q controls for minions. (Set 0 to enable)
         serverMinions: 0,           // Amount of minions each player gets once they spawn
-        defaultName: "minion",      // Default name for all minions if name is not specified using command
         collectPellets: 0,          // Enable collect pellets mode. To use just press P or Q. (Warning: this disables Q controls, so make sure that disableERT is 0)
+        defaultName: "minion",      // Default name for all minions if name is not specified using command (put <r> before the name for random skins!)
     };
     this.ipBanList = [];
     this.minionTest = [];
@@ -633,7 +634,7 @@ GameServer.prototype.updateMassDecay = function() {
             var rate = this.config.playerDecayRate;
             var massCap = this.config.playerDecayCap;
             if (massCap && cell._mass > massCap) rate *= 10;
-            var decay = 1 - rate * this.gameMode.decayMod;
+            var decay = rate * this.gameMode.decayMod;
             size = Math.sqrt(size * size * decay);
             size = Math.max(size, this.config.playerMinSize);
             if (size != cell._size) {
@@ -779,8 +780,8 @@ GameServer.prototype.resolveRigidCollision = function(c) {
     if (c.d > c.r) return;
     // body impulse
     var m = c.cell1._mass + c.cell2._mass;
-    var m1 = ~~c.cell1._mass / m;
-    var m2 = ~~c.cell2._mass / m;
+    var m1 = ~~c.cell1._mass / m - 0.1;
+    var m2 = ~~c.cell2._mass / m - 0.1;
     // apply extrusion force
     c.cell1.position.x -= ~~(c.push * c.dx * m2);
     c.cell1.position.y -= ~~(c.push * c.dy * m2);
@@ -792,8 +793,8 @@ GameServer.prototype.resolveRigidCollision = function(c) {
 GameServer.prototype.resolveRigidCollisionE = function(c) {
     if (c.d > c.r) return;
     // push ejected cells apart
-    c.cell1.position.x -= c.push * c.dx * 0.5;
-    c.cell1.position.y -= c.push * c.dy * 0.5;
+    c.cell1.position.x -= c.push * c.dx * 0.4;
+    c.cell1.position.y -= c.push * c.dy * 0.4;
 };
 
 // Resolves non-rigid body collision
@@ -1009,7 +1010,7 @@ GameServer.prototype.ejectMass = function(client) {
     for (var i = 0; i < client.cells.length; i++) {
         var cell = client.cells[i];
         
-        if (!cell || cell._size < this.config.playerMinSplitSize) {
+        if (!cell || cell._size < this.config.playerMinEjectSize) {
             continue;
         }
         
