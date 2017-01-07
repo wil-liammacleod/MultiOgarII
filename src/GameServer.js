@@ -780,8 +780,8 @@ GameServer.prototype.resolveRigidCollision = function(c) {
     if (c.d > c.r) return;
     // body impulse
     var m = c.cell1._mass + c.cell2._mass;
-    var m1 = ~~c.cell1._mass / m - 0.1;
-    var m2 = ~~c.cell2._mass / m - 0.1;
+    var m1 = ~~c.cell1._mass / m;
+    var m2 = ~~c.cell2._mass / m;
     // apply extrusion force
     c.cell1.position.x -= ~~(c.push * c.dx * m2);
     c.cell1.position.y -= ~~(c.push * c.dy * m2);
