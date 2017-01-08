@@ -714,7 +714,7 @@ GameServer.prototype.movePlayer = function(cell1, client) {
 };
 
 GameServer.prototype.autoSplit = function(cell1, client) {
-    // double size limit if client is in rec mode
+    // square size limit if client is in rec mode
     if (!client.rec) var maxSize = this.config.playerMaxSize; 
     else var maxSize = this.config.playerMaxSize * this.config.playerMaxSize;
     // check size limit
