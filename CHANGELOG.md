@@ -1,4 +1,23 @@
 # Changelog
+#### 1.5.0:
+* Added more botnames, thanks to @t11tanYT, @FantasyIsBae, and @AlexandriteErikParacelsus;
+* Fixed some bugs;
+* Refactored collision and move engine again;
+* Improved performance;
+* Fixed incorrect ping count with server tracking, thanks to @MastaCoder;
+* Redid last man standing, thanks to @Tyler3D;
+* Added new command: lms;
+* Added simpler rigid collision resolution for ejected mass;
+* Tweaked a few things in PlayerTracker/GameServer;
+* Added some new messages for commands, thanks to @Agarian;
+* Added new configs: motherCellMaxMass, playerMinEjectSize, and velocity;
+* Added all skins from Agar.io to randomSkins, thanks to @ItzLevvie;
+* Removed "play" command;
+* Redid configs to match the old Agar.io configs;
+* Fixed anti-minion;
+* Changed number symbols in gameserver.ini to semicolons
+
+-------------
 #### 1.4.8:
 * Added multiple client bindings, thanks to @MastaCoder;
 * Cleaned up setNickname function in PacketHandler, thanks to @MastaCoder;
