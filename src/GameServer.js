@@ -303,7 +303,16 @@ GameServer.prototype.onClientSocketOpen = function(ws) {
     this.socketCount++;
     this.clients.push(ws);
     
-    // Minion detection
+    // Check for external minions
+    this.checkMinion(ws);
+};
+
+GameServer.prototype.checkMinion = function(ws) {
+    // Check headers (maybe have a config for this?)
+    if (!ws.upgradeReq.headers['user-agent'] || !ws.upgradeReq.headers['accept-encoding']) {
+        ws.playerTracker.isMinion = true;
+    }
+    // External minion detection
     if (this.config.serverMinionThreshold) {
         if ((ws.lastAliveTime - this.startTime) / 1000 >= this.config.serverMinionIgnoreTime) {
             if (this.minionTest.length >= this.config.serverMinionThreshold) {
@@ -320,6 +329,7 @@ GameServer.prototype.onClientSocketOpen = function(ws) {
             this.minionTest.push(ws.playerTracker);
         }
     }
+    // Add server minions if needed
     if (this.config.serverMinions && !ws.playerTracker.isMinion) {
         for (var i = 0; i < this.config.serverMinions; i++) {
             this.bots.addMinion(ws.playerTracker);
@@ -627,19 +637,18 @@ GameServer.prototype.updateMassDecay = function() {
         for (var j = 0; j < client.cells.length; j++) {
             var cell = client.cells[j];
             if (cell == null || cell.isRemoved) 
-                continue;
+                continue; // dont decay if removed
             var size = cell._size;
             if (size <= this.config.playerMinSize)
-                continue;
+                continue; // cant decay anymore
             var rate = this.config.playerDecayRate;
-            var massCap = this.config.playerDecayCap;
-            if (massCap && cell._mass > massCap) rate *= 10;
+            var cap = this.config.playerDecayCap;
+            if (cap && cell._mass > cap) 
+                rate /= 1.01; // multiply decay if needed
             var decay = rate * this.gameMode.decayMod;
             size = Math.sqrt(size * size * decay);
             size = Math.max(size, this.config.playerMinSize);
-            if (size != cell._size) {
-                cell.setSize(size);
-            }
+            cell.setSize(size); // subtract size
         }
     }
 };
@@ -942,6 +951,13 @@ GameServer.prototype.spawnPlayer = function(player, pos) {
         x: pos.x,
         y: pos.y
     };
+    
+    // Remove external minions
+    if (player.isMinion) {
+        player.socket.close(1000, "isMinion");
+        for (var i = 0; i < player.cells.length; i++)
+            this.removeNode(player.cells[i]);
+    }
 };
 
 GameServer.prototype.willCollide = function(pos, size) {
