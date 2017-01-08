@@ -102,12 +102,14 @@ function GameServer() {
         virusMinAmount: 50,         // Minimum number of viruses on the map.
         virusMaxAmount: 100,        // Maximum number of viruses on the map. If this number is reached, then ejected cells will pass through viruses.
         motherCellMaxMass: 0,       // Maximum amount of mass a mothercell is allowed to have (0 for no limit)
+        virusVelocity: 780,         // Velocity of moving viruses (speed and distance)
         
         ejectSize: 40,              // vanilla: mass = val*val/100 = 16 mass
         ejectSizeLoss: 45,          // Eject size which will be substracted from player cell (vanilla: mass = val*val/100 = 20 mass?)
         ejectCooldown: 3,           // Tick count until a player can eject mass again in ticks (1 tick = 40 ms)
         ejectSpawnPercent: 0.5,     // Chance for a player to spawn from ejected mass. 0.5 = 50% (set to 0 to disable)
         ejectVirus: 0,              // Whether or not players can eject viruses instead of mass
+        ejectVelocity: 780,         // Velocity of ejecting cells (speed and distance)
         
         playerMinSize: 31.6227766017, // Minimum size a player cell can decay too. (vanilla: val*val/100 = 10 mass)
         playerMaxSize: 1500,        // Maximum size a player cell can achive before auto-splitting. (vanilla: mass = val*val/100 = 22500 mass)
@@ -121,6 +123,7 @@ function GameServer() {
         playerRecombineTime: 30,    // Base time in seconds before a cell is allowed to recombine
         playerMaxNickLength: 15,    // Maximum nick length
         playerDisconnectTime: 60,   // Time in seconds before a disconnected player's cells are removed (Set to -1 to never remove)
+        splitVelocity: 780,         // Velocity of splitting cells (speed and distance)
         
         minionStartSize: 31.6227766017, // Start size of minions (mass = 32*32/100 = 10.24)
         minionMaxStartSize: 31.6227766017, // Maximum value of random start size for minions (set value higher than minionStartSize to enable)
@@ -437,7 +440,8 @@ GameServer.prototype.updateClients = function() {
         }
     }
     // check dead clients
-    for (var i = 0; i < this.clients.length; ) {
+    var clients = this.clients.length;
+    for (var i = 0; i < clients; ) {
         playerTracker = this.clients[i].playerTracker;
         playerTracker.checkConnection();
         if (playerTracker.isRemoved) {
@@ -448,8 +452,10 @@ GameServer.prototype.updateClients = function() {
         }
     }
     // update
-    for (var i = 0; i < this.clients.length; i++) {
+    for (var i = 0; i < clients; i++) {
         this.clients[i].playerTracker.updateTick();
+    }
+    for (var i = 0; i < clients; i++) {
         this.clients[i].playerTracker.sendUpdate();
     }
 };
@@ -871,7 +877,7 @@ GameServer.prototype.splitPlayerCell = function(client, parent, angle, mass, m) 
     
     // Create cell
     var newCell = new Entity.PlayerCell(this, client, pos, size2 || size1);
-    newCell.setBoost(780, angle);
+    newCell.setBoost(this.config.splitVelocity, angle);
     
     // Add to node list
     this.addNode(newCell);
@@ -1064,7 +1070,7 @@ GameServer.prototype.ejectMass = function(client) {
             ejected = new Entity.Virus(this, null, pos, this.config.ejectSize);
         }
         ejected.setColor(cell.color);
-        ejected.setBoost(780, angle);
+        ejected.setBoost(this.config.ejectVelocity, angle);
         this.addNode(ejected);
     }
 };
@@ -1075,7 +1081,7 @@ GameServer.prototype.shootVirus = function(parent, angle) {
         y: parent.position.y,
     };
     var newVirus = new Entity.Virus(this, null, pos, this.config.virusMinSize);
-    newVirus.setBoost(780, angle);
+    newVirus.setBoost(this.config.virusVelocity, angle);
     
     // Add to moving cells list
     this.addNode(newVirus);
