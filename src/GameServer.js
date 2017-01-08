@@ -440,8 +440,7 @@ GameServer.prototype.updateClients = function() {
         }
     }
     // check dead clients
-    var clients = this.clients.length;
-    for (var i = 0; i < clients; ) {
+    for (var i = 0; i < this.clients.length; ) {
         playerTracker = this.clients[i].playerTracker;
         playerTracker.checkConnection();
         if (playerTracker.isRemoved) {
@@ -452,10 +451,10 @@ GameServer.prototype.updateClients = function() {
         }
     }
     // update
-    for (var i = 0; i < clients; i++) {
+    for (var i = 0; i < this.clients.length; i++) {
         this.clients[i].playerTracker.updateTick();
     }
-    for (var i = 0; i < clients; i++) {
+    for (var i = 0; i < this.clients.length; i++) {
         this.clients[i].playerTracker.sendUpdate();
     }
 };
