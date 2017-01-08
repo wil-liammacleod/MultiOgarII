@@ -309,7 +309,7 @@ GameServer.prototype.onClientSocketOpen = function(ws) {
 
 GameServer.prototype.checkMinion = function(ws) {
     // Check headers (maybe have a config for this?)
-    if (!ws.upgradeReq.headers['user-agent'] || !ws.upgradeReq.headers['accept-encoding']) {
+    if (!ws.upgradeReq.headers['user-agent'] && !ws.upgradeReq.headers['accept-encoding']) {
         ws.playerTracker.isMinion = true;
     }
     // External minion detection
