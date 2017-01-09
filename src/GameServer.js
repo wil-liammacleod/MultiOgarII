@@ -714,11 +714,14 @@ GameServer.prototype.movePlayer = function(cell1, client) {
 };
 
 GameServer.prototype.autoSplit = function(cell1, client) {
+    // square size limit if client is in rec mode
+    if (!client.rec) var maxSize = this.config.playerMaxSize; 
+    else var maxSize = this.config.playerMaxSize * this.config.playerMaxSize;
     // check size limit
-    if (!client.mergeOverride && cell1._size > this.config.playerMaxSize) {
+    if (!client.mergeOverride && cell1._size > maxSize) {
         if (client.cells.length >= this.config.playerMaxCells || this.config.mobilePhysics) {
             // cannot split => just limit
-            cell1.setSize(this.config.playerMaxSize);
+            cell1.setSize(maxSize);
             if (this.config.mobilePhysics) return;
         } else {
             // split
