@@ -155,10 +155,10 @@ Commands.list = {
             
             if (client.pID == id) {
                 // Remove minions
-                if (client.minionControl == true && isNaN(add)) {
+                if (client.minionControl === true && isNaN(add)) {
                     client.minionControl = false;
                     client.miQ = 0;
-                    Logger.print("Succesfully removed minions for " + client.getFriendlyName());
+                    Logger.print("Succesfully removed minions for " + getName(client._name));
                 // Add minions
                 } else {
                     client.minionControl = true;
@@ -167,7 +167,7 @@ Commands.list = {
                     for (var i = 0; i < add; i++) {
                         gameServer.bots.addMinion(client, name);
                     }
-                    Logger.print("Added " + add + " minions for " + client.getFriendlyName());
+                    Logger.print("Added " + add + " minions for " + getName(client._name));
                 }
                 break;
             }
@@ -188,7 +188,7 @@ Commands.list = {
         // Error message
         var logInvalid = "Please specify a valid player ID or IP address!";
         
-        if (split[1] == null) {
+        if (split[1] === null) {
             // If no input is given; added to avoid error
             Logger.warn(logInvalid);
             return;
@@ -228,10 +228,10 @@ Commands.list = {
             Logger.warn(logInvalid);
             return;
         }
-        ip = null;
+        var ip = null;
         for (var i in gameServer.clients) {
             var client = gameServer.clients[i];
-            if (client == null || !client.isConnected)
+            if (client === null || !client.isConnected)
                 continue;
             if (client.playerTracker.pID == id) {
                 ip = client._socket.remoteAddress;
@@ -247,8 +247,8 @@ Commands.list = {
         Logger.print("───────────────────────────────────");
                       
         for (var i = 0; i < gameServer.ipBanList.length; i += 2) {
-            Logger.print(" " + fillChar(gameServer.ipBanList[i], " ", 15) + " | " 
-                    + (gameServer.ipBanList.length === i + 1 ? "" : gameServer.ipBanList[i + 1])
+            Logger.print(" " + fillChar(gameServer.ipBanList[i], " ", 15) + " | " +
+                    (gameServer.ipBanList.length === i + 1 ? "" : gameServer.ipBanList[i + 1])
             );
         }
     },
@@ -264,13 +264,13 @@ Commands.list = {
         var removed = 0;
         for (var i = 0; i < gameServer.clients.length; i++) {
             var socket = gameServer.clients[i];
-            if (socket.isConnected != null) continue;
+            if (socket.isConnected !== null) continue;
             socket.close();
             removed++;
             if (removed >= toRemove)
                 break;
         }
-        if (removed == 0)
+        if (!removed)
             Logger.warn("Cannot find any bots");
         else if (toRemove == removed)
             Logger.warn("Kicked " + removed + " bots");
@@ -323,7 +323,7 @@ Commands.list = {
             value = parseInt(value);
         }
         
-        if (value == null || isNaN(value)) {
+        if (value === null || isNaN(value)) {
             Logger.warn("Invalid value: " + value);
             return;
         }
@@ -381,24 +381,22 @@ Commands.list = {
         // kick player
         var count = 0;
         gameServer.clients.forEach(function (socket) {
-            if (socket.isConnected == false)
+            if (socket.isConnected === false)
                return;
-            if (id != 0 && socket.playerTracker.pID != id)
+            if (id !== 0 && socket.playerTracker.pID != id)
                 return;
             // remove player cells
             Commands.list.kill(gameServer, split);
             // disconnect
             socket.close(1000, "Kicked from server");
-            var name = socket.playerTracker.getFriendlyName();
+            var name = getName(socket.playerTracker._name);
             Logger.print("Kicked \"" + name + "\"");
             gameServer.sendChatMessage(null, null, "Kicked \"" + name + "\""); // notify to don't confuse with server bug
             count++;
         }, this);
-        if (count > 0) return;
-        if (id == 0)
-            Logger.warn("No players to kick!");
-        else
-            Logger.warn("Player with ID " + id + " not found!");
+        if (count) return;
+        if (!id) Logger.warn("No players to kick!");
+        else Logger.warn("Player with ID " + id + " not found!");
     },
     mute: function (gameServer, args) {
         if (!args || args.length < 2) {
@@ -411,7 +409,7 @@ Commands.list = {
             return;
         }
         var player = playerById(id, gameServer);
-        if (player == null) {
+        if (player === null) {
             Logger.warn("Player with id=" + id + " not found!");
             return;
         }
@@ -419,7 +417,7 @@ Commands.list = {
             Logger.warn("Player with id=" + id + " already muted!");
             return;
         }
-        Logger.print("Player \"" + player.getFriendlyName() + "\" was muted");
+        Logger.print("Player \"" + getName(player._name) + "\" was muted");
         player.isMuted = true;
     },
     unmute: function (gameServer, args) {
@@ -433,7 +431,7 @@ Commands.list = {
             return;
         }
         var player = playerById(id, gameServer);
-        if (player == null) {
+        if (player === null) {
             Logger.warn("Player with id=" + id + " not found!");
             return;
         }
@@ -441,7 +439,7 @@ Commands.list = {
             Logger.warn("Player with id=" + id + " already not muted!");
             return;
         }
-        Logger.print("Player \"" + player.getFriendlyName() + "\" was unmuted");
+        Logger.print("Player \"" + getName(player._name) + "\" was unmuted");
         player.isMuted = false;
     },
     kickall: function (gameServer, split) {
@@ -449,24 +447,23 @@ Commands.list = {
         // kick player
         var count = 0;
         gameServer.clients.forEach(function (socket) {
-            if (socket.isConnected == false)
+            if (socket.isConnected === false)
                return;
-            if (this.id != 0 && socket.playerTracker.pID != this.id)
+            if (this.id !== 0 && socket.playerTracker.pID != this.id)
                 return;
             // remove player cells
             Commands.list.killall(gameServer, split);
             // disconnect
             socket.close(1000, "Kicked from server");
-            var name = socket.playerTracker.getFriendlyName();
+            var name = getName(socket.playerTracker._name);
             Logger.print("Kicked \"" + name + "\"");
             gameServer.sendChatMessage(null, null, "Kicked \"" + name + "\""); // notify to don't confuse with server bug
             count++;
         }, this);
-        if (count > 0) return;
-        if (this.id == 0)
-            Logger.warn("No players to kick!");
-        else
-            Logger.warn("Player with ID " + this.id + " not found!");
+      
+        if (count) return;
+        if (!this.id) Logger.warn("No players to kick!");
+        else Logger.warn("Player with ID " + this.id + " not found!");
     },
     kill: function (gameServer, split) {
         var id = parseInt(split[1]);
@@ -485,7 +482,7 @@ Commands.list = {
                     count++;
                 }
                 
-                Logger.print("Killed " + client.getFriendlyName() + " and removed " + count + " cells");
+                Logger.print("Killed " + getName(client._name) + " and removed " + count + " cells");
                 break;
             }
         }
@@ -522,7 +519,7 @@ Commands.list = {
                 for (var j in client.cells) {
                     client.cells[j].setSize(size);
                 }
-                Logger.print("Set mass of " + client.getFriendlyName() + " to " + (size * size / 100).toFixed(3));
+                Logger.print("Set mass of " + getName(client._name) + " to " + (size * size / 100).toFixed(3));
                 break;
             }
         }
@@ -546,7 +543,7 @@ Commands.list = {
             if (gameServer.clients[i].playerTracker.pID == id) {
                 var client = gameServer.clients[i].playerTracker;
                 client.spawnmass = size;
-                Logger.print("Set spawnmass of "+ client.getFriendlyName() + " to " + (size * size / 100).toFixed(3));
+                Logger.print("Set spawnmass of "+ getName(client._name) + " to " + (size * size / 100).toFixed(3));
             }
         }
     },   
@@ -578,7 +575,7 @@ Commands.list = {
                 };
             }
         }
-        Logger.print("Set base speed of "+ client.getFriendlyName() + " to " + speed);
+        Logger.print("Set base speed of "+ getName(client._name) + " to " + speed);
     },
     merge: function (gameServer, split) {
         // Validation checks
@@ -628,8 +625,8 @@ Commands.list = {
             }
             state = client.mergeOverride;
         }
-        if (state) Logger.print(client.getFriendlyName() + " is now force merging");
-        else Logger.print(client.getFriendlyName() + " isn't force merging anymore");
+        if (state) Logger.print(getName(client._name) + " is now force merging");
+        else Logger.print(getName(client._name) + " isn't force merging anymore");
     },
     rec: function (gameServer, split) {
         var id = parseInt(split[1]);
@@ -643,8 +640,8 @@ Commands.list = {
             if (gameServer.clients[i].playerTracker.pID == id) {
                 var client = gameServer.clients[i].playerTracker;
                 client.rec = !client.rec;
-                if (client.rec) Logger.print(client.getFriendlyName() + " is now in rec mode!");
-                else Logger.print(client.getFriendlyName() + " is no longer in rec mode");
+                if (client.rec) Logger.print(getName(client._name) + " is now in rec mode!");
+                else Logger.print(getName(client._name) + " is no longer in rec mode");
             }
         }
     },
@@ -669,7 +666,7 @@ Commands.list = {
                 for (var i = 0; i < count; i++) {
                     gameServer.splitCells(client);
                 }
-                Logger.print("Forced " + client.getFriendlyName() + " to split " + count + " times");
+                Logger.print("Forced " + getName(client._name) + " to split " + count + " times");
                 break;
             }
         }
@@ -693,7 +690,7 @@ Commands.list = {
             var client = gameServer.clients[i].playerTracker;
             
             if (client.pID == id) {
-                Logger.print("Changing " + client.getFriendlyName() + " to " + name);
+                Logger.print("Changing " + getName(client._name) + " to " + name);
                 client.setName(name);
                 return;
             }
@@ -717,18 +714,18 @@ Commands.list = {
             Logger.warn("Please specify skin name!");
         }
         var player = playerById(id, gameServer);
-        if (player == null) {
+        if (player === null) {
             Logger.warn("Player with id=" + id + " not found!");
             return;
         }
         if (player.cells.length > 0) {
             Logger.warn("Player is alive, skin will not be applied to existing cells");
         }
-        Logger.print("Player \"" + player.getFriendlyName() + "\"'s skin is changed to " + skin);
+        Logger.print("Player \"" + getName(player._name) + "\"'s skin is changed to " + skin);
         player.setSkin(skin);
     },
     unban: function (gameServer, split) {
-        if (split.length < 2 || split[1] == null || split[1].trim().length < 1) {
+        if (split.length < 2 || split[1] === null || split[1].trim().length < 1) {
             Logger.warn("Please specify a valid IP!");
             return;
         }
@@ -766,12 +763,12 @@ Commands.list = {
             var id = fillChar((client.pID), ' ', 6, true);
             
             // Get ip (15 digits length)
-            if (socket.isConnected != null) {
+            if (socket.isConnected !== null) {
                 ip = socket.remoteAddress;
             }
             ip = fillChar(ip, ' ', 15);
             var protocol = gameServer.clients[i].packetHandler.protocol;
-            if (protocol == null)
+            if (protocol === null)
                 protocol = "?";
             // Get name and data
             var nick = '',
@@ -779,7 +776,7 @@ Commands.list = {
                 score = '',
                 position = '',
                 data = '';
-            if (socket.closeReason != null) {
+            if (socket.closeReason !== null) {
                 // Disconnected
                 var reason = "[DISCONNECTED] ";
                 if (socket.closeReason.code)
@@ -793,16 +790,16 @@ Commands.list = {
                 nick = "in free-roam";
                 if (!client.freeRoam) {
                     var target = client.getSpectateTarget();
-                    if (target != null) {
-                        nick = target.getFriendlyName();
+                    if (target !== null) {
+                        nick = getName(target._name);
                     }
                 }
                 data = fillChar("SPECTATING: " + nick, '-', ' | CELLS | SCORE  | POSITION    '.length + gameServer.config.playerMaxNickLength, true);
                 Logger.print(" " + id + " | " + ip + " | " + protocol + " | " + data);
-            } else if (client.cells.length > 0) {
-                nick = fillChar(client.getFriendlyName(), ' ', gameServer.config.playerMaxNickLength);
+            } else if (client.cells.length) {
+                nick = fillChar(getName(client._name), ' ', gameServer.config.playerMaxNickLength);
                 cells = fillChar(client.cells.length, ' ', 5, true);
-                score = fillChar((client.getScore() / 100) >> 0, ' ', 6, true);
+                score = fillChar(client._score >> 0, ' ', 6, true);
                 position = fillChar(client.centerPos.x >> 0, ' ', 5, true) + ', ' + fillChar(client.centerPos.y >> 0, ' ', 5, true);
                 Logger.print(" " + id + " | " + ip + " | " + protocol + " | " + cells + " | " + score + " | " + position + " | " + nick);
             } else {
@@ -829,9 +826,9 @@ Commands.list = {
                 var client = gameServer.clients[i].playerTracker;
                 client.frozen = !client.frozen;
                 if (client.frozen) {
-                    Logger.print("Froze " + client.getFriendlyName());
+                    Logger.print("Froze " + getName(client._name));
                 } else {
-                    Logger.print("Unfroze " + client.getFriendlyName());
+                    Logger.print("Unfroze " + getName(client._name));
                 }
                 break;
             }
@@ -889,7 +886,7 @@ Commands.list = {
                     gameServer.updateNodeQuad(client.cells[j]);
                 }
                 
-                Logger.print("Teleported " + client.getFriendlyName() + " to (" + pos.x + " , " + pos.y + ")");
+                Logger.print("Teleported " + getName(client._name) + " to (" + pos.x + " , " + pos.y + ")");
                 break;
             }
         }
@@ -963,16 +960,16 @@ Commands.list = {
                     if (ent == "virus") {
                         var virus = new Entity.Virus(gameServer, null, cell.position, cell._size);
                         gameServer.addNode(virus);
-                        Logger.print("Replaced " + client.getFriendlyName() + " with a virus");
+                        Logger.print("Replaced " + getName(client._name) + " with a virus");
                     } else if (ent == "food") {
                         var food = new Entity.Food(gameServer, null, cell.position, cell._size);
                         food.setColor(gameServer.getRandomColor());
                         gameServer.addNode(food);
-                        Logger.print("Replaced " + client.getFriendlyName() + " with a food cell");
+                        Logger.print("Replaced " + getName(client._name) + " with a food cell");
                     } else if (ent == "mothercell") {
                         var mother = new Entity.MotherCell(gameServer, null, cell.position, cell._size);
                         gameServer.addNode(mother);
-                        Logger.print("Replaced " + client.getFriendlyName() + " with a mothercell");
+                        Logger.print("Replaced " + getName(client._name) + " with a mothercell");
                     }
                 }
             }
@@ -989,7 +986,7 @@ Commands.list = {
                 var client = gameServer.clients[i].playerTracker;
                 var virus = new Entity.Virus(gameServer, null, client.centerPos, gameServer.config.virusMinSize);
                 gameServer.addNode(virus);
-                Logger.print("Popped " + client.getFriendlyName());
+                Logger.print("Popped " + getName(client._name));
             }
         }
     },
@@ -1025,7 +1022,7 @@ Commands.list = {
                     }
                     cell.setSize(gameServer.config.playerMinSize);
                 }
-                Logger.print("Successfully exploded " + client.getFriendlyName());
+                Logger.print("Successfully exploded " + getName(client._name));
             }
         }
     },
@@ -1089,8 +1086,8 @@ Commands.list = {
 
 // functions from GameServer
 
-function playerById (id, gameServer) {
-    if (id == null) return null;
+function playerById(id, gameServer) {
+    if (id === null) return null;
     for (var i = 0; i < gameServer.clients.length; i++) {
         var playerTracker = gameServer.clients[i].playerTracker;
         if (playerTracker.pID == id) {
@@ -1100,7 +1097,7 @@ function playerById (id, gameServer) {
     return null;
 }
 
-function saveIpBanList (gameServer) {
+function saveIpBanList(gameServer) {
     var fs = require("fs");
     try {
         var blFile = fs.createWriteStream('../src/ipbanlist.txt');
@@ -1116,7 +1113,7 @@ function saveIpBanList (gameServer) {
     }
 }
 
-function ban (gameServer, split, ip) {
+function ban(gameServer, split, ip) {
     var ipBin = ip.split('.');
     if (ipBin.length != 4) {
         Logger.warn("Invalid IP format: " + ip);
@@ -1130,15 +1127,23 @@ function ban (gameServer, split, ip) {
     }
     gameServer.clients.forEach(function (socket) {
         // If already disconnected or the ip does not match
-        if (socket == null || !socket.isConnected || !gameServer.checkIpBan(socket.remoteAddress))
+        if (socket === null || !socket.isConnected || !gameServer.checkIpBan(socket.remoteAddress))
             return;
         // remove player cells
         Commands.list.kill(gameServer, split);
         // disconnect
         socket.close(null, "Banned from server");
-        var name = socket.playerTracker.getFriendlyName();
+        var name = getName(socket.playerTracker._name);
         Logger.print("Banned: \"" + name + "\" with Player ID " + socket.playerTracker.pID);
         gameServer.sendChatMessage(null, null, "Banned \"" + name + "\""); // notify to don't confuse with server bug
     }, gameServer);
     saveIpBanList(gameServer);
+}
+
+// functions from PlayerTracker
+
+function getName(name) {
+    if (!name.length) 
+        name = "An unnamed cell";
+    return name.trim();
 }
