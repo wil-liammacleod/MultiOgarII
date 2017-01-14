@@ -88,7 +88,7 @@ module.exports = PlayerTracker;
 
 // Setters/Getters
 
-PlayerTracker.prototype.scramble = function () {
+PlayerTracker.prototype.scramble = function() {
     if (!this.gameServer.config.serverScrambleLevel) {
         this.scrambleId = 0;
         this.scrambleX = 0;
@@ -108,7 +108,7 @@ PlayerTracker.prototype.scramble = function () {
     this.borderCounter = 0;
 };
 
-PlayerTracker.prototype.setName = function (name) {
+PlayerTracker.prototype.setName = function(name) {
     this._name = name;
     if (!name || !name.length) {
         this._nameUnicode = null;
@@ -123,7 +123,7 @@ PlayerTracker.prototype.setName = function (name) {
     this._nameUtf8 = writer.toBuffer();
 };
 
-PlayerTracker.prototype.setSkin = function (skin) {
+PlayerTracker.prototype.setSkin = function(skin) {
     this._skin = skin;
     if (!skin || !skin.length) {
         this._skinUtf8 = null;
@@ -134,18 +134,18 @@ PlayerTracker.prototype.setSkin = function (skin) {
     this._skinUtf8 = writer.toBuffer();
 };
 
-PlayerTracker.prototype.setColor = function (color) {
+PlayerTracker.prototype.setColor = function(color) {
     this.color.r = color.r;
     this.color.g = color.g;
     this.color.b = color.b;
 };
 
-PlayerTracker.prototype.getScale = function () {
+PlayerTracker.prototype.getScale = function() {
     if (this.isMassChanged) this.updateMass();
     return this._scale;
 };
 
-PlayerTracker.prototype.updateMass = function () {
+PlayerTracker.prototype.updateMass = function() {
     this._score = 0; // reset to not cause bugs with playerlist
     for (var i = 0; i < this.cells.length; i++) {
         var node = this.cells[i];
@@ -161,7 +161,7 @@ PlayerTracker.prototype.updateMass = function () {
     this.isMassChanged = false;
 };
 
-PlayerTracker.prototype.joinGame = function (name, skin) {
+PlayerTracker.prototype.joinGame = function(name, skin) {
     if (this.cells.length) return;
     if (skin) this.setSkin(skin);
     if (name === null) name = "An unnamed cell";
@@ -196,7 +196,7 @@ PlayerTracker.prototype.joinGame = function (name, skin) {
     this.gameServer.gameMode.onPlayerSpawn(this.gameServer, this);
 };
 
-PlayerTracker.prototype.checkConnection = function () {
+PlayerTracker.prototype.checkConnection = function() {
     // Handle disconnection
     if (!this.socket.isConnected) {
         // wait for playerDisconnectTime
@@ -229,7 +229,7 @@ PlayerTracker.prototype.checkConnection = function () {
     }
 };
 
-PlayerTracker.prototype.updateTick = function () {
+PlayerTracker.prototype.updateTick = function() {
     if (this.isRemoved) return;
     this.socket.packetHandler.process();
     if (this.gameServer.clients.length > 800 && this.isMi) return;
@@ -272,7 +272,7 @@ PlayerTracker.prototype.updateTick = function () {
     this.viewNodes.sort(function (a, b) { return a.nodeId - b.nodeId; });
 };
 
-PlayerTracker.prototype.sendUpdate = function () {
+PlayerTracker.prototype.sendUpdate = function() {
     if (this.isRemoved || !this.socket.packetHandler.protocol ||
         !this.socket.isConnected || this.isMi || this.isMinion ||
         (this.socket._socket.writable !== null && !this.socket._socket.writable) || 
@@ -374,7 +374,7 @@ PlayerTracker.prototype.sendUpdate = function () {
     }
 };
 
-PlayerTracker.prototype.updateCenterInGame = function () { // Get center of cells
+PlayerTracker.prototype.updateCenterInGame = function() { // Get center of cells
     if (!this.cells.length) return;
     var cx = 0;
     var cy = 0;
@@ -390,7 +390,7 @@ PlayerTracker.prototype.updateCenterInGame = function () { // Get center of cell
 	this.centerPos.y = cy / count;
 };
 
-PlayerTracker.prototype.updateCenterFreeRoam = function () {
+PlayerTracker.prototype.updateCenterFreeRoam = function() {
     var dx = this.mouse.x - this.centerPos.x;
     var dy = this.mouse.y - this.centerPos.y;
     var squared = dx * dx + dy * dy;
@@ -408,7 +408,7 @@ PlayerTracker.prototype.updateCenterFreeRoam = function () {
     this.setCenterPos(x, y);
 };
 
-PlayerTracker.prototype.pressSpace = function () {
+PlayerTracker.prototype.pressSpace = function() {
     if (this.spectate) {
         // Check for spam first (to prevent too many add/del updates)
         var tick = this.gameServer.tickCounter;
@@ -430,7 +430,7 @@ PlayerTracker.prototype.pressSpace = function () {
     }
 };
 
-PlayerTracker.prototype.pressW = function () {
+PlayerTracker.prototype.pressW = function() {
     if (this.spectate) {
         return;
     }
@@ -439,7 +439,7 @@ PlayerTracker.prototype.pressW = function () {
     }
 };
 
-PlayerTracker.prototype.pressQ = function () {
+PlayerTracker.prototype.pressQ = function() {
     if (this.spectate) {
         // Check for spam first (to prevent too many add/del updates)
         var tick = this.gameServer.tickCounter;
@@ -454,7 +454,7 @@ PlayerTracker.prototype.pressQ = function () {
     }
 };
 
-PlayerTracker.prototype.getSpectateTarget = function () {
+PlayerTracker.prototype.getSpectateTarget = function() {
     if (this.spectateTarget === null || this.spectateTarget.isRemoved || this.spectateTarget.cells.length < 1) {
         this.spectateTarget = null;
         return this.gameServer.largestClient;
@@ -462,7 +462,7 @@ PlayerTracker.prototype.getSpectateTarget = function () {
     return this.spectateTarget;
 };
 
-PlayerTracker.prototype.setCenterPos = function (x, y) {
+PlayerTracker.prototype.setCenterPos = function(x, y) {
     x = Math.max(x, this.gameServer.border.minx);
     y = Math.max(y, this.gameServer.border.miny);
     x = Math.min(x, this.gameServer.border.maxx);
