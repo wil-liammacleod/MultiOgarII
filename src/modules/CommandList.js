@@ -123,19 +123,15 @@ Commands.list = {
     },
     reset: function(gameServer, split) {
         Logger.warn("Removed " + gameServer.nodes.length + " nodes");
-        while (gameServer.nodes.length) {
+        // Remove all nodes in the entire universe
+        while (gameServer.nodes.length)
             gameServer.removeNode(gameServer.nodes[0]);
-        }
-        // just to make sure the jobs done
-        while (gameServer.nodesEjected.length) {
+        while (gameServer.nodesEjected.length)
             gameServer.removeNode(gameServer.nodesEjected[0]);
-        }
-        while (gameServer.nodesFood.length) {
+        while (gameServer.nodesFood.length)
             gameServer.removeNode(gameServer.nodesFood[0]);
-        }
-        while (gameServer.nodesVirus.length) {
+        while (gameServer.nodesVirus.length)
             gameServer.removeNode(gameServer.nodesVirus[0]);
-        }
         Commands.list.killall(gameServer, split);
     },
     minion: function(gameServer, split) {
@@ -231,7 +227,7 @@ Commands.list = {
         var ip = null;
         for (var i in gameServer.clients) {
             var client = gameServer.clients[i];
-            if (client === null || !client.isConnected)
+            if (!client || !client.isConnected)
                 continue;
             if (client.playerTracker.pID == id) {
                 ip = client._socket.remoteAddress;
@@ -255,17 +251,14 @@ Commands.list = {
     kickbot: function(gameServer, split) {
         var toRemove = parseInt(split[1]);
         if (isNaN(toRemove)) {
-            toRemove = -1; // Kick all bots if user doesnt specify a number
-        }
-        if (toRemove < 1) {
-            Logger.warn("Invalid argument!");
-            return;
+            // Kick all bots if user doesnt specify a number
+            toRemove = gameServer.clients.length; 
         }
         var removed = 0;
         for (var i = 0; i < gameServer.clients.length; i++) {
-            var socket = gameServer.clients[i];
-            if (socket.isConnected != null) continue;
-            socket.close();
+            if (gameServer.clients[i].isConnected != null) 
+                continue; // verify that the client is a bot
+            gameServer.clients[i].close();
             removed++;
             if (removed >= toRemove)
                 break;
@@ -278,13 +271,12 @@ Commands.list = {
             Logger.warn("Only " + removed + " bots were kicked");
     },
     board: function(gameServer, split) {
-        var newLB = [], reset = split[1];
+        var newLB = [];
+        var reset = split[1];
+        
         for (var i = 1; i < split.length; i++) {
-            if (split[i]) {
-                newLB[i - 1] = split[i];
-            } else {
-                newLB[i - 1] = " ";
-            }
+            if (split[i]) newLB[i - 1] = split[i];
+            else newLB[i - 1] = " ";
         }
         
         // Clears the update leaderboard function and replaces it with our own
@@ -297,8 +289,7 @@ Commands.list = {
         if (reset != "reset") {
             Logger.print("Successfully changed leaderboard values");
             Logger.print('Do "board reset" to reset leaderboard');
-        }
-        if (reset == "reset") {
+        } else {
             // Gets the current gamemode
             var gm = GameMode.get(gameServer.gameMode.ID);
         
@@ -323,7 +314,7 @@ Commands.list = {
             value = parseInt(value);
         }
         
-        if (value === null || isNaN(value)) {
+        if (!value || isNaN(value)) {
             Logger.warn("Invalid value: " + value);
             return;
         }
@@ -394,11 +385,9 @@ Commands.list = {
             gameServer.sendChatMessage(null, null, "Kicked \"" + name + "\""); // notify to don't confuse with server bug
             count++;
         }, this);
-        if (count > 0) return;
-        if (!id)
-            Logger.warn("No players to kick!");
-        else
-            Logger.warn("Player with ID " + id + " not found!");
+        if (count) return;
+        if (!id) Logger.warn("No players to kick!");
+        else Logger.warn("Player with ID " + id + " not found!");
     },
     mute: function(gameServer, args) {
         if (!args || args.length < 2) {
@@ -411,7 +400,7 @@ Commands.list = {
             return;
         }
         var player = playerById(id, gameServer);
-        if (player === null) {
+        if (!player) {
             Logger.warn("Player with id=" + id + " not found!");
             return;
         }
@@ -567,68 +556,41 @@ Commands.list = {
                 var client = gameServer.clients[i].playerTracker;
                 client.customspeed = speed;
                 // override getSpeed function from PlayerCell
-                Entity.PlayerCell.prototype.getSpeed = function () {
+                Entity.PlayerCell.prototype.getSpeed = function (dist) {
                     var speed = 2.1106 / Math.pow(this._size, 0.449);
+                    var normalizedDist = Math.min(dist, 32) / 32;
                     // tickStep = 40ms
                     this._speed = (this.owner.customspeed > 0) ? 
                     speed * 40 * this.owner.customspeed : // Set by command
                     speed * 40 * this.gameServer.config.playerSpeed;
-                    return this._speed;
+                    return this._speed * normalizedDist;
                 };
             }
         }
-        Logger.print("Set base speed of "+ getName(client._name) + " to " + speed);
+        Logger.print("Set base speed of " + getName(client._name) + " to " + speed);
     },
     merge: function(gameServer, split) {
         // Validation checks
         var id = parseInt(split[1]);
-        var set = split[2];
         if (isNaN(id)) {
             Logger.warn("Please specify a valid player ID!");
             return;
         }
         
         // Find client with same ID as player entered
-        var client;
         for (var i = 0; i < gameServer.clients.length; i++) {
             if (id == gameServer.clients[i].playerTracker.pID) {
-                client = gameServer.clients[i].playerTracker;
-                break;
+                var client = gameServer.clients[i].playerTracker;
+                if (client.cells.length == 1) {
+                    Logger.warn("Client already has one cell!");
+                    return;
+                }
+                // Set client's merge override
+                client.mergeOverride = !client.mergeOverride;
+                if (client.mergeOverride) Logger.print(getName(client._name) + " is now force merging");
+                else Logger.print(getName(client._name) + " isn't force merging anymore");
             }
         }
-        
-        if (!client) {
-            Logger.warn("Client is nonexistent!");
-            return;
-        }
-        
-        if (client.cells.length == 1) {
-            Logger.warn("Client already has one cell!");
-            return;
-        }
-        
-        // Set client's merge override
-        var state;
-        if (set == "true") {
-            client.mergeOverride = true;
-            client.mergeOverrideDuration = 100;
-            state = true;
-        } else if (set == "false") {
-            client.mergeOverride = false;
-            client.mergeOverrideDuration = 0;
-            state = false;
-        } else {
-            if (client.mergeOverride) {
-                client.mergeOverride = false;
-                client.mergeOverrideDuration = 0;
-            } else {
-                client.mergeOverride = true;
-                client.mergeOverrideDuration = 100;
-            }
-            state = client.mergeOverride;
-        }
-        if (state) Logger.print(getName(client._name) + " is now force merging");
-        else Logger.print(getName(client._name) + " isn't force merging anymore");
     },
     rec: function(gameServer, split) {
         var id = parseInt(split[1]);
@@ -716,18 +678,18 @@ Commands.list = {
             Logger.warn("Please specify skin name!");
         }
         var player = playerById(id, gameServer);
-        if (player === null) {
-            Logger.warn("Player with id=" + id + " not found!");
+        if (!player) {
+            Logger.warn("Player with id =" + id + " not found!");
             return;
         }
-        if (player.cells.length > 0) {
+        if (player.cells.length) {
             Logger.warn("Player is alive, skin will not be applied to existing cells");
         }
         Logger.print("Player \"" + getName(player._name) + "\"'s skin is changed to " + skin);
         player.setSkin(skin);
     },
     unban: function(gameServer, split) {
-        if (split.length < 2 || split[1] === null || split[1].trim().length < 1) {
+        if (split.length < 2 || !split[1] || split[1].trim().length < 1) {
             Logger.warn("Please specify a valid IP!");
             return;
         }
@@ -752,7 +714,7 @@ Commands.list = {
         for (var i = 0; i < sockets.length; i++) {
             var socket = sockets[i];
             var client = socket.playerTracker;
-            var ip = (client.isMi) ? "[MINION]" : "[BOT]";
+            var ip = client.isMi ? "[MINION]" : "[BOT]";
             var type = split[1];
             
             // list minions
@@ -770,8 +732,7 @@ Commands.list = {
             }
             ip = fillChar(ip, ' ', 15);
             var protocol = gameServer.clients[i].packetHandler.protocol;
-            if (protocol === null)
-                protocol = "?";
+            if (!protocol) protocol = "?";
             // Get name and data
             var nick = '',
                 cells = '',
@@ -826,13 +787,10 @@ Commands.list = {
         for (var i in gameServer.clients) {
             if (gameServer.clients[i].playerTracker.pID == id) {
                 var client = gameServer.clients[i].playerTracker;
+                // set frozen state
                 client.frozen = !client.frozen;
-                if (client.frozen) {
-                    Logger.print("Froze " + getName(client._name));
-                } else {
-                    Logger.print("Unfroze " + getName(client._name));
-                }
-                break;
+                if (client.frozen) Logger.print("Froze " + getName(client._name));
+                else Logger.print("Unfroze " + getName(client._name));
             }
         }
     },
@@ -887,7 +845,6 @@ Commands.list = {
                     client.cells[j].position.y = pos.y;
                     gameServer.updateNodeQuad(client.cells[j]);
                 }
-                
                 Logger.print("Teleported " + getName(client._name) + " to (" + pos.x + " , " + pos.y + ")");
                 break;
             }
@@ -1005,21 +962,18 @@ Commands.list = {
                     var cell = client.cells[i];
                     while (cell._size > gameServer.config.playerMinSize) {
                         // remove mass from parent cell
+                        var Agarian = 6.28 * Math.random();
                         var loss = gameServer.config.ejectSizeLoss;
-                        var sq = cell._sizeSquared - loss * loss;
-                        cell.setSize(Math.sqrt(sq));
+                        var size = cell._sizeSquared - loss * loss;
+                        cell.setSize(Math.sqrt(size));
                         // explode the cell
-                        var dx = client.mouse.x - cell.position.x;
-                        var dy = client.mouse.y - cell.position.y;
-                        dx /= Math.sqrt(dx * dx + dy * dy);
-                        dy /= Math.sqrt(dx * dx + dy * dy);
                         var pos = {
-                            x: cell.position.x + dx * cell._size,
-                            y: cell.position.y + dy * cell._size
+                            x: cell.position.x + Agarian,
+                            y: cell.position.y + Agarian
                         };
                         var ejected = new Entity.EjectedMass(gameServer, null, pos, gameServer.config.ejectSize);
                         ejected.setColor(cell.color);
-                        ejected.setBoost(780 * Math.random(), 6.28 * Math.random());
+                        ejected.setBoost(780 * Math.random(), Agarian);
                         gameServer.addNode(ejected);
                     }
                     cell.setSize(gameServer.config.playerMinSize);
@@ -1089,7 +1043,7 @@ Commands.list = {
 // functions from GameServer
 
 function playerById(id, gameServer) {
-    if (id === null) return null;
+    if (!id) return null;
     for (var i = 0; i < gameServer.clients.length; i++) {
         var playerTracker = gameServer.clients[i].playerTracker;
         if (playerTracker.pID == id) {
@@ -1129,7 +1083,7 @@ function ban(gameServer, split, ip) {
     }
     gameServer.clients.forEach(function (socket) {
         // If already disconnected or the ip does not match
-        if (socket === null || !socket.isConnected || !gameServer.checkIpBan(socket.remoteAddress))
+        if (!socket || !socket.isConnected || !gameServer.checkIpBan(socket.remoteAddress))
             return;
         // remove player cells
         Commands.list.kill(gameServer, split);
