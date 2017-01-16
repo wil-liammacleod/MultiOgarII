@@ -234,7 +234,7 @@ PlayerTracker.prototype.updateTick = function() {
     this.socket.packetHandler.process();
     if (this.gameServer.clients.length > 800 && this.isMi) return;
     if (this.spectate) {
-        if (this.freeRoam || this.getSpectateTarget() === null) {
+        if (this.freeRoam || this.getSpectateTarget() == null) {
             // free roam
             this.updateCenterFreeRoam();
             this._scale = this.gameServer.config.serverSpectatorScale; // 0.25;
@@ -263,13 +263,13 @@ PlayerTracker.prototype.updateTick = function() {
     this.viewNodes = [];
     if (!this.isMinion || !this.isMi) {
         var self = this;
-        this.gameServer.quadTree.find(this.viewBox, function (quadItem) {
+        this.gameServer.quadTree.find(this.viewBox, function(quadItem) {
             if (quadItem.cell.owner != self)
                 self.viewNodes.push(quadItem.cell);
         });
     }
     this.viewNodes = this.viewNodes.concat(this.cells);
-    this.viewNodes.sort(function (a, b) { return a.nodeId - b.nodeId; });
+    this.viewNodes.sort(function(a, b) { return a.nodeId - b.nodeId; });
 };
 
 PlayerTracker.prototype.sendUpdate = function() {
@@ -286,7 +286,7 @@ PlayerTracker.prototype.sendUpdate = function() {
         if (!this.freeRoam) {
             // spectate target
             var player = this.getSpectateTarget();
-            if (player !== null) {
+            if (player) {
                 this.setCenterPos(player.centerPos.x, player.centerPos.y);
                 this._scale = player.getScale();
                 this.viewBox = player.viewBox;
@@ -447,7 +447,7 @@ PlayerTracker.prototype.pressQ = function() {
             return;
         this.lastKeypressTick = tick;
         
-        if (this.spectateTarget === null) {
+        if (this.spectateTarget == null) {
             this.freeRoam = !this.freeRoam;
         }
         this.spectateTarget = null;
