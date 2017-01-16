@@ -634,7 +634,7 @@ GameServer.prototype.updateMassDecay = function(cell1) {
         return;
     // get actual decay rate
     if (cap && cell1._mass > cap) rate /= 1.01;
-    var decay = rate * this.gameMode.decayMod;
+    var decay = 1 - rate * this.gameMode.decayMod;
     // remove size from cell(s)
     size = Math.sqrt(size * size * decay);
     size = Math.max(size, this.config.playerMinSize);
