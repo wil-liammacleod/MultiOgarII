@@ -455,7 +455,7 @@ GameServer.prototype.updateLeaderboard = function() {
 };
 
 GameServer.prototype.onChatMessage = function(from, to, message) {
-    if (message === null) return;
+    if (!message) return;
     message = message.trim();
     if (message === "") return;
     if (from && message.length > 0 && message[0] == '/') {
@@ -506,8 +506,8 @@ GameServer.prototype.checkBadWord = function(value) {
 GameServer.prototype.sendChatMessage = function(from, to, message) {
     for (var i = 0, len = this.clients.length; i < len; i++) {
         var client = this.clients[i];
-        if (client === null) continue;
-        if (to === null || to == client.playerTracker)
+        if (!client) continue;
+        if (!to || to == client.playerTracker)
             client.sendPacket(new Packet.ChatMessage(from, message));
     }
 };
@@ -658,7 +658,7 @@ GameServer.prototype.moveCell = function(cell1) {
 };
 
 GameServer.prototype.movePlayer = function(cell1, client) {
-    if (client.socket.isConnected === false || client.frozen) 
+    if (client.socket.isConnected == false || client.frozen) 
         return;
     // TODO: use vector for distance(s)
     // get distance
@@ -1169,13 +1169,13 @@ GameServer.prototype.loadIpBanList = function() {
 
 // Custom prototype function
 WebSocket.prototype.sendPacket = function(packet) {
-    if (packet === null) return;
+    if (!packet) return;
     if (this.readyState == WebSocket.OPEN) {
-        if (this._socket.writable !== null && !this._socket.writable) {
+        if (this._socket.writable != null && !this._socket.writable) {
             return;
         }
         var buffer = packet.build(this.playerTracker.socket.packetHandler.protocol);
-        if (buffer !== null) {
+        if (buffer != null) {
             this.send(buffer, { binary: true });
         }
     } else {
@@ -1214,7 +1214,7 @@ GameServer.prototype.getStats = function() {
     var spectatePlayers = 0;
     for (var i = 0; i < this.clients.length; i++) {
         var socket = this.clients[i];
-        if (socket === null || !socket.isConnected)
+        if (!socket || !socket.isConnected)
             continue;
         totalPlayers++;
         if (socket.playerTracker.cells.length > 0)
@@ -1250,9 +1250,9 @@ GameServer.prototype.pingServerTracker = function() {
     var robotPlayers = 0;
     for (var i = 0; i < this.clients.length; i++) {
         var socket = this.clients[i];
-        if (socket === null || socket.isConnected === false)
+        if (!socket || socket.isConnected == false)
             continue;
-        if (socket.isConnected === null) {
+        if (socket.isConnected == null) {
             robotPlayers++;
         }
         else {
