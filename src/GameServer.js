@@ -19,7 +19,6 @@ function GameServer() {
     this.run = true;
     this.version = '1.5.0';
     this.httpServer = null;
-    this.wsServer = null;
     this.commands = null;
     this.lastNodeId = 1;
     this.lastPlayerId = 1;
@@ -30,7 +29,6 @@ function GameServer() {
     this.nodesVirus = [];   // Virus nodes
     this.nodesFood = [];    // Food nodes
     this.nodesEjected = []; // Ejected mass nodes
-    this.quadTree = null;
     
     this.movingNodes = []; // For move engine
     this.leaderboard = [];
@@ -202,10 +200,7 @@ GameServer.prototype.addNode = function(node) {
     var y = node.position.y;
     var size = node._size;
     node.quadItem = {
-        cell: node,
-        x: x,
-        y: y,
-        size: size,
+        cell: node, // update viewbox for players
         bound: { minx: x-size, miny: y-size, maxx: x+size, maxy: y+size }
     };
     this.quadTree.insert(node.quadItem);
@@ -290,7 +285,7 @@ GameServer.prototype.onClientSocketOpen = function(ws) {
     };
     var self = this;
     var onClose = function(reason) {
-        if (ws._socket.destroy !== null && typeof ws._socket.destroy == 'function') {
+        if (ws._socket.destroy != null && typeof ws._socket.destroy == 'function') {
             ws._socket.destroy();
         }
         self.socketCount--;
@@ -566,7 +561,7 @@ GameServer.prototype.mainLoop = function() {
             var client = this.clients[i].playerTracker;
             for (var j = 0; j < client.cells.length; j++) {
                 var cell1 = client.cells[j];
-                if (cell1.isRemoved || cell1 === null || client === null)
+                if (cell1.isRemoved || !cell1 || !client)
                     continue;
                 // move player cells
                 this.updateRemerge(cell1, client);
@@ -795,7 +790,7 @@ GameServer.prototype.resolveCollision = function(manifold) {
     if (cell.isRemoved || check.isRemoved)
         return;
     // check distance
-    var div = (this.config.mobilePhysics) ? 20 : 3;
+    var div = this.config.mobilePhysics ? 20 : 3;
     var eatDistance = check._size - cell._size / div;
     if (manifold.squared >= eatDistance * eatDistance) {
         return; // too far => can't eat
@@ -805,7 +800,7 @@ GameServer.prototype.resolveCollision = function(manifold) {
         if (cell.getAge() < 13 || check.getAge() < 13)
             return; // just splited => ignore
     } else {
-        if (check._size < cell._size * 1.15) return; // size check
+        if (check._size < cell._size * 1.11) return; // size check
         if (!check.canEat(cell)) return; // cell refuses to be eaten
     }
     // Now maxCell can eat minCell
@@ -1326,10 +1321,10 @@ GameServer.prototype.pingServerTracker = function() {
 };
 
 function trackerRequest(options, type, body) {
-    if (options.headers === null) options.headers = {};
+    if (options.headers == null) options.headers = {};
     options.headers['user-agent'] = 'MultiOgar-Edited' + this.version;
     options.headers['content-type'] = type;
-    options.headers['content-length'] = body === null ? 0 : Buffer.byteLength(body, 'utf8');
+    options.headers['content-length'] = body == null ? 0 : Buffer.byteLength(body, 'utf8');
     var req = http.request(options, function(res) {
         if (res.statusCode != 200) {
             Logger.writeError("[Tracker][" + options.host + "]: statusCode = " + res.statusCode);
