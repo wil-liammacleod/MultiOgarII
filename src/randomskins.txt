@@ -324,3 +324,9 @@ rhino_boxer
 street_bull
 husky_brawl
 kempo_tiger
+best_friends
+chrono_ranger
+cool_agent
+time_dude
+time_doctor
+wicked_cat
