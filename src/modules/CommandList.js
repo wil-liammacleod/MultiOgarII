@@ -314,7 +314,7 @@ Commands.list = {
             value = parseInt(value);
         }
         
-        if (!value || isNaN(value)) {
+        if (value == null || isNaN(value)) {
             Logger.warn("Invalid value: " + value);
             return;
         }
