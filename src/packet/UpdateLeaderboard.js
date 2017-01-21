@@ -19,7 +19,9 @@ UpdateLeaderboard.prototype.build = function (protocol) {
             // FFA
             if (protocol < 6)
                 return this.buildFfa5();
-            return this.buildFfa6();
+            else if (protocol < 11)
+                return this.buildFfa6();
+            else return this.buildFfa11();
         case 50:
             // Team
             return this.buildTeam();
@@ -41,8 +43,9 @@ UpdateLeaderboard.prototype.buildUserText = function (protocol) {
         name = name ? name : "";
         var id = 0;
         
+        if (protocol < 11)
         writer.writeUInt32(id >> 0);                        // isMe flag/cell ID
-        if (protocol <= 5)
+        if (protocol < 6)
             writer.writeStringZeroUnicode(name);
         else
             writer.writeStringZeroUtf8(name);
@@ -95,6 +98,29 @@ UpdateLeaderboard.prototype.buildFfa6 = function () {
         var id = item == player ? 1 : 0;
         
         writer.writeUInt32(id >>> 0);   // isMe flag
+        if (name != null)
+            writer.writeBytes(name);
+        else
+            writer.writeUInt8(0);
+    }
+    return writer.toBuffer();
+};
+
+// FFA protocol 11
+UpdateLeaderboard.prototype.buildFfa11 = function () {
+    var player = this.playerTracker;
+    if (player.spectate && player.spectateTarget != null) {
+        player = player.spectateTarget;
+    }
+    var writer = new BinaryWriter();
+    writer.writeUInt8(0x31);                                // Packet ID
+    writer.writeUInt32(this.leaderboard.length >>> 0);       // Number of elements
+    for (var i = 0; i < this.leaderboard.length; i++) {
+        var item = this.leaderboard[i];
+        if (item == null) return null;  // bad leaderboardm just don't send it
+        
+        var name = item._nameUtf8;
+        
         if (name != null)
             writer.writeBytes(name);
         else

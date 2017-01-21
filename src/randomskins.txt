@@ -330,3 +330,9 @@ cool_agent
 time_dude
 time_doctor
 wicked_cat
+duck_target
+bubblesaurus
+dynamite_guy
+neon_bug
+blue_swirl
+jumper
