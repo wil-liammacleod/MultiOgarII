@@ -71,8 +71,8 @@ function PlayerTracker(gameServer, socket) {
     
     // Gamemode function
     if (gameServer) {
-        this.centerPos.x = gameServer.border.centerx;
-        this.centerPos.y = gameServer.border.centery;
+        this.centerPos.x = 0;
+        this.centerPos.y = 0;
         // Player id
         this.pID = gameServer.lastPlayerId++ >> 0;
         // Gamemode function
