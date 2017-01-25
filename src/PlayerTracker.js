@@ -22,6 +22,7 @@ function PlayerTracker(gameServer, socket) {
     this._scale = 1;
     this.isMassChanged = true;
     this.borderCounter = 0;
+    this.connectedTime = new Date();
     
     this.tickLeaderboard = 0;
     this.team = 0;
