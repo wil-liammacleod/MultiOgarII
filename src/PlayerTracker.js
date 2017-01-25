@@ -217,6 +217,7 @@ PlayerTracker.prototype.checkConnection = function() {
         this.socket.packetHandler.pressSpace = false;
         this.socket.packetHandler.pressQ = false;
         this.socket.packetHandler.pressW = false;
+        this.minionControl = false;
         return;
     }
     // Check timeout
