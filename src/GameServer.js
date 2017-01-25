@@ -427,29 +427,31 @@ GameServer.prototype.removeNode = function(node) {
 GameServer.prototype.updateClients = function() {
     // check minions
     for (var i = 0; i < this.minionTest.length; ) {
-        var date = new Date();
-        if (this.stepDateTime - date > this.config.serverMinionInterval) {
+        var date = new Date() - this.minionTest[i].connectedTime;
+        if (date > this.config.serverMinionInterval)
             this.minionTest.splice(i, 1);
-        } else {
+        else
             i++;
-        }
     }
     // check dead clients
-    for (var i = 0; i < this.clients.length; ) {
+    var len = this.clients.length;
+    for (var i = 0; i < len; ) {
+    	if (!this.clients[i]) continue;
         var client = this.clients[i].playerTracker;
         client.checkConnection();
-        if (client.isRemoved) {
+        if (client.isRemoved)
             // remove dead client
             this.clients.splice(i, 1);
-        } else {
+        else
             i++;
-        }
     }
     // update
-    for (var i = 0; i < this.clients.length; i++) {
+    for (var i = 0; i < len; i++) {
+    	if (!this.clients[i]) continue;
         this.clients[i].playerTracker.updateTick();
     }
-    for (var i = 0; i < this.clients.length; i++) {
+    for (var i = 0; i < len; i++) {
+    	if (!this.clients[i]) continue;
         this.clients[i].playerTracker.sendUpdate();
     }
 };
@@ -691,7 +693,7 @@ GameServer.prototype.movePlayer = function(cell, client) {
 GameServer.prototype.autoSplit = function(cell, client) {
     // get size limit based off of rec mode
     if (!client.rec) var maxSize = this.config.playerMaxSize; 
-    else maxSize *= maxSize; // square limit
+    else maxSize = 1e9; // increase limit for rec (1 bil)
 
     // check size limit
     if (client.mergeOverride || cell._size < maxSize) return;
@@ -949,7 +951,7 @@ GameServer.prototype.splitCells = function(client) {
 
         // Get maximum cells for rec mode
         if (!client.rec) var maxCells = this.config.playerMaxCells;
-        else maxCells *= maxCells; // Square cell limit for rec
+        else maxCells = 200; // increase limit for rec (200 cells)
         if (client.cells.length >= maxCells) return;
 
         // Now split player cells
@@ -1127,7 +1129,7 @@ GameServer.prototype.loadIpBanList = function() {
         if (fs.existsSync(fileNameIpBan)) {
             // Load and input the contents of the ipbanlist file
             this.ipBanList = fs.readFileSync(fileNameIpBan, "utf8").split(/[\r\n]+/).filter(function(x) {
-                return x !== ''; // filter empty lines
+                return x != ''; // filter empty lines
             });
             Logger.info(this.ipBanList.length + " IP ban records loaded.");
         } else {
@@ -1141,12 +1143,12 @@ GameServer.prototype.loadIpBanList = function() {
 
 // Custom prototype function
 WebSocket.prototype.sendPacket = function(packet) {
-    if (!packet) return;
+    if (packet == null) return;
     if (this.readyState == WebSocket.OPEN) {
-        if (this._socket.writable && !this._socket.writable)
+        if (this._socket.writable != null && !this._socket.writable)
             return;
         var buffer = packet.build(this.playerTracker.socket.packetHandler.protocol);
-        if (buffer) this.send(buffer, { binary: true });
+        if (buffer != null) this.send(buffer, { binary: true });
     } else {
         this.readyState = WebSocket.CLOSED;
         this.emit('close');
