@@ -426,7 +426,11 @@ GameServer.prototype.removeNode = function(node) {
 
 GameServer.prototype.updateClients = function() {
     // check minions
-    for (var i = 0; i < this.minionTest.length; ) {
+    for (var i = 0, test = this.minionTest.length; i < test; ) {
+    	if (!this.minionTest[i]) {
+    		i++;
+    		continue;
+    	}
         var date = new Date() - this.minionTest[i].connectedTime;
         if (date > this.config.serverMinionInterval)
             this.minionTest.splice(i, 1);
@@ -436,10 +440,12 @@ GameServer.prototype.updateClients = function() {
     // check dead clients
     var len = this.clients.length;
     for (var i = 0; i < len; ) {
-    	if (!this.clients[i]) continue;
-        var client = this.clients[i].playerTracker;
-        client.checkConnection();
-        if (client.isRemoved)
+    	if (!this.clients[i]) {
+    		i++;
+    		continue;
+    	}
+        this.clients[i].playerTracker.checkConnection();
+        if (this.clients[i].playerTracker.isRemoved)
             // remove dead client
             this.clients.splice(i, 1);
         else
