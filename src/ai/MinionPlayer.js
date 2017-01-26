@@ -22,8 +22,8 @@ MinionPlayer.prototype.checkConnection = function () {
         if (!this.cells.length) this.socket.close();
     }
 
-    // remove if owner loses control or disconnects
-    if (!this.owner.minionControl) 
+    // remove if owner has disconnected or has no control
+    if (this.owner.socket.isConnected == false || !this.owner.minionControl) 
         this.socket.close();
 
     // frozen or not
