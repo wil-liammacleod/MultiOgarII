@@ -7,9 +7,8 @@
  * License: Apache License, Version 2.0
  */
 
-function BinaryWriter(size) {
-    if (!size) size = Buffer.poolSize / 2;
-    this._buffer = new Buffer(size);
+function BinaryWriter() {
+    this._buffer = new Buffer(1e5);
     this._length = 0;
 }
 
