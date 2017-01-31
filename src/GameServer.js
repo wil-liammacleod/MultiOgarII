@@ -887,8 +887,11 @@ GameServer.prototype.spawnPlayer = function(player, pos) {
         player.setColor(eject.color);
         size = Math.max(size, eject._size * 1.15)
     }
-    // Spawn player and add to world (safely)
-    if (willCollide(pos, size)) pos = this.randomPos();
+    // Spawn player safely (don't check minions)
+    if (willCollide(pos, size) && !player.isMi) 
+        pos = this.randomPos();
+    
+    // Spawn player and add to world
     var cell = new Entity.PlayerCell(this, player, pos, size);
     this.addNode(cell);
 
