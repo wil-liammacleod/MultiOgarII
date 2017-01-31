@@ -118,8 +118,8 @@ Commands.list = {
                     "- Food:        " + fillChar(gameServer.nodesFood.length, " ", 4, true) + " / " + gameServer.config.foodMaxAmount+"\n"+
                     "- Viruses:      " + fillChar(gameServer.nodesVirus.length, " ", 4, true) + " / " + gameServer.config.virusMaxAmount+"\n"+
                     "Moving nodes:   " + fillChar(gameServer.movingNodes.length, " ", 4, true)+"\n"+
-                    "Quad nodes:     " + fillChar(gameServer.quadTree.scanNodeCount(), " ", 4, true)+"\n"+
-                    "Quad items:     " + fillChar(gameServer.quadTree.scanItemCount(), " ", 4, true));
+                    "Quad nodes:     " + fillChar(scanNodeCount(gameServer.quadTree), " ", 4, true)+"\n"+
+                    "Quad items:     " + fillChar(scanItemCount(gameServer.quadTree), " ", 4, true));
     },
     reset: function(gameServer, split) {
         Logger.warn("Removed " + gameServer.nodes.length + " nodes");
@@ -1103,3 +1103,21 @@ function getName(name) {
         name = "An unnamed cell";
     return name.trim();
 }
+
+// functions from QuadNode
+
+function scanNodeCount(quad) {
+    var count = 0;
+    for (var i = 0; i < quad.childNodes.length; i++) {
+        count += scanNodeCount(quad.childNodes[i]);
+    }
+    return 1 + count;
+};
+
+function scanItemCount(quad) {
+    var count = 0;
+    for (var i = 0; i < quad.childNodes.length; i++) {
+        count += scanItemCount(quad.childNodes[i]);
+    }
+    return quad.items.length + count;
+};
