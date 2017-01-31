@@ -17,22 +17,20 @@ PlayerCell.prototype.canEat = function (cell) {
 
 PlayerCell.prototype.getSpeed = function (dist) {
     var speed = 2.1106 / Math.pow(this._size, 0.449);
-    var normalizedDist = Math.min(dist, 32) / 32;
     speed *= 40 * this.gameServer.config.playerSpeed;
-    return speed * normalizedDist / dist;
+    return Math.min(dist, speed) / dist;
 };
 
 PlayerCell.prototype.onAdd = function (gameServer) {
-    // Gamemode actions
-    gameServer.gameMode.onCellAdd(this);
+    // Add to player nodes list
+    this.gameServer.nodesPlayer.push(this);
 };
 
 PlayerCell.prototype.onRemove = function (gameServer) {
     // Remove from player cell list
     var index = this.owner.cells.indexOf(this);
-    if (index != -1) {
-        this.owner.cells.splice(index, 1);
-    }
-    // Gamemode actions
-    gameServer.gameMode.onCellRemove(this);
+    if (index != -1) this.owner.cells.splice(index, 1);
+
+    index = this.gameServer.nodesPlayer.indexOf(this);
+    if (index != -1) this.gameServer.nodesPlayer.splice(index, 1);
 };
