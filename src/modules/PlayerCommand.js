@@ -264,7 +264,7 @@ var playerCommands = {
         this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     },
     login: function (args) {
-        var password = args[1];
+        var password = args[1] + "";
         if (password.length < 1) {
             this.writeLine("ERROR: missing password argument!");
             return;
