@@ -29,6 +29,7 @@ function GameServer() {
     this.nodesVirus = [];       // Virus nodes
     this.nodesFood = [];        // Food nodes
     this.nodesEjected = [];     // Ejected mass nodes
+    this.nodesPlayer = [];
     
     this.movingNodes = [];      // For move engine
     this.leaderboard = [];      // For leaderboard
@@ -156,7 +157,7 @@ function GameServer() {
     // Set border, quad-tree
     var QuadNode = require('./modules/QuadNode.js');
     this.setBorder(this.config.borderWidth, this.config.borderHeight);
-    this.quadTree = new QuadNode(this.border, 64, 32);
+    this.quadTree = new QuadNode(this.border);
     
     // Gamemodes
     var Gamemode = require('./gamemodes');
@@ -540,15 +541,12 @@ GameServer.prototype.timerLoop = function() {
     var ts = Date.now();
     var dt = ts - this.timeStamp;
     if (dt < timeStep - 5) {
-        setTimeout(this.timerLoopBind, ((timeStep - 5) - dt) >> 0);
+        setTimeout(this.timerLoopBind, timeStep - 5 - dt);
         return;
     }
     if (dt > 120) this.timeStamp = ts - timeStep;
-    // update average
+    // update average, calculate next
     this.updateTimeAvg += 0.5 * (this.updateTime - this.updateTimeAvg);
-    // calculate next
-    if (!this.timeStamp)
-        this.timeStamp = ts;
     this.timeStamp += timeStep;
     setTimeout(this.mainLoopBind, 0);
     setTimeout(this.timerLoopBind, 0);
@@ -565,47 +563,37 @@ GameServer.prototype.mainLoop = function() {
         for (var i = 0, len = this.movingNodes.length; i < len; i++) {
             var cell = this.movingNodes[i];
             if (!cell || cell.isRemoved) continue;
+            // Scan and check for ejected mass / virus collisions
             this.boostCell(cell);
-            this.updateNodeQuad(cell);
-            if (!cell.isMoving)
-                this.movingNodes = null;
-            // scan and check for ejected mass / virus collisions
             this.quadTree.find(cell.quadItem.bound, function(item) {
-                if (item.cell == cell) return;
                 var m = self.checkCellCollision(cell, item.cell);
                 if (cell.cellType == 3 && item.cell.cellType == 3 && !self.config.mobilePhysics)
                     self.resolveRigidCollision(m);
                 else
                     self.resolveCollision(m);
             });
+            if (!cell.isMoving)
+                this.movingNodes = null
         }
         // Move players and scan for collisions
-        for (var i in this.clients) {
-            var client = this.clients[i].playerTracker;
-            for (var j = 0; j < client.cells.length; j++) {
-                var cell = client.cells[j];
-                if (cell.isRemoved || !cell || !client || client.frozen)
-                    continue;
-                // Move player cells
-                this.updateRemerge(cell, client);
-                this.boostCell(cell);
-                this.movePlayer(cell, client);
-                this.autoSplit(cell, client);
-                this.updateNodeQuad(cell);
-                // Scan for player cells collisions
-                this.quadTree.find(cell.quadItem.bound, function(item) {
-                    if (item.cell == cell) return;
-                    var m = self.checkCellCollision(cell, item.cell);
-                    if (self.checkRigidCollision(m))
-                        self.resolveRigidCollision(m);
-                    else
-                        self.resolveCollision(m);
-                });
-                // Decay player cells once per second
-                if (((this.tickCounter + 3) % 25) === 0) {
-                    this.updateMassDecay(cell);
-                }
-            }
+        for (var i = 0, len = this.nodesPlayer.length; i < len; i++) {
+            var cell = this.nodesPlayer[i];
+            if (!cell || cell.isRemoved) continue;
+            this.movePlayer(cell, cell.owner);
+            this.autoSplit(cell, cell.owner);
+            // Scan for player cells collisions
+            this.quadTree.find(cell.quadItem.bound, function(item) {
+                if (item.cell == cell) return;
+                var m = self.checkCellCollision(cell, item.cell);
+                if (self.checkRigidCollision(m))
+                    self.resolveRigidCollision(m);
+                else
+                    self.resolveCollision(m);
+            });
+            this.boostCell(cell);
+            // Decay player cells once per second
+            if (((this.tickCounter + 3) % 25) === 0)
+                this.updateMassDecay(cell);
         }
         if ((this.tickCounter % this.config.spawnInterval) === 0) {
             // Spawn food & viruses
@@ -630,10 +618,24 @@ GameServer.prototype.mainLoop = function() {
 };
 
 // update remerge first
-GameServer.prototype.updateRemerge = function(cell, client) {
+GameServer.prototype.movePlayer = function(cell, client) {
+    if (client.socket.isConnected == false || client.frozen)
+        return; // Do not move
+
+    // get distance
+    var dx = ~~(client.mouse.x - cell.position.x);
+    var dy = ~~(client.mouse.y - cell.position.y);
+    var d = Math.sqrt(dx * dx + dy * dy);
+    // get movement speed
+    var move = cell.getSpeed(d);
+    if (!move) return; // avoid jitter
+    // move player cells
+    cell.position.x += dx * move;
+    cell.position.y += dy * move;
+
+    // update remerge
     var time = this.config.playerRecombineTime,
     base = Math.max(time, cell._size * 0.2) * 25;
-
     // instant merging conditions
     if (!time || client.rec || client.mergeOverride) {
         cell._canRemerge = cell.boostDistance < 100;
@@ -663,7 +665,7 @@ GameServer.prototype.updateMassDecay = function(cell) {
 };
 
 GameServer.prototype.boostCell = function(cell) {
-    if (cell.isMoving && !cell.boostDistance) {
+    if (cell.isMoving && !cell.boostDistance || cell.isRemoved) {
         cell.boostDistance = 0;
         cell.isMoving = false;
         return;
@@ -677,23 +679,13 @@ GameServer.prototype.boostCell = function(cell) {
     // reflect off of border
     var r = cell._size / 2;
     if (cell.position.x < this.border.minx + r || cell.position.x > this.border.maxx - r)
-        cell.boostDirection.x =- cell.boostDirection.x;
+        cell.boostDirection.x = -cell.boostDirection.x;
     if (cell.position.y < this.border.miny + r || cell.position.y > this.border.maxy - r) 
-        cell.boostDirection.y =- cell.boostDirection.y;
-    cell.checkBorder(this.border);
-};
+        cell.boostDirection.y = -cell.boostDirection.y;
 
-GameServer.prototype.movePlayer = function(cell, client) {
-    // get distance
-    var dx = ~~(client.mouse.x - cell.position.x);
-    var dy = ~~(client.mouse.y - cell.position.y);
-    var d = Math.sqrt(dx * dx + dy * dy);
-    // get movement speed
-    var move = cell.getSpeed(d);
-    if (!move) return; // avoid jitter
-    // move player cells
-    cell.position.x += dx * move;
-    cell.position.y += dy * move;
+    // update boundries
+    cell.checkBorder(this.border);
+    this.updateNodeQuad(cell);
 };
 
 GameServer.prototype.autoSplit = function(cell, client) {
@@ -718,18 +710,14 @@ GameServer.prototype.updateNodeQuad = function(node) {
     var x = node.position.x;
     var y = node.position.y;
     var size = node._size;
-    // check for change
-    if (item.x == x && item.y == y && item.size == size)
-        return;
+
     // update quad tree
-    item.x = x;
-    item.y = y;
-    item.size = size;
     item.bound.minx = x - size;
     item.bound.miny = y - size;
     item.bound.maxx = x + size;
     item.bound.maxy = y + size;
-    this.quadTree.update(item);
+    this.quadTree.remove(item);
+    this.quadTree.insert(item);
 };
 
 // Checks cells for collision
@@ -764,7 +752,7 @@ GameServer.prototype.checkRigidCollision = function(m) {
     return !m.cell._canRemerge || !m.check._canRemerge;
 };
 
-// Resolves rigid body collision
+// Resolves rigid body collision for player cells
 GameServer.prototype.resolveRigidCollision = function(m) {
     var r = m.cell._size + m.check._size; // radius sum of cell & check
     var push = Math.min((r - m.d) / m.d, r - m.d); // min extrusion force
@@ -814,8 +802,7 @@ GameServer.prototype.resolveCollision = function(m) {
     cell.onEaten(check);
     cell.killedBy = check;
 
-    // update bounds & Remove cell
-    this.updateNodeQuad(check);
+    // Remove cell
     this.removeNode(cell);
 };
 
@@ -867,8 +854,8 @@ GameServer.prototype.spawnCells = function(pos) {
     maxCount = this.config.virusMinAmount - this.nodesVirus.length;
     spawnCount = Math.min(maxCount, 2);
     for (var i = 0; i < spawnCount; i++) {
-        if (this.willCollide(pos, this.config.virusMinSize))
-            continue; // do not spawn
+        if (willCollide(pos, this.config.virusMinSize))
+            pos = this.randomPos();
         var v = new Entity.Virus(this, null, pos, this.config.virusMinSize);
         this.addNode(v);
     }
@@ -898,12 +885,10 @@ GameServer.prototype.spawnPlayer = function(player, pos) {
             y: eject.position.y
         };
         player.setColor(eject.color);
+        size = Math.max(size, eject._size * 1.15)
     }
-    // 10 attempts to find safe position
-    for (var i = 0; i < 10 && this.willCollide(pos, size); i++) {
-        pos = this.randomPos();
-    }
-    // Spawn player and add to world
+    // Spawn player and add to world (safely)
+    if (willCollide(pos, size)) pos = this.randomPos();
     var cell = new Entity.PlayerCell(this, player, pos, size);
     this.addNode(cell);
 
@@ -919,23 +904,10 @@ GameServer.prototype.spawnPlayer = function(player, pos) {
     }
 };
 
-GameServer.prototype.willCollide = function(pos, size) {
-    // Look if there will be any collision with the current nodes
-    var bound = {
-        minx: pos.x - size,
-        miny: pos.y - size,
-        maxx: pos.x + size,
-        maxy: pos.y + size
-    };
-    var sq = bound.minx * bound.minx + bound.miny * bound.miny;
-    if (sq + (size * size) <= size * 2) {
-        return null; // not safe => try again
-    }
-    return this.quadTree.any(
-        bound, function(item) {
-            return item.cell.cellType != 3; // don't check ejected
-        });
-};
+function willCollide(pos, size) {
+    if (pos <= size * size) return false;
+    return true; // Is safe to spawn
+}
 
 GameServer.prototype.splitCells = function(client) {
     // Split cell order decided by cell age
