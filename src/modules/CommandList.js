@@ -350,6 +350,7 @@ Commands.list = {
         for (var i in gameServer.clients) {
             if (gameServer.clients[i].playerTracker.pID == id) {
                 var client = gameServer.clients[i].playerTracker;
+                if (!client.cells.length) return Logger.warn("That player is either dead or not playing!");
                 client.setColor(color); // Set color
                 for (var j in client.cells) {
                     client.cells[j].setColor(color);
@@ -467,6 +468,7 @@ Commands.list = {
         for (var i in gameServer.clients) {
             if (gameServer.clients[i].playerTracker.pID == id) {
                 var client = gameServer.clients[i].playerTracker;
+                if (!client.cells.length) return Logger.warn("That player is either dead or not playing!");
                 var len = client.cells.length;
                 for (var j = 0; j < len; j++) {
                     gameServer.removeNode(client.cells[0]);
@@ -507,6 +509,7 @@ Commands.list = {
         for (var i in gameServer.clients) {
             if (gameServer.clients[i].playerTracker.pID == id) {
                 var client = gameServer.clients[i].playerTracker;
+                if (!client.cells.length) return Logger.warn("That player is either dead or not playing!");
                 for (var j in client.cells) {
                     client.cells[j].setSize(size);
                 }
@@ -581,10 +584,8 @@ Commands.list = {
         for (var i = 0; i < gameServer.clients.length; i++) {
             if (id == gameServer.clients[i].playerTracker.pID) {
                 var client = gameServer.clients[i].playerTracker;
-                if (client.cells.length == 1) {
-                    Logger.warn("Client already has one cell!");
-                    return;
-                }
+                if (!client.cells.length) return Logger.warn("That player is either dead or not playing!");
+                if (client.cells.length == 1) return Logger.warn("Client already has one cell!");
                 // Set client's merge override
                 client.mergeOverride = !client.mergeOverride;
                 if (client.mergeOverride) Logger.print(getName(client._name) + " is now force merging");
@@ -627,6 +628,7 @@ Commands.list = {
         for (var i in gameServer.clients) {
             if (gameServer.clients[i].playerTracker.pID == id) {
                 var client = gameServer.clients[i].playerTracker;
+                if (!client.cells.length) return Logger.warn("That player is either dead or not playing!");
                 for (var i = 0; i < count; i++) {
                     gameServer.splitCells(client);
                 }
@@ -652,7 +654,7 @@ Commands.list = {
         // Change name
         for (var i = 0; i < gameServer.clients.length; i++) {
             var client = gameServer.clients[i].playerTracker;
-            
+            if (!client.cells.length) return Logger.warn("That player is either dead or not playing!");
             if (client.pID == id) {
                 Logger.print("Changing " + getName(client._name) + " to " + name);
                 client.setName(name);
@@ -787,6 +789,7 @@ Commands.list = {
         for (var i in gameServer.clients) {
             if (gameServer.clients[i].playerTracker.pID == id) {
                 var client = gameServer.clients[i].playerTracker;
+                if (!client.cells.length) return Logger.warn("That player is either dead or not playing!");
                 // set frozen state
                 client.frozen = !client.frozen;
                 if (client.frozen) Logger.print("Froze " + getName(client._name));
@@ -840,6 +843,7 @@ Commands.list = {
         for (var i in gameServer.clients) {
             if (gameServer.clients[i].playerTracker.pID == id) {
                 var client = gameServer.clients[i].playerTracker;
+                if (!client.cells.length) return Logger.warn("That player is either dead or not playing!");
                 for (var j in client.cells) {
                     client.cells[j].position.x = pos.x;
                     client.cells[j].position.y = pos.y;
@@ -912,6 +916,7 @@ Commands.list = {
         for (var i in gameServer.clients) {
             if (gameServer.clients[i].playerTracker.pID == id) {
                 var client = gameServer.clients[i].playerTracker;
+                if (!client.cells.length) return Logger.warn("That player is either dead or not playing!");
                 while (client.cells.length > 0) {
                     var cell = client.cells[0];
                     gameServer.removeNode(cell);
@@ -943,6 +948,7 @@ Commands.list = {
         for (var i in gameServer.clients) {
             if (gameServer.clients[i].playerTracker.pID == id) {
                 var client = gameServer.clients[i].playerTracker;
+                if (!client.cells.length) return Logger.warn("That player is either dead or not playing!");
                 var virus = new Entity.Virus(gameServer, null, client.centerPos, gameServer.config.virusMinSize);
                 gameServer.addNode(virus);
                 Logger.print("Popped " + getName(client._name));
@@ -978,6 +984,7 @@ Commands.list = {
                     }
                     cell.setSize(gameServer.config.playerMinSize);
                 }
+                if (!client.cells.length) return Logger.warn("That player is either dead or not playing!");
                 Logger.print("Successfully exploded " + getName(client._name));
             }
         }
