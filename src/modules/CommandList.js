@@ -358,6 +358,8 @@ Commands.list = {
                 break;
             }
         }
+        if (client == null) return void Logger.warn("That player ID is non-existant!");
+        Logger.print("Changed " + getName(client._name) + "'s color to: " + color.r + ", " + color.g + ", " + color.b);
     },
     exit: function(gameServer, split) {
         Logger.warn("Closing server...");
@@ -413,7 +415,7 @@ Commands.list = {
         player.isMuted = true;
     },
     unmute: function(gameServer, args) {
-        if (!args || args.length < 2) {
+            if (!args || args.length < 2) {
             Logger.warn("Please specify a valid player ID!");
             return;
         }
@@ -479,6 +481,7 @@ Commands.list = {
                 break;
             }
         }
+        if (client == null) return void Logger.warn("That player ID is non-existant!");
     },
     killall: function(gameServer, split) {
         var count = 0;
@@ -517,6 +520,7 @@ Commands.list = {
                 break;
             }
         }
+        if (client == null) return void Logger.warn("That player ID is non-existant!");
     },
     spawnmass: function(gameServer, split) {
         var id = parseInt(split[1]);
@@ -540,6 +544,7 @@ Commands.list = {
                 Logger.print("Set spawnmass of "+ getName(client._name) + " to " + (size * size / 100).toFixed(3));
             }
         }
+        if (client == null) return void Logger.warn("That player ID is non-existant!");
     },   
     speed: function(gameServer, split) {
         var id = parseInt(split[1]);
@@ -570,6 +575,7 @@ Commands.list = {
                 };
             }
         }
+        if (client == null) return void Logger.warn("That player ID is non-existant!");
         Logger.print("Set base speed of " + getName(client._name) + " to " + speed);
     },
     merge: function(gameServer, split) {
@@ -592,6 +598,7 @@ Commands.list = {
                 else Logger.print(getName(client._name) + " isn't force merging anymore");
             }
         }
+        if (client == null) return void Logger.warn("That player ID is non-existant!");
     },
     rec: function(gameServer, split) {
         var id = parseInt(split[1]);
@@ -609,6 +616,7 @@ Commands.list = {
                 else Logger.print(getName(client._name) + " is no longer in rec mode");
             }
         }
+        if (client == null) return void Logger.warn("That player ID is non-existant!");
     },
     split: function(gameServer, split) {
         var id = parseInt(split[1]);
@@ -636,6 +644,7 @@ Commands.list = {
                 break;
             }
         }
+        if (client == null) return void Logger.warn("That player ID is non-existant!");
     },
     name: function(gameServer, split) {
         // Validation checks
@@ -663,7 +672,7 @@ Commands.list = {
         }
         
         // Error
-        Logger.warn("Player " + id + " was not found");
+        Logger.warn("That player ID (" + id + ") is non-existant!");
     },
     skin: function(gameServer, args) {
         if (!args || args.length < 3) {
@@ -681,7 +690,7 @@ Commands.list = {
         }
         var player = playerById(id, gameServer);
         if (!player) {
-            Logger.warn("Player with id =" + id + " not found!");
+            Logger.warn("That player ID (" + id + ") is non-existant!");
             return;
         }
         if (player.cells.length) {
@@ -796,6 +805,7 @@ Commands.list = {
                 else Logger.print("Unfroze " + getName(client._name));
             }
         }
+        if (client == null) return void Logger.warn("That player ID is non-existant!");
     },
     reload: function(gameServer, split) {
         gameServer.loadConfig();
@@ -853,6 +863,7 @@ Commands.list = {
                 break;
             }
         }
+        if (client == null) return void Logger.warn("That player ID is non-existant!");
     },
     spawn: function(gameServer, split) {
         var ent = split[1];
@@ -924,20 +935,25 @@ Commands.list = {
                     if (ent == "virus") {
                         var virus = new Entity.Virus(gameServer, null, cell.position, cell._size);
                         gameServer.addNode(virus);
-                        Logger.print("Replaced " + getName(client._name) + " with a virus");
                     } else if (ent == "food") {
                         var food = new Entity.Food(gameServer, null, cell.position, cell._size);
                         food.setColor(gameServer.getRandomColor());
                         gameServer.addNode(food);
-                        Logger.print("Replaced " + getName(client._name) + " with a food cell");
                     } else if (ent == "mothercell") {
                         var mother = new Entity.MotherCell(gameServer, null, cell.position, cell._size);
                         gameServer.addNode(mother);
-                        Logger.print("Replaced " + getName(client._name) + " with a mothercell");
                     }
                 }
             }
         }
+        if (ent == "virus") {
+            Logger.print("Replaced " + getName(client._name) + " with a virus");
+        } else if (ent == "food") {
+            Logger.print("Replaced " + getName(client._name) + " with a food cell");
+        } else if (ent == "mothercell") {
+            Logger.print("Replaced " + getName(client._name) + " with a mothercell");
+        }
+        if (client == null) return void Logger.warn("That player ID is non-existant!");
     },
     pop: function(gameServer, split) {
         var id = parseInt(split[1]);
@@ -954,6 +970,7 @@ Commands.list = {
                 Logger.print("Popped " + getName(client._name));
             }
         }
+        if (client == null) return void Logger.warn("That player ID is non-existant!");
     },
     explode: function(gameServer, split) {
         var id = parseInt(split[1]);
@@ -968,18 +985,18 @@ Commands.list = {
                     var cell = client.cells[i];
                     while (cell._size > gameServer.config.playerMinSize) {
                         // remove mass from parent cell
-                        var Agarian = 6.28 * Math.random();
+                        var angle = 6.28 * Math.random();
                         var loss = gameServer.config.ejectSizeLoss;
                         var size = cell._sizeSquared - loss * loss;
                         cell.setSize(Math.sqrt(size));
                         // explode the cell
                         var pos = {
-                            x: cell.position.x + Agarian,
-                            y: cell.position.y + Agarian
+                            x: cell.position.x + angle,
+                            y: cell.position.y + angle
                         };
                         var ejected = new Entity.EjectedMass(gameServer, null, pos, gameServer.config.ejectSize);
                         ejected.setColor(cell.color);
-                        ejected.setBoost(780 * Math.random(), Agarian);
+                        ejected.setBoost(gameServer.config.ejectVelocity * Math.random(), angle);
                         gameServer.addNode(ejected);
                     }
                     cell.setSize(gameServer.config.playerMinSize);
@@ -988,6 +1005,7 @@ Commands.list = {
                 Logger.print("Successfully exploded " + getName(client._name));
             }
         }
+        if (client == null) return void Logger.warn("That player ID is non-existant!");
     },
     lms: function(gameServer, split) {
         gameServer.disableSpawn = !gameServer.disableSpawn;
