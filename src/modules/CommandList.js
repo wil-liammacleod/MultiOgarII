@@ -390,7 +390,7 @@ Commands.list = {
         }, this);
         if (count) return;
         if (!id) Logger.warn("No players to kick!");
-        else Logger.warn("Player with ID " + id + " not found!");
+        else Logger.warn("That player ID (" + id + ") is non-existant!");
     },
     mute: function(gameServer, args) {
         if (!args || args.length < 2) {
@@ -404,18 +404,18 @@ Commands.list = {
         }
         var player = playerById(id, gameServer);
         if (!player) {
-            Logger.warn("Player with id=" + id + " not found!");
+            Logger.warn("That player ID (" + id + ") is non-existant!");
             return;
         }
         if (player.isMuted) {
-            Logger.warn("Player with id=" + id + " already muted!");
+            Logger.warn("That player with ID (" + id + ") is already muted!");
             return;
         }
         Logger.print("Player \"" + getName(player._name) + "\" was muted");
         player.isMuted = true;
     },
     unmute: function(gameServer, args) {
-            if (!args || args.length < 2) {
+        if (!args || args.length < 2) {
             Logger.warn("Please specify a valid player ID!");
             return;
         }
@@ -426,7 +426,7 @@ Commands.list = {
         }
         var player = playerById(id, gameServer);
         if (player === null) {
-            Logger.warn("Player with id=" + id + " not found!");
+            Logger.warn("That player ID (" + id + ") is non-existant!");
             return;
         }
         if (!player.isMuted) {
@@ -457,7 +457,7 @@ Commands.list = {
       
         if (count) return;
         if (!this.id) Logger.warn("No players to kick!");
-        else Logger.warn("Player with ID " + this.id + " not found!");
+        else Logger.warn("That player ID (" + this.id + ") is non-existant!");
     },
     kill: function(gameServer, split) {
         var id = parseInt(split[1]);
