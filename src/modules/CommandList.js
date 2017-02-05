@@ -762,7 +762,7 @@ Commands.list = {
             } else if (client.spectate) {
                 nick = "in free-roam";
                 if (!client.freeRoam) {
-                    var target = client.getSpectateTarget();
+                    var target = client.getSpecTarget();
                     if (target != null) {
                         nick = getName(target._name);
                     }
