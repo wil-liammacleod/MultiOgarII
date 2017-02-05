@@ -184,7 +184,7 @@ Commands.list = {
         // Error message
         var logInvalid = "Please specify a valid player ID or IP address!";
         
-        if (split[1] === null) {
+        if (split[1] === null || typeof split[1] == "undefined") {
             // If no input is given; added to avoid error
             Logger.warn(logInvalid);
             return;
@@ -202,17 +202,10 @@ Commands.list = {
                     continue;
                 }
                 // If not numerical or if it's not between 0 and 255
-                // TODO: Catch string "e" as it means "10^".
                 if (isNaN(ipParts[i]) || ipParts[i] < 0 || ipParts[i] >= 256) {
                     Logger.warn(logInvalid);
                     return;
                 }
-            }
-            
-            if (ipParts.length != 4) {
-                // an IP without 3 decimals
-                Logger.warn(logInvalid);
-                return;
             }
             ban(gameServer, split, ip);
             return;
@@ -564,13 +557,11 @@ Commands.list = {
                 client.customspeed = speed;
                 // override getSpeed function from PlayerCell
                 Entity.PlayerCell.prototype.getSpeed = function (dist) {
-                    var speed = 2.1106 / Math.pow(this._size, 0.449);
-                    var normalizedDist = Math.min(dist, 32) / 32;
-                    // tickStep = 40ms
-                    this._speed = this.owner.customspeed ? 
+                    var speed = 2.2 * Math.pow(this._size, -0.439);
+                    speed = this.owner.customspeed ?
                     speed * 40 * this.owner.customspeed : // Set by command
                     speed * 40 * this.gameServer.config.playerSpeed;
-                    return this._speed * normalizedDist / dist;
+                    return Math.min(dist, speed) / dist;
                 };
             }
         }
@@ -724,26 +715,23 @@ Commands.list = {
         for (var i = 0; i < sockets.length; i++) {
             var socket = sockets[i];
             var client = socket.playerTracker;
-            var ip = client.isMi ? "[MINION]" : "[BOT]";
             var type = split[1];
-            
-            // list minions
-            if (client.isMi) {
-                if (type != "m") continue;
-                else ip = "[MINION]";
-            }
             
             // ID with 3 digits length
             var id = fillChar((client.pID), ' ', 6, true);
             
             // Get ip (15 digits length)
-            if (socket.isConnected != null) {
+            var ip = client.isMi ? "[MINION]" : "[BOT]";
+            if (socket.isConnected && !client.isMi) {
                 ip = socket.remoteAddress;
+            } else if (client.isMi && type != "m") {
+                continue; // do not list minions
             }
             ip = fillChar(ip, ' ', 15);
+            
+            // Get name and data
             var protocol = gameServer.clients[i].packetHandler.protocol;
             if (!protocol) protocol = "?";
-            // Get name and data
             var nick = '',
                 cells = '',
                 score = '',
@@ -757,15 +745,13 @@ Commands.list = {
                 if (socket.closeReason.message)
                     reason += socket.closeReason.message;
                 Logger.print(" " + id + " | " + ip + " | " + protocol + " | " + reason);
-            } else if (!socket.packetHandler.protocol && socket.isConnected) {
+            } else if (!socket.packetHandler.protocol && socket.isConnected && !client.isMi) {
                 Logger.print(" " + id + " | " + ip + " | " + protocol + " | " + "[CONNECTING]");
             } else if (client.spectate) {
                 nick = "in free-roam";
                 if (!client.freeRoam) {
                     var target = client.getSpecTarget();
-                    if (target != null) {
-                        nick = getName(target._name);
-                    }
+                    if (target) nick = getName(target._name);
                 }
                 data = fillChar("SPECTATING: " + nick, '-', ' | CELLS | SCORE  | POSITION    '.length + gameServer.config.playerMaxNickLength, true);
                 Logger.print(" " + id + " | " + ip + " | " + protocol + " | " + data);
@@ -774,7 +760,11 @@ Commands.list = {
                 cells = fillChar(client.cells.length, ' ', 5, true);
                 score = fillChar(client._score >> 0, ' ', 6, true);
                 position = fillChar(client.centerPos.x >> 0, ' ', 5, true) + ', ' + fillChar(client.centerPos.y >> 0, ' ', 5, true);
-                Logger.print(" " + id + " | " + ip + " | " + protocol + " | " + cells + " | " + score + " | " + position + " | " + nick);
+                if (!client.isMi) Logger.print(" " + id + " | " + ip + " | " + protocol + " | " + cells + " | " + score + " | " + position + " | " + nick);
+                else {
+                    data = fillChar(" " + nick, '-', ' | CELLS | SCORE  | POSITION    '.length + gameServer.config.playerMaxNickLength, true);
+                    Logger.print(" " + id + " | " + ip + " | " + protocol + " | " + cells + " | " + data);
+                }
             } else {
                 // No cells = dead player or in-menu
                 data = fillChar('DEAD OR NOT PLAYING', '-', ' | CELLS | SCORE  | POSITION    '.length + gameServer.config.playerMaxNickLength, true);
@@ -1107,7 +1097,7 @@ function ban(gameServer, split, ip) {
     }
     gameServer.clients.forEach(function (socket) {
         // If already disconnected or the ip does not match
-        if (!socket || !socket.isConnected || !gameServer.checkIpBan(socket.remoteAddress))
+        if (!socket || !socket.isConnected || !gameServer.checkIpBan(ip) || socket.remoteAddress != ip)
             return;
         // remove player cells
         Commands.list.kill(gameServer, split);
