@@ -16,7 +16,7 @@ PlayerCell.prototype.canEat = function (cell) {
 };
 
 PlayerCell.prototype.getSpeed = function (dist) {
-    var speed = 2.1106 / Math.pow(this._size, 0.449);
+    var speed = 2.2 * Math.pow(this._size, -0.439);
     speed *= 40 * this.gameServer.config.playerSpeed;
     return Math.min(dist, speed) / dist;
 };
