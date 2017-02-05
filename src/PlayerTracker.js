@@ -200,17 +200,16 @@ PlayerTracker.prototype.joinGame = function(name, skin) {
 PlayerTracker.prototype.checkConnection = function() {
     // Handle disconnection
     if (!this.socket.isConnected) {
-        // wait for playerDisconnectTime
-        var dt = (this.gameServer.stepDateTime - this.socket.closeTime) / 1000;
-        if (!this.cells.length || dt >= this.gameServer.config.playerDisconnectTime) {
+        // Wait for playerDisconnectTime
+        var pt = this.gameServer.config.playerDisconnectTime;
+        var dt = (this.gameServer.stepDateTime - this.socket.closeTime) / 1e3;
+        if (pt && (!this.cells.length || dt >= pt)) {
             // Remove all client cells
-            this.cells = [];
             for (var i = 0; i < this.cells.length; i++)
                 this.gameServer.removeNode(this.cells[i]);
-            // Mark to remove
-            this.isRemoved = true;
-            return;
         }
+        this.cells = [];
+        this.isRemoved = true;
         this.mouse.x = this.centerPos.x;
         this.mouse.y = this.centerPos.y;
         this.socket.packetHandler.pressSpace = false;
@@ -222,9 +221,9 @@ PlayerTracker.prototype.checkConnection = function() {
 
     // Check timeout
     if (!this.isCloseRequested && this.gameServer.config.serverTimeout) {
-        dt = (this.gameServer.stepDateTime - this.socket.lastAliveTime) / 1000;
+        dt = (this.gameServer.stepDateTime - this.socket.lastAliveTime) / 1e3;
         if (dt >= this.gameServer.config.serverTimeout) {
-            this.socket.close(1000, "Connection timeout");
+            this.socket.close(1e3, "Connection timeout");
             this.isCloseRequested = true;
         }
     }
