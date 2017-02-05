@@ -63,12 +63,12 @@ var playerCommands = {
             this.writeLine("/status - Shows Status of the Server");
             this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         } else {
-            this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             this.writeLine("/skin %shark - change skin");
             this.writeLine("/kill - self kill");
             this.writeLine("/help - this command list");
             this.writeLine("/id - Gets your playerID");
-            this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         }
     },
     id: function (args) {
@@ -123,7 +123,6 @@ var playerCommands = {
                 this.playerTracker.cells[i].setSize(size);
             }
             this.writeLine("Set mass of " + this.playerTracker._name + " to " + size * size / 100);
-            
         } else {
             for (var i in this.gameServer.clients) {
                 var client = this.gameServer.clients[i].playerTracker;
