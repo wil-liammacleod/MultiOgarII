@@ -201,17 +201,15 @@ PlayerTracker.prototype.checkConnection = function() {
     // Handle disconnection
     if (!this.socket.isConnected) {
         // Wait for playerDisconnectTime
-        if (this.gameServer.config.playerDisconnectTime < 0) return; // Don't remove the cells if config is less than 0
+        var pt = this.gameServer.config.playerDisconnectTime;
         var dt = (this.gameServer.stepDateTime - this.socket.closeTime) / 1e3;
-        if (!this.cells.length || dt >= this.gameServer.config.playerDisconnectTime) {
+        if (pt && (!this.cells.length || dt >= pt)) {
             // Remove all client cells
-            this.cells = [];
             for (var i = 0; i < this.cells.length; i++)
                 this.gameServer.removeNode(this.cells[i]);
-            // Mark to remove
-            this.isRemoved = true;
-            return;
         }
+        this.cells = [];
+        this.isRemoved = true;
         this.mouse.x = this.centerPos.x;
         this.mouse.y = this.centerPos.y;
         this.socket.packetHandler.pressSpace = false;
