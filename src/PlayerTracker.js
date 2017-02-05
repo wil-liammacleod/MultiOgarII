@@ -200,8 +200,9 @@ PlayerTracker.prototype.joinGame = function(name, skin) {
 PlayerTracker.prototype.checkConnection = function() {
     // Handle disconnection
     if (!this.socket.isConnected) {
-        // wait for playerDisconnectTime
-        var dt = (this.gameServer.stepDateTime - this.socket.closeTime) / 1000;
+        // Wait for playerDisconnectTime
+        if (this.gameServer.config.playerDisconnectTime < 0) return; // Don't remove the cells if config is less than 0
+        var dt = (this.gameServer.stepDateTime - this.socket.closeTime) / 1e3;
         if (!this.cells.length || dt >= this.gameServer.config.playerDisconnectTime) {
             // Remove all client cells
             this.cells = [];
@@ -222,9 +223,9 @@ PlayerTracker.prototype.checkConnection = function() {
 
     // Check timeout
     if (!this.isCloseRequested && this.gameServer.config.serverTimeout) {
-        dt = (this.gameServer.stepDateTime - this.socket.lastAliveTime) / 1000;
+        dt = (this.gameServer.stepDateTime - this.socket.lastAliveTime) / 1e3;
         if (dt >= this.gameServer.config.serverTimeout) {
-            this.socket.close(1000, "Connection timeout");
+            this.socket.close(1e3, "Connection timeout");
             this.isCloseRequested = true;
         }
     }
