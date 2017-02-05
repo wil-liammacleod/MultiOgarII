@@ -1,4 +1,5 @@
 var Packet = require('./packet');
+var Vec2 = require('./modules/Vec2');
 var BinaryWriter = require("./packet/BinaryWriter");
 
 function PlayerTracker(gameServer, socket) {
@@ -31,14 +32,8 @@ function PlayerTracker(gameServer, socket) {
     this.spectateTarget = null; // Spectate target, null for largest player
     this.lastKeypressTick = 0;
     
-    this.centerPos = {
-        x: 0,
-        y: 0
-    };
-    this.mouse = {
-        x: 0,
-        y: 0
-    };
+    this.centerPos = new Vec2(0, 0);
+    this.mouse = new Vec2(0, 0);
     this.viewBox = {
         minx: 0,
         miny: 0,
@@ -72,8 +67,6 @@ function PlayerTracker(gameServer, socket) {
     
     // Gamemode function
     if (gameServer) {
-        this.centerPos.x = 0;
-        this.centerPos.y = 0;
         // Player id
         this.pID = gameServer.lastPlayerId++ >> 0;
         // Gamemode function
@@ -221,9 +214,9 @@ PlayerTracker.prototype.checkConnection = function() {
 
     // Check timeout
     if (!this.isCloseRequested && this.gameServer.config.serverTimeout) {
-        dt = (this.gameServer.stepDateTime - this.socket.lastAliveTime) / 1e3;
+        dt = (this.gameServer.stepDateTime - this.socket.lastAliveTime) / 1000;
         if (dt >= this.gameServer.config.serverTimeout) {
-            this.socket.close(1e3, "Connection timeout");
+            this.socket.close(1000, "Connection timeout");
             this.isCloseRequested = true;
         }
     }
@@ -233,27 +226,13 @@ PlayerTracker.prototype.updateTick = function() {
     if (this.isRemoved || this.isMinion) 
         return; // do not update
     this.socket.packetHandler.process();
-
-    // update spectators
     if (this.isMi) return;
-    if (!this.spectate) {
-        // in game
-        this.updateCenterInGame();
-    } else {
-        if (this.freeRoam || this.getSpectateTarget() == null) {
-            // free roam
-            this.updateCenterFreeRoam();
-            this._scale = this.gameServer.config.serverSpectatorScale;
-        } else {
-            // spectate target
-            return;
-        }
-    }
 
     // update viewbox
+    this.updateSpecView(this.cells.length);
     var scale = Math.max(this.getScale(), this.gameServer.config.serverMinScale);
-    var halfWidth = (this.gameServer.config.serverViewBaseX / scale) / 2;
-    var halfHeight = (this.gameServer.config.serverViewBaseY / scale) / 2;
+    var halfWidth = this.gameServer.config.serverViewBaseX / scale / 2;
+    var halfHeight = this.gameServer.config.serverViewBaseY / scale / 2;
     this.viewBox = {
         minx: this.centerPos.x - halfWidth,
         miny: this.centerPos.y - halfHeight,
@@ -287,9 +266,9 @@ PlayerTracker.prototype.sendUpdate = function() {
     if (this.spectate) {
         if (!this.freeRoam) {
             // spectate target
-            var player = this.getSpectateTarget();
+            var player = this.getSpecTarget();
             if (player) {
-                this.setCenterPos(player.centerPos.x, player.centerPos.y);
+                this.setCenterPos(player.centerPos);
                 this._scale = player.getScale();
                 this.viewBox = player.viewBox;
                 this.viewNodes = player.viewNodes;
@@ -362,8 +341,8 @@ PlayerTracker.prototype.sendUpdate = function() {
     
     // Send packet
     this.socket.sendPacket(new Packet.UpdateNodes(
-        this, addNodes, updNodes, eatNodes, delNodes)
-    );
+        this, addNodes, updNodes, eatNodes, delNodes
+    ));
     
     // Update leaderboard
     if (++this.tickLeaderboard > 25) {
@@ -376,31 +355,28 @@ PlayerTracker.prototype.sendUpdate = function() {
     }
 };
 
-PlayerTracker.prototype.updateCenterInGame = function() { // Get center of cells
-    if (!this.cells.length) return;
-    var cx = 0;
-    var cy = 0;
-    for (var i = 0; i < this.cells.length; i++) {
-        if (!this.cells[i]) continue;
-        cx += this.cells[i].position.x;
-        cy += this.cells[i].position.y;
+PlayerTracker.prototype.updateSpecView = function(len) {
+    if (!this.spectate && len) {
+        // in game
+        var cx = 0, cy = 0;
+        for (var i = 0; i < len; i++) {
+            if (!this.cells[i]) continue;
+            cx += this.cells[i].position.x;
+            cy += this.cells[i].position.y;
+            this.centerPos = new Vec2(cx / len, cy / len);
+        }
+    } else {
+        if (this.freeRoam || this.getSpecTarget() == null) {
+            // free roam
+            var d = this.mouse.clone().sub(this.centerPos);
+            this.setCenterPos(this.centerPos.add2(d, 32 / d.sqDist(d)));
+            this._scale = this.gameServer.config.serverSpectatorScale;
+        } else {
+            // spectate target
+            this.viewBox = null;
+        }
     }
-    this.centerPos.x = cx / this.cells.length;
-    this.centerPos.y = cy / this.cells.length;
-};
-
-PlayerTracker.prototype.updateCenterFreeRoam = function() {
-    // get distance and speed
-    var dx = this.mouse.x - this.centerPos.x;
-    var dy = this.mouse.y - this.centerPos.y;
-    var d = 32 / Math.sqrt(dx * dx + dy * dy);
-    if (!d) return; // stop threshold
-
-    // set center position
-    var x = this.centerPos.x + dx * d;
-    var y = this.centerPos.y + dy * d;
-    this.setCenterPos(x, y);
-};
+}
 
 PlayerTracker.prototype.pressSpace = function() {
     if (this.spectate) {
@@ -409,16 +385,14 @@ PlayerTracker.prototype.pressSpace = function() {
         if (tick - this.lastKeypressTick < 40)
             return;
         this.lastKeypressTick = tick;
-        
-        // Space doesn't work for freeRoam mode
-        if (this.freeRoam || this.gameServer.largestClient === null)
-            return;
 
+        // Space doesn't work for freeRoam mode
+        if (this.freeRoam || this.gameServer.largestClient == null)
+            return;
     } else if (this.gameServer.run) {
         // Disable mergeOverride on the last merging cell
-        if (this.cells.length <= 2) {
+        if (this.cells.length <= 2)
             this.mergeOverride = false;
-        }
         // Cant split if merging or frozen
         if (this.mergeOverride || this.frozen) 
             return;
@@ -427,11 +401,9 @@ PlayerTracker.prototype.pressSpace = function() {
 };
 
 PlayerTracker.prototype.pressW = function() {
-    if (this.spectate) {
-        return;
-    } else if (this.gameServer.run) {
+    if (this.spectate) return;
+    else if (this.gameServer.run)
         this.gameServer.ejectMass(this);
-    }
 };
 
 PlayerTracker.prototype.pressQ = function() {
@@ -440,16 +412,15 @@ PlayerTracker.prototype.pressQ = function() {
         var tick = this.gameServer.tickCounter;
         if (tick - this.lastKeypressTick < 40)
             return;
+
         this.lastKeypressTick = tick;
-        
-        if (this.spectateTarget == null) {
+        if (this.spectateTarget == null)
             this.freeRoam = !this.freeRoam;
-        }
         this.spectateTarget = null;
     }
 };
 
-PlayerTracker.prototype.getSpectateTarget = function() {
+PlayerTracker.prototype.getSpecTarget = function() {
     if (this.spectateTarget == null || this.spectateTarget.isRemoved || !this.spectateTarget.cells.length) {
         this.spectateTarget = null;
         return this.gameServer.largestClient;
@@ -457,11 +428,11 @@ PlayerTracker.prototype.getSpectateTarget = function() {
     return this.spectateTarget;
 };
 
-PlayerTracker.prototype.setCenterPos = function(x, y) {
-    x = Math.max(x, this.gameServer.border.minx);
-    y = Math.max(y, this.gameServer.border.miny);
-    x = Math.min(x, this.gameServer.border.maxx);
-    y = Math.min(y, this.gameServer.border.maxy);
-    this.centerPos.x = x;
-    this.centerPos.y = y;
+PlayerTracker.prototype.setCenterPos = function(p) {
+    p.x = Math.max(p.x, this.gameServer.border.minx);
+    p.y = Math.max(p.y, this.gameServer.border.miny);
+    p.x = Math.min(p.x, this.gameServer.border.maxx);
+    p.y = Math.min(p.y, this.gameServer.border.maxy);
+    this.centerPos.x = p.x;
+    this.centerPos.y = p.y;
 };
