@@ -470,7 +470,6 @@ Commands.list = {
         for (var i in gameServer.clients) {
             if (gameServer.clients[i].playerTracker.pID == id) {
                 var client = gameServer.clients[i].playerTracker;
-                if (!client.cells.length) return Logger.warn("That player is either dead or not playing!");
                 var len = client.cells.length;
                 for (var j = 0; j < len; j++) {
                     gameServer.removeNode(client.cells[0]);
