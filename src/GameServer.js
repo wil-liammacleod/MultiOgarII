@@ -561,26 +561,7 @@ GameServer.prototype.mainLoop = function() {
     
     // Loop main functions
     if (this.run) {
-        // Move players and scan for collisions
-        for (var i = 0, len = this.nodesPlayer.length; i < len; i++) {
-            var cell = this.nodesPlayer[i];
-            if (!cell || cell.isRemoved) continue;
-            // Scan for player cells collisions
-            this.quadTree.find(cell.quadItem.bound, function(item) {
-                var m = self.checkCellCollision(cell, item.cell);
-                if (self.checkRigidCollision(m))
-                    self.resolveRigidCollision(m);
-                else if (item.cell != cell)
-                    self.resolveCollision(m);
-            });
-            this.movePlayer(cell, cell.owner);
-            this.autoSplit(cell, cell.owner);
-            this.boostCell(cell);
-            // Decay player cells once per second
-            if (((this.tickCounter + 3) % 25) === 0)
-                this.updateMassDecay(cell);
-        }
-        // Move moving nodes and scan for collisions
+        // Move moving nodes first
         for (var i = 0, len = this.movingNodes.length; i < len; i++) {
             var cell = this.movingNodes[i];
             if (!cell || cell.isRemoved || cell.cellType == 1) 
@@ -596,6 +577,25 @@ GameServer.prototype.mainLoop = function() {
             });
             if (!cell.isMoving)
                 this.movingNodes = null;
+        }
+        // Move players and scan for collisions
+        for (var i = 0, len = this.nodesPlayer.length; i < len; i++) {
+            var cell = this.nodesPlayer[i];
+            if (!cell || cell.isRemoved) continue;
+            this.movePlayer(cell, cell.owner);
+            this.autoSplit(cell, cell.owner);
+            // Scan for player cells collisions
+            this.quadTree.find(cell.quadItem.bound, function(item) {
+                var m = self.checkCellCollision(cell, item.cell);
+                if (self.checkRigidCollision(m))
+                    self.resolveRigidCollision(m);
+                else if (item.cell != cell)
+                    self.resolveCollision(m);
+            });
+            this.boostCell(cell);
+            // Decay player cells once per second
+            if (((this.tickCounter + 3) % 25) === 0)
+                this.updateMassDecay(cell);
         }
         if ((this.tickCounter % this.config.spawnInterval) === 0) {
             // Spawn food & viruses
@@ -830,7 +830,7 @@ GameServer.prototype.spawnCells = function(pos) {
     maxCount = this.config.virusMinAmount - this.nodesVirus.length;
     spawnCount = Math.min(maxCount, 2);
     for (var i = 0; i < spawnCount; i++) {
-        if (willCollide(pos, this.config.virusMinSize, this.nodesVirus))
+        if (willCollide(pos, this.config.virusMinSize))
             pos = this.randomPos();
         var v = new Entity.Virus(this, null, pos, this.config.virusMinSize);
         this.addNode(v);
@@ -856,15 +856,12 @@ GameServer.prototype.spawnPlayer = function(player, pos) {
     if (eject && !eject.isRemoved && eject.boostDistance < 1 &&
         Math.random() <= this.config.ejectSpawnPercent) {
         // Spawn from ejected mass
-        pos = {
-            x: eject.position.x,
-            y: eject.position.y
-        };
+        pos = eject.position.clone();
         player.setColor(eject.color);
         size = Math.max(size, eject._size * 1.15)
     }
     // Spawn player safely
-    if (willCollide(pos, size, this.nodesPlayer) && !player.isMi) 
+    if (willCollide(pos, size) && !player.isMi) 
         pos = this.randomPos();
 
     // Spawn player and add to world
@@ -881,13 +878,12 @@ GameServer.prototype.spawnPlayer = function(player, pos) {
     }
 };
 
-function willCollide(pos, size, arr) {
-    for (var i = 0; i < arr.length; i++) {
-        var sqSize = size * size;
-        var d = arr[i].position.clone().sub(pos);
-        if (d.dist(d) + sqSize <= sqSize * 2)
-            return true; // not safe
-    }
+function willCollide(pos, size) {
+    var sqSize = size * size;
+    var d = pos.clone();
+    if (d.dist(d) + sqSize <= sqSize * 2)
+        return false; // not safe
+    else return true;
 }
 
 GameServer.prototype.splitCells = function(client) {
