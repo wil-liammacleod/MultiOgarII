@@ -19,7 +19,7 @@ i.innerHTML += "<center class='text-muted'>Press <b>D</b> or <b>2</b> to split 2
 i.innerHTML += "<center class='text-muted'>Press <b>S</b> or <b>1</b> to split 1x</center>";
 i.innerHTML += "<center class='text-muted'>Press <b>H</b> for horizontal linesplit</center>";
 i.innerHTML += "<center class='text-muted'>Press <b>V</b> for vertical linesplit</center>";
-i.innerHTML += "<center class='text-muted'>Press <b>Tab</b> for popsplit macro</center>";
+i.innerHTML += "<center class='text-muted'>Press <b>C</b> for popsplit macro</center>";
 i.innerHTML += "<center class='text-muted'>Press <b>F</b> for solo-tricksplit</center>";
 
 // Load macros
@@ -42,8 +42,8 @@ function keydown(event) {
             time *= 2;
         }
     }
-    if (event.keyCode == 70) {
-        // Popsplit macro (tab)
+    if (event.keyCode == 67) {
+        // Popsplit macro (C)
         split();
         setTimeout(split, Math.random() * (350 - 200) + 200);
     }
