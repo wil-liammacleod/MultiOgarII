@@ -39,8 +39,6 @@ Cell.prototype.setSize = function (size) {
     this._size = size;
     this._sizeSquared = size * size;
     this._mass = this._sizeSquared / 100;
-    if (this.owner) 
-        this.owner.isMassChanged = true;
 };
 
 // by default cell cannot eat anyone
