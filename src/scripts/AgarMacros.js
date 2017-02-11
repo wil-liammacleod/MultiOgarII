@@ -23,7 +23,6 @@ i.innerHTML += "<center class='text-muted'>Press <b>C</b> for popsplit macro</ce
 i.innerHTML += "<center class='text-muted'>Press <b>F</b> for solo-tricksplit</center>";
 
 // Load macros
-var time = 35;
 var canFeed = false;
 function keydown(event) {
     if (event.keyCode == 87) {
@@ -33,13 +32,12 @@ function keydown(event) {
     }
     if (event.keyCode == 70) {
         // Solo-tricksplit (f)
-        for (var f2 = 0; f2 < 4; f2++) {
+        for (var a = 0; a < 4; a++) {
             setTimeout(function() {
                 split();
                 $("body").trigger($.Event("keydown", { keyCode: 87}));
                 $("body").trigger($.Event("keyup", { keyCode: 87}));
-            }, time);
-            time *= 2;
+            }, a * 50);
         }
     }
     if (event.keyCode == 67) {
@@ -53,17 +51,11 @@ function keydown(event) {
     }
     if (event.keyCode == 16 || event.keyCode == 52) {
         // Tricksplit Macro (shift or 4)
-        for (var e2 = 0; e2 < 4; e2++) {
-            setTimeout(split, time);
-            time *= 2;
-        }
+        for (var b = 0; b < 4; b++) setTimeout(split, b * 50);
     }
     if (event.keyCode == 65 || event.keyCode == 51) {
         // Triplesplit Macro (a or 3)
-        for (var a2 = 0; a2 < 3; a2++) {
-            setTimeout(split, time);
-            time *= 2;
-        }
+        for (var c = 0; c < 3; c++) setTimeout(split, c * 50);
     }
     if (event.keyCode == 68 || event.keyCode == 50) {
         // Doublesplit Macro (d or 2)
