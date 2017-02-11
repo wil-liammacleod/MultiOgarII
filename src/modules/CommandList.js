@@ -758,13 +758,9 @@ Commands.list = {
             } else if (client.cells.length) {
                 nick = fillChar(getName(client._name), ' ', gameServer.config.playerMaxNickLength);
                 cells = fillChar(client.cells.length, ' ', 5, true);
-                score = fillChar(client._score >> 0, ' ', 6, true);
-                position = fillChar(client.centerPos.x >> 0, ' ', 5, true) + ', ' + fillChar(client.centerPos.y >> 0, ' ', 5, true);
-                if (!client.isMi) Logger.print(" " + id + " | " + ip + " | " + protocol + " | " + cells + " | " + score + " | " + position + " | " + nick);
-                else {
-                    data = fillChar(" " + nick, '-', ' | CELLS | SCORE  | POSITION    '.length + gameServer.config.playerMaxNickLength, true);
-                    Logger.print(" " + id + " | " + ip + " | " + protocol + " | " + cells + " | " + data);
-                }
+                score = fillChar(getScore(client) >> 0, ' ', 6, true);
+                position = fillChar(getPos(client).x >> 0, ' ', 5, true) + ', ' + fillChar(getPos(client).y >> 0, ' ', 5, true);
+                Logger.print(" " + id + " | " + ip + " | " + protocol + " | " + cells + " | " + score + " | " + position + " | " + nick);
             } else {
                 // No cells = dead player or in-menu
                 data = fillChar('DEAD OR NOT PLAYING', '-', ' | CELLS | SCORE  | POSITION    '.length + gameServer.config.playerMaxNickLength, true);
@@ -1116,6 +1112,25 @@ function getName(name) {
     if (!name.length) 
         name = "An unnamed cell";
     return name.trim();
+}
+
+function getScore(client) {
+    var score = 0; // reset to not cause bugs
+    for (var i = 0; i < client.cells.length; i++) {
+        if (!client.cells[i]) continue;
+        score += client.cells[i]._mass;
+    }
+    return score;
+};
+
+function getPos(client) {
+    for (var i = 0; i < client.cells.length; i++) {
+        if (!client.cells[i]) continue;
+        return {
+            x: client.cells[i].position.x / client.cells.length,
+            y: client.cells[i].position.y / client.cells.length
+        }
+    }
 }
 
 // functions from QuadNode
