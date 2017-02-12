@@ -26,12 +26,12 @@ module.exports = PacketHandler;
 
 var oldNode = parseInt(process.version[1]) < 6;
 PacketHandler.prototype.handleMessage = function (message) {
-    if (!this.handler.hasOwnProperty(message[0]))
-        return;
-
     if (this.gameServer.config.serverWsModule === "uws")
         // uws gives ArrayBuffer - convert it to Buffer
         message = oldNode ? new Buffer(message) : Buffer.from(message);
+
+    if (!this.handler.hasOwnProperty(message[0]))
+        return;
 
     this.handler[message[0]](message);
     this.socket.lastAliveTime = this.gameServer.stepDateTime;
