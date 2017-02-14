@@ -24,12 +24,7 @@ function PacketHandler(gameServer, socket) {
 
 module.exports = PacketHandler;
 
-var oldNode = parseInt(process.version[1]) < 6;
 PacketHandler.prototype.handleMessage = function (message) {
-    if (this.gameServer.config.serverWsModule === "uws")
-        // uws gives ArrayBuffer - convert it to Buffer
-        message = oldNode ? new Buffer(message) : Buffer.from(message);
-
     if (!this.handler.hasOwnProperty(message[0]))
         return;
 
@@ -76,8 +71,8 @@ PacketHandler.prototype.handshake_onCompleted = function (protocol, key) {
     };
     this.protocol = protocol;
     // Send handshake response
-    this.socket.sendPacket(new Packet.ClearAll());
-    this.socket.sendPacket(new Packet.SetBorder(this.socket.playerTracker, this.gameServer.border, this.gameServer.config.serverGamemode, "MultiOgar-Edited " + this.gameServer.version));
+    this.sendPacket(new Packet.ClearAll());
+    this.sendPacket(new Packet.SetBorder(this.socket.playerTracker, this.gameServer.border, this.gameServer.config.serverGamemode, "MultiOgar-Edited " + this.gameServer.version));
     // Send welcome message
     this.gameServer.sendChatMessage(null, this.socket.playerTracker, "MultiOgar-Edited " + this.gameServer.version);
     if (this.gameServer.config.serverWelcome1)
@@ -214,7 +209,7 @@ PacketHandler.prototype.message_onStat = function (message) {
     if (dt < 25) {
         return;
     }
-    this.socket.sendPacket(new Packet.ServerStat(this.socket.playerTracker));
+    this.sendPacket(new Packet.ServerStat(this.socket.playerTracker));
 };
 
 PacketHandler.prototype.processMouse = function () {
@@ -309,4 +304,20 @@ PacketHandler.prototype.setNickname = function (text) {
     }
     
     this.socket.playerTracker.joinGame(name, skin);
+};
+
+PacketHandler.prototype.sendPacket = function(packet) {
+    if (!packet) return;
+	var socket = this.socket;
+    if (socket.readyState == WebSocket.OPEN) {
+        if (socket._socket.writable != null && !socket._socket.writable) {
+            return;
+        }
+        var buffer = packet.build(this.protocol);
+        if (buffer != null)
+            socket.send(buffer, { binary: true });
+    } else {
+        socket.readyState = WebSocket.CLOSED;
+        socket.emit('close');
+    }
 };
