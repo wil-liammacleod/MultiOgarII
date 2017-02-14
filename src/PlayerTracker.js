@@ -141,7 +141,7 @@ PlayerTracker.prototype.joinGame = function(name, skin) {
     this.spectate = false;
     this.freeRoam = false;
     this.spectateTarget = null;
-	var packetHandler = this.socket.packetHandler;
+    var packetHandler = this.socket.packetHandler;
 
     if (!this.isMi && this.socket.isConnected != null) {
         // some old clients don't understand ClearAll message
