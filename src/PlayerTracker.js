@@ -141,19 +141,20 @@ PlayerTracker.prototype.joinGame = function(name, skin) {
     this.spectate = false;
     this.freeRoam = false;
     this.spectateTarget = null;
+	var packetHandler = this.socket.packetHandler;
 
     if (!this.isMi && this.socket.isConnected != null) {
         // some old clients don't understand ClearAll message
         // so we will send update for them
-        if (this.socket.packetHandler.protocol < 6) {
-            this.socket.sendPacket(new Packet.UpdateNodes(this, [], [], [], this.clientNodes));
+        if (packetHandler.protocol < 6) {
+            packetHandler.sendPacket(new Packet.UpdateNodes(this, [], [], [], this.clientNodes));
         }
-        this.socket.sendPacket(new Packet.ClearAll());
+        packetHandler.sendPacket(new Packet.ClearAll());
         this.clientNodes = [];
         this.scramble();
         if (this.gameServer.config.serverScrambleLevel < 2) {
             // no scramble / lightweight scramble
-            this.socket.sendPacket(new Packet.SetBorder(this, this.gameServer.border));
+            packetHandler.sendPacket(new Packet.SetBorder(this, this.gameServer.border));
         }
         else if (this.gameServer.config.serverScrambleLevel == 3) {
             var ran = 10065536 * Math.random();
@@ -164,7 +165,7 @@ PlayerTracker.prototype.joinGame = function(name, skin) {
                 maxx: this.gameServer.border.maxx + ran,
                 maxy: this.gameServer.border.maxy + ran
             };
-            this.socket.sendPacket(new Packet.SetBorder(this, border));
+            packetHandler.sendPacket(new Packet.SetBorder(this, border));
         }
     }
     this.gameServer.gameMode.onPlayerSpawn(this.gameServer, this);
@@ -237,6 +238,7 @@ PlayerTracker.prototype.sendUpdate = function() {
         // also do not send if initialization is not complete yet
         return;
     }
+    var packetHandler = this.socket.packetHandler;
 
     if (this.spectate) {
         if (!this.freeRoam) {
@@ -250,7 +252,7 @@ PlayerTracker.prototype.sendUpdate = function() {
             }
         }
         // sends camera packet
-        this.socket.sendPacket(new Packet.UpdatePosition(
+        packetHandler.sendPacket(new Packet.UpdatePosition(
             this, this.centerPos.x, this.centerPos.y, this._scale
         ));
     }
@@ -265,7 +267,7 @@ PlayerTracker.prototype.sendUpdate = function() {
                 maxx: Math.min(b.maxx, v.maxx + v.halfWidth),
                 maxy: Math.min(b.maxy, v.maxy + v.halfHeight)
             };
-            this.socket.sendPacket(new Packet.SetBorder(this, bound));
+            packetHandler.sendPacket(new Packet.SetBorder(this, bound));
         }
         if (++this.borderCounter >= 20) this.borderCounter = 0;
     }
@@ -312,14 +314,14 @@ PlayerTracker.prototype.sendUpdate = function() {
     this.clientNodes = this.viewNodes;
 
     // Send update packet
-    this.socket.sendPacket(new Packet.UpdateNodes(this, addNodes, updNodes, eatNodes, delNodes));
+    packetHandler.sendPacket(new Packet.UpdateNodes(this, addNodes, updNodes, eatNodes, delNodes));
 
     // Update leaderboard
     if (++this.tickLeaderboard > 25) {
         // 1 / 0.040 = 25 (once per second)
         this.tickLeaderboard = 0;
         if (this.gameServer.leaderboardType >= 0)
-            this.socket.sendPacket(new Packet.UpdateLeaderboard(this, this.gameServer.leaderboard, this.gameServer.leaderboardType));
+            packetHandler.sendPacket(new Packet.UpdateLeaderboard(this, this.gameServer.leaderboard, this.gameServer.leaderboardType));
     }
 };
 
