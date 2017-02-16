@@ -307,7 +307,7 @@ PacketHandler.prototype.setNickname = function (text) {
 };
 
 PacketHandler.prototype.sendPacket = function(packet) {
-    if (!packet) return;
+    if (!packet || !this.socket.isConnected) return;
     var socket = this.socket;
     if (socket.readyState == WebSocket.OPEN) {
         if (socket._socket.writable != null && !socket._socket.writable) {
