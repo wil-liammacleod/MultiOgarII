@@ -1,5 +1,4 @@
 // Library imports
-var WebSocket = require('ws');
 var http = require('http');
 var fs = require("fs");
 
@@ -10,6 +9,8 @@ var PacketHandler = require('./PacketHandler');
 var Entity = require('./entity');
 var Vec2 = require('./modules/Vec2');
 var Logger = require('./modules/Logger');
+
+var oldNode = parseInt(process.version[1]) < 6;
 
 // GameServer implementation
 function GameServer() {
@@ -186,8 +187,8 @@ GameServer.prototype.start = function() {
         maxPayload: 4096
     };
     Logger.info("WebSocket: " + this.config.serverWsModule);
-    WebSocket = require(this.config.serverWsModule);
-    this.wsServer = new WebSocket.Server(wsOptions);
+    this.WebSocket = require(this.config.serverWsModule);
+    this.wsServer = new this.WebSocket.Server(wsOptions);
     this.wsServer.on('error', this.onServerSocketError.bind(this));
     this.wsServer.on('connection', this.onClientSocketOpen.bind(this));
     this.httpServer.listen(this.config.serverPort, this.config.serverBind, this.onHttpServerOpen.bind(this));
@@ -231,7 +232,7 @@ GameServer.prototype.addNode = function(node) {
     if (node.owner) {
         node.setColor(node.owner.color);
         node.owner.cells.push(node);
-        node.owner.socket.sendPacket(new Packet.AddNode(node.owner, node));
+        node.owner.socket.packetHandler.sendPacket(new Packet.AddNode(node.owner, node));
     }
 
     // Special on-add actions
@@ -294,9 +295,12 @@ GameServer.prototype.onClientSocketOpen = function(ws) {
     ws.playerCommand = new PlayerCommand(this, ws.playerTracker);
     
     var onMessage = function(message) {
-        if (!message.length) {
+        if (ws.packetHandler.gameServer.config.serverWsModule === "uws")
+            // uws gives ArrayBuffer - convert it to Buffer
+            message = oldNode ? new Buffer(message) : Buffer.from(message);
+
+        if (!message.length)
             return;
-        }
         if (message.length > 256) {
             ws.close(1009, "Spam");
             return;
@@ -304,7 +308,7 @@ GameServer.prototype.onClientSocketOpen = function(ws) {
         ws.packetHandler.handleMessage(message);
     };
     var onError = function(error) {
-        ws.sendPacket = function(data) { };
+        ws.packetHandler.sendPacket = function(data) { };
     };
     var self = this;
     var onClose = function(reason) {
@@ -313,7 +317,7 @@ GameServer.prototype.onClientSocketOpen = function(ws) {
         }
         self.socketCount--;
         ws.isConnected = false;
-        ws.sendPacket = function(data) { };
+        ws.packetHandler.sendPacket = function(data) { };
         ws.closeReason = { reason: ws._closeCode, message: ws._closeMessage };
         ws.closeTime = Date.now();
         Logger.write("DISCONNECTED " + ws.remoteAddress + ":" + ws.remotePort + ", code: " + ws._closeCode +
@@ -534,7 +538,7 @@ GameServer.prototype.sendChatMessage = function(from, to, message) {
     for (var i = 0, len = this.clients.length; i < len; i++) {
         if (!this.clients[i]) continue;
         if (!to || to == this.clients[i].playerTracker)
-            this.clients[i].sendPacket(new Packet.ChatMessage(from, message));
+            this.clients[i].packetHandler.sendPacket(new Packet.ChatMessage(from, message));
     }
 };
 
@@ -1078,20 +1082,6 @@ GameServer.prototype.loadIpBanList = function() {
     } catch (err) {
         Logger.error(err.stack);
         Logger.error("Failed to load " + fileNameIpBan + ": " + err.message);
-    }
-};
-
-// Custom prototype function
-WebSocket.prototype.sendPacket = function(packet) {
-    if (packet == null) return;
-    if (this.readyState == WebSocket.OPEN) {
-        if (this._socket.writable != null && !this._socket.writable)
-            return;
-        var buffer = packet.build(this.playerTracker.socket.packetHandler.protocol);
-        if (buffer != null) this.send(buffer, { binary: true });
-    } else {
-        this.readyState = WebSocket.CLOSED;
-        this.emit('close');
     }
 };
 
