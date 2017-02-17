@@ -307,15 +307,12 @@ PacketHandler.prototype.setNickname = function (text) {
 };
 
 PacketHandler.prototype.sendPacket = function(packet) {
-    if (!packet || !this.socket.isConnected) return;
     var socket = this.socket;
+    if (!packet || socket.isConnected == null || socket.playerTracker.isMi) 
+        return;
     if (socket.readyState == this.gameServer.WebSocket.OPEN) {
-        if (socket._socket.writable != null && !socket._socket.writable) {
-            return;
-        }
         var buffer = packet.build(this.protocol);
-        if (buffer != null)
-            socket.send(buffer, { binary: true });
+        if (buffer) socket.send(buffer, { binary: true });
     } else {
         socket.readyState = this.gameServer.WebSocket.CLOSED;
         socket.emit('close');
