@@ -1,5 +1,4 @@
 // Library imports
-global.WebSocket = null;
 var http = require('http');
 var fs = require("fs");
 
@@ -188,8 +187,8 @@ GameServer.prototype.start = function() {
         maxPayload: 4096
     };
     Logger.info("WebSocket: " + this.config.serverWsModule);
-    global.WebSocket = require(this.config.serverWsModule);
-    this.wsServer = new WebSocket.Server(wsOptions);
+    this.WebSocket = require(this.config.serverWsModule);
+    this.wsServer = new this.WebSocket.Server(wsOptions);
     this.wsServer.on('error', this.onServerSocketError.bind(this));
     this.wsServer.on('connection', this.onClientSocketOpen.bind(this));
     this.httpServer.listen(this.config.serverPort, this.config.serverBind, this.onHttpServerOpen.bind(this));
