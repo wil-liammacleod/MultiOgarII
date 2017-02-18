@@ -77,6 +77,7 @@ Commands.list = {
                     "│ status                       │ Get server status                         │\n"+
                     "│ debug                        │ Get/check node lengths                    │\n"+
                     "│ exit                         │ Stop the server                           │\n"+
+                    "│ calc                         │ Get size/mass from a specified value      │\n"+
                     "│                                                                          │\n"+
                     "├──────────────────────────────────────────────────────────────────────────┤\n"+
                     '│         Psst! Do "shortcuts" for a list of command shortcuts!            │\n'+
@@ -996,6 +997,20 @@ Commands.list = {
         gameServer.disableSpawn = !gameServer.disableSpawn;
         var s = gameServer.disableSpawn ? "Started" : "Ended";
         Logger.print(s + " last man standing");
+    },
+    calc: function(gameServer, split) {
+        var num = parseInt(split[1]);
+        if (isNaN(num)) {
+            Logger.warn("Please specify a valid number!");
+            return;
+        }
+        var to = split[2];
+        if (to != "toMass" && to != "toSize") {
+            Logger.warn('Please specify either "toMass" or "toSize"');
+            return;
+        }
+        if (to == "toMass") Logger.print("The specified size is " + num * num / 100 + " in mass");
+        else Logger.print("The specified mass is " + (Math.sqrt(num * 100)).toFixed(2) + " in size");
     },
     
     // Aliases for commands
