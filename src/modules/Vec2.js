@@ -50,7 +50,7 @@ Vec2.prototype.clone = function() {
 };
 
 Vec2.prototype.dist = function(d) {
-    return d.x * d.x + d.y * d.y;
+    return ~~d.x * ~~d.x + ~~d.y * ~~d.y;
 };
 
 Vec2.prototype.sqDist = function(d) {
