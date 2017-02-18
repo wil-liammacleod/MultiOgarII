@@ -10,8 +10,6 @@ var Entity = require('./entity');
 var Vec2 = require('./modules/Vec2');
 var Logger = require('./modules/Logger');
 
-var oldNode = parseInt(process.version[1]) < 6;
-
 // GameServer implementation
 function GameServer() {
     // Location of source files - For renaming or moving source files!
@@ -113,8 +111,8 @@ function GameServer() {
         virusVelocity: 780,         // Velocity of moving viruses (speed and distance)
         
         /** EJECTED MASS **/
-        ejectSize: 40,              // vanilla: mass = val*val/100 = 16 mass
-        ejectSizeLoss: 45,          // Eject size which will be substracted from player cell (vanilla: mass = val*val/100 = 20 mass?)
+        ejectSize: 36.06,           // vanilla: mass = val*val/100 = 13 mass?
+        ejectSizeLoss: 42.43,       // Eject size which will be substracted from player cell (vanilla: mass = val*val/100 = 18 mass?)
         ejectCooldown: 3,           // Tick count until a player can eject mass again in ticks (1 tick = 40 ms)
         ejectSpawnPercent: 0.5,     // Chance for a player to spawn from ejected mass. 0.5 = 50% (set to 0 to disable)
         ejectVirus: 0,              // Whether or not players can eject viruses instead of mass
@@ -220,10 +218,10 @@ GameServer.prototype.addNode = function(node) {
     // Add to quad-tree & node list
     var x = node.position.x;
     var y = node.position.y;
-    var size = node._size;
+    var s = node._size;
     node.quadItem = {
         cell: node, // update viewbox for players
-        bound: { minx: x-size, miny: y-size, maxx: x+size, maxy: y+size }
+        bound: { minx: x-s, miny: y-s, maxx: x+s, maxy: y+s }
     };
     this.quadTree.insert(node.quadItem);
     this.nodes.push(node);
@@ -294,13 +292,13 @@ GameServer.prototype.onClientSocketOpen = function(ws) {
     ws.packetHandler = new PacketHandler(this, ws);
     ws.playerCommand = new PlayerCommand(this, ws.playerTracker);
     
+    var self = this;
     var onMessage = function(message) {
-        if (ws.packetHandler.gameServer.config.serverWsModule === "uws")
+        if (self.config.serverWsModule === "uws")
             // uws gives ArrayBuffer - convert it to Buffer
-            message = oldNode ? new Buffer(message) : Buffer.from(message);
+            message = parseInt(process.version[1]) < 6 ? new Buffer(message) : Buffer.from(message);
 
-        if (!message.length)
-            return;
+        if (!message.length) return;
         if (message.length > 256) {
             ws.close(1009, "Spam");
             return;
@@ -310,7 +308,6 @@ GameServer.prototype.onClientSocketOpen = function(ws) {
     var onError = function(error) {
         ws.packetHandler.sendPacket = function(data) { };
     };
-    var self = this;
     var onClose = function(reason) {
         if (ws._socket.destroy != null && typeof ws._socket.destroy == 'function') {
             ws._socket.destroy();
@@ -473,7 +470,7 @@ GameServer.prototype.updateLeaderboard = function() {
     // Update leaderboard with the gamemode's method
     this.leaderboard = [];
     this.leaderboardType = -1;
-    this.gameMode.updateLB(this);
+    this.gameMode.updateLB(this, this.leaderboard);
     
     if (!this.gameMode.specByLeaderboard) {
         // Get client with largest score if gamemode doesn't have a leaderboard
@@ -582,13 +579,13 @@ GameServer.prototype.mainLoop = function() {
             if (!cell.isMoving)
                 this.movingNodes = null;
         }
-        // Move players and scan for collisions
+        // Update players and scan for collisions
         for (var i = 0, len = this.nodesPlayer.length; i < len; i++) {
             var cell = this.nodesPlayer[i];
             if (!cell || cell.isRemoved) continue;
             this.movePlayer(cell, cell.owner);
-            this.autoSplit(cell, cell.owner);
-            // Scan for player cells collisions
+            this.boostCell(cell);
+            // Scan for eat/rigid collisions and resolve them
             this.quadTree.find(cell.quadItem.bound, function(item) {
                 var m = self.checkCellCollision(cell, item.cell);
                 if (self.checkRigidCollision(m))
@@ -596,10 +593,15 @@ GameServer.prototype.mainLoop = function() {
                 else if (item.cell != cell)
                     self.resolveCollision(m);
             });
-            this.boostCell(cell);
+            this.autoSplit(cell, cell.owner);
             // Decay player cells once per second
             if (((this.tickCounter + 3) % 25) === 0)
                 this.updateMassDecay(cell);
+            // Remove external minions if necessary
+            if (cell.owner.isMinion) {
+                cell.owner.socket.close(1000, "Minion");
+                this.removeNode(cell);
+            }
         }
         if ((this.tickCounter % this.config.spawnInterval) === 0) {
             // Spawn food & viruses
@@ -743,12 +745,12 @@ GameServer.prototype.checkRigidCollision = function(m) {
 GameServer.prototype.resolveRigidCollision = function(m) {
     var r = m.cell._size + m.check._size; // radius sum of cell & check
     var push = Math.min((r - m.d) / m.d, r - m.d); // min extrusion force
-    if (push / r < 0) return;
+    if (r - m.d < 0) return; // do not apply force
 
     // body impulse (TODO: convert to size)
-    var total = m.cell._mass + m.check._mass;
-    var m1 = push * m.cell._mass / total;
-    var m2 = push * m.check._mass / total;
+    var mt = m.cell._mass + m.check._mass;
+    var m1 = push * m.cell._mass / mt;
+    var m2 = push * m.check._mass / mt;
 
     // apply extrusion force
     m.cell.position.sub2(m.p, m2);
@@ -805,7 +807,7 @@ GameServer.prototype.splitPlayerCell = function(client, parent, angle, mass) {
     
     // Create cell and add it to node list
     var newCell = new Entity.PlayerCell(this, client, pos, size);
-    newCell.setBoost(this.config.splitVelocity, angle);
+    newCell.setBoost(this.config.splitVelocity * Math.pow(size, 0.0122), angle);
     this.addNode(newCell);
 };
 
@@ -832,12 +834,10 @@ GameServer.prototype.spawnCells = function(pos) {
 
     // spawn viruses (safely)
     maxCount = this.config.virusMinAmount - this.nodesVirus.length;
-    spawnCount = Math.min(maxCount, 2);
-    for (var i = 0; i < spawnCount; i++) {
-        if (willCollide(pos, this.config.virusMinSize))
-            pos = this.randomPos();
-        var v = new Entity.Virus(this, null, pos, this.config.virusMinSize);
-        this.addNode(v);
+    for (var i = 0; i < Math.min(maxCount, 2); i++) {
+        if (this.willCollide(this.config.virusMinSize))
+            return;
+        this.addNode(new Entity.Virus(this, null, this.randomPos(), this.config.virusMinSize));
     }
 };
 
@@ -849,45 +849,38 @@ GameServer.prototype.spawnPlayer = function(player, pos) {
     if (player.spawnmass && !player.isMi) {
         size = player.spawnmass;
     } else if (player.isMi) {
-        size = this.config.minionStartSize,
-        maxStart = this.config.minionMaxStartSize;
-        if (maxStart > size)
-            size = Math.random() * (maxStart - size) + size;
+        size = this.config.minionStartSize;
+        if (this.config.minionMaxStartSize > size)
+        size = Math.random() * (this.config.minionMaxStartSize - size) + size;
     }
     // Check if can spawn from ejected mass
     var index = (this.nodesEjected.length - 1) * ~~Math.random();
     var eject = this.nodesEjected[index]; // Randomly selected
-    if (eject && !eject.isRemoved && eject.boostDistance < 1 &&
-        Math.random() <= this.config.ejectSpawnPercent) {
+    if (Math.random() <= this.config.ejectSpawnPercent
+        && eject && eject.boostDistance < 1) {
         // Spawn from ejected mass
         pos = eject.position.clone();
         player.setColor(eject.color);
         size = Math.max(size, eject._size * 1.15)
     }
-    // Spawn player safely
-    if (willCollide(pos, size) && !player.isMi) 
-        pos = this.randomPos();
-
-    // Spawn player and add to world
-    var cell = new Entity.PlayerCell(this, player, pos, size);
-    this.addNode(cell);
+    // Spawn player safely (do not check minions)
+    if (this.willCollide(size) && !player.isMi) return; // not safe
+    else this.addNode(new Entity.PlayerCell(this, player, pos, size));
 
     // Set initial mouse coords
     player.mouse = new Vec2(pos.x, pos.y);
-
-    // Remove external minions if necessary
-    if (player.isMinion) {
-        player.socket.close(1000, "Marked as minion");
-        this.removeNode(cell);
-    }
 };
 
-function willCollide(pos, size) {
-    var sqSize = size * size;
-    var d = pos.clone();
-    if (d.dist(d) + sqSize <= sqSize * 2)
-        return false; // not safe
-    else return true;
+GameServer.prototype.willCollide = function(size) {
+    var sqSize = size * size; // squared size
+    var pos = this.randomPos();
+    for (var i = 0; i < this.nodesPlayer.length; i++) {
+        var node = this.nodesPlayer[i];
+        var d = node.position.clone().sub(pos);
+        if (d.dist(d) + sqSize <= sqSize * 2)
+            return true; // not safe to spawn
+    }
+    return false; // is safe to spawn
 }
 
 GameServer.prototype.splitCells = function(client) {
@@ -902,8 +895,8 @@ GameServer.prototype.splitCells = function(client) {
     // Split split-able cells
     for (var i = 0; i < cellToSplit.length; i++) {
         var cell = cellToSplit[i];
-        var d = cell.position.clone().sub(client.mouse).scale(-1);
-        if (d.dist(~~d) < 1) {
+        var d = client.mouse.clone().sub(cell.position);
+        if (d.dist(d) < 1) {
             d.x = 1, d.y = 0;
         }
 
@@ -941,7 +934,7 @@ GameServer.prototype.ejectMass = function(client) {
         if (cell._size < this.config.playerMinEjectSize)
             continue; // Too small to eject
         
-        var d = cell.position.clone().sub(client.mouse).scale(-1);
+        var d = client.mouse.clone().sub(cell.position);
         var sq = d.sqDist(d);
         d.x = sq > 1 ? d.x / sq : 1;
         d.y = sq > 1 ? d.y / sq : 0;
