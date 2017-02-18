@@ -37,9 +37,7 @@ function PlayerTracker(gameServer, socket) {
         minx: 0,
         miny: 0,
         maxx: 0,
-        maxy: 0,
-        halfWidth: 0,
-        halfHeight: 0
+        maxy: 0
     };
 
     // Scramble the coordinate system for anti-raga
@@ -209,8 +207,8 @@ PlayerTracker.prototype.updateTick = function() {
     // update viewbox
     this.updateSpecView(this.cells.length);
     var scale = Math.max(this.getScale(), this.gameServer.config.serverMinScale);
-    var halfWidth = this.gameServer.config.serverViewBaseX / scale / 2;
-    var halfHeight = this.gameServer.config.serverViewBaseY / scale / 2;
+    var halfWidth = (this.gameServer.config.serverViewBaseX + 100) / scale / 2;
+    var halfHeight = (this.gameServer.config.serverViewBaseY + 100) / scale / 2;
     this.viewBox = {
         minx: this.centerPos.x - halfWidth,
         miny: this.centerPos.y - halfHeight,
@@ -238,25 +236,8 @@ PlayerTracker.prototype.sendUpdate = function() {
         // also do not send if initialization is not complete yet
         return;
     }
+
     var packetHandler = this.socket.packetHandler;
-
-    if (this.spectate) {
-        if (!this.freeRoam) {
-            // spectate target
-            var player = this.getSpecTarget();
-            if (player) {
-                this.setCenterPos(player.centerPos);
-                this._scale = player._scale;
-                this.viewBox = player.viewBox;
-                this.viewNodes = player.viewNodes;
-            }
-        }
-        // sends camera packet
-        packetHandler.sendPacket(new Packet.UpdatePosition(
-            this, this.centerPos.x, this.centerPos.y, this._scale
-        ));
-    }
-
     if (this.gameServer.config.serverScrambleLevel == 2) {
         // scramble (moving border)
         if (!this.borderCounter) {
@@ -280,36 +261,31 @@ PlayerTracker.prototype.sendUpdate = function() {
     var newIndex = 0;
     for (; newIndex < this.viewNodes.length && oldIndex < this.clientNodes.length;) {
         if (this.viewNodes[newIndex].nodeId < this.clientNodes[oldIndex].nodeId) {
+            if (this.viewNodes[newIndex].isRemoved) continue;
             addNodes.push(this.viewNodes[newIndex]);
             newIndex++;
             continue;
         }
         if (this.viewNodes[newIndex].nodeId > this.clientNodes[oldIndex].nodeId) {
             var node = this.clientNodes[oldIndex];
-            if (node.isRemoved && node.killedBy && node.owner != node.killedBy.owner)
-                eatNodes.push(node);
-            else
-                delNodes.push(node);
+            if (node.isRemoved) eatNodes.push(node);
+            else delNodes.push(node);
             oldIndex++;
             continue;
         }
         var node = this.viewNodes[newIndex];
-        // skip food & eject if not moving
         if (node.isRemoved) continue;
-        if (node.isMoving || (node.cellType != 1 && node.cellType != 3))
+        // only send update for moving or player nodes
+        if (node.isMoving || node.cellType == 0)
             updNodes.push(node);
+        addNodes.push(node);
         newIndex++;
         oldIndex++;
     }
-    for (; newIndex < this.viewNodes.length; newIndex++)
-        addNodes.push(this.viewNodes[newIndex]);
-
     for (; oldIndex < this.clientNodes.length; oldIndex++) {
         var node = this.clientNodes[oldIndex];
-        if (node.isRemoved && node.killedBy && node.owner != node.killedBy.owner)
-            eatNodes.push(node);
-        else
-            delNodes.push(node);
+        if (node.isRemoved) eatNodes.push(node);
+        else delNodes.push(node);
     }
     this.clientNodes = this.viewNodes;
 
@@ -326,7 +302,7 @@ PlayerTracker.prototype.sendUpdate = function() {
 };
 
 PlayerTracker.prototype.updateSpecView = function(len) {
-    if (!this.spectate && len) {
+    if (!this.spectate || len) {
         // in game
         var cx = 0, cy = 0;
         for (var i = 0; i < len; i++) {
@@ -338,11 +314,23 @@ PlayerTracker.prototype.updateSpecView = function(len) {
         if (this.freeRoam || this.getSpecTarget() == null) {
             // free roam
             var d = this.mouse.clone().sub(this.centerPos);
+            var scale = this.gameServer.config.serverSpectatorScale;
             this.setCenterPos(this.centerPos.add2(d, 32 / d.sqDist(d)));
-            this._scale = Math.max(this.gameServer.config.serverSpectatorScale, this.getScale());
-        } else
+        } else {
             // spectate target
-            this.viewBox = null;
+            var player = this.getSpecTarget();
+            if (player) {
+                this.setCenterPos(player.centerPos);
+                var scale = player.getScale();
+                this.place = player.place;
+                this.viewBox = player.viewBox;
+                this.viewNodes = player.viewNodes;
+            }
+        }
+        // sends camera packet
+        this.socket.packetHandler.sendPacket(new Packet.UpdatePosition(
+            this, this.centerPos.x, this.centerPos.y, scale
+        ));
     }
 }
 
