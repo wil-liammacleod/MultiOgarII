@@ -121,13 +121,13 @@ PlayerTracker.prototype.setColor = function(color) {
 
 PlayerTracker.prototype.getScale = function() {
     this._score = 0; // reset to not cause bugs with leaderboard
+    var scale = 0; // reset to not cause bugs with viewbox
     for (var i = 0; i < this.cells.length; i++) {
-        if (!this.cells[i]) continue;
-        this._scale += this.cells[i]._size;
+        scale += this.cells[i]._size;
         this._score += this.cells[i]._mass;
     }
-    if (!this._scale) return this._scale = this._score = 0; // reset
-    else return this._scale = Math.pow(Math.min(64 / this._scale, 1), 0.4);
+    if (!scale) return scale = this._score = 0; // reset
+    else return this._scale = Math.pow(Math.min(64 / scale, 1), 0.4);
 };
 
 PlayerTracker.prototype.joinGame = function(name, skin) {
