@@ -605,7 +605,7 @@ GameServer.prototype.mainLoop = function() {
         }
         if ((this.tickCounter % this.config.spawnInterval) === 0) {
             // Spawn food & viruses
-            this.spawnCells(this.randomPos());
+            this.spawnCells();
         }
         this.gameMode.onTick(this);
         this.tickCounter++;
@@ -745,7 +745,7 @@ GameServer.prototype.checkRigidCollision = function(m) {
 GameServer.prototype.resolveRigidCollision = function(m) {
     var r = m.cell._size + m.check._size; // radius sum of cell & check
     var push = Math.min((r - m.d) / m.d, r - m.d); // min extrusion force
-    if (r - m.d < 0) return; // do not apply force
+    if (push <= 0) return; // do not apply force
 
     // body impulse (TODO: convert to size)
     var mt = m.cell._mass + m.check._mass;
@@ -818,7 +818,7 @@ GameServer.prototype.randomPos = function() {
     );
 };
 
-GameServer.prototype.spawnCells = function(pos) {
+GameServer.prototype.spawnCells = function() {
     // spawn food at random size
     var maxCount = this.config.foodMinAmount - this.nodesFood.length;
     var spawnCount = Math.min(maxCount, this.config.foodSpawnAmount);
@@ -833,11 +833,10 @@ GameServer.prototype.spawnCells = function(pos) {
     }
 
     // spawn viruses (safely)
-    maxCount = this.config.virusMinAmount - this.nodesVirus.length;
-    for (var i = 0; i < Math.min(maxCount, 2); i++) {
-        if (this.willCollide(this.config.virusMinSize))
-            return;
-        this.addNode(new Entity.Virus(this, null, this.randomPos(), this.config.virusMinSize));
+    while (this.nodesVirus.length < this.config.virusMinAmount) {
+        var virus = new Entity.Virus(this, null, this.randomPos(), this.config.virusMinSize);
+        if (!this.willCollide(this.config.virusMinSize, virus))
+            this.addNode(virus);
     }
 };
 
@@ -871,7 +870,7 @@ GameServer.prototype.spawnPlayer = function(player, pos) {
     player.mouse = new Vec2(pos.x, pos.y);
 };
 
-GameServer.prototype.willCollide = function(size) {
+GameServer.prototype.willCollide = function(size, virus) {
     var sqSize = size * size; // squared size
     var pos = this.randomPos();
     for (var i = 0; i < this.nodesPlayer.length; i++) {
@@ -879,8 +878,21 @@ GameServer.prototype.willCollide = function(size) {
         var d = node.position.clone().sub(pos);
         if (d.dist(d) + sqSize <= sqSize * 2)
             return true; // not safe to spawn
+        if (virus && this.checkV(virus, node, size))
+            return true; // not safe to spawn viruses
     }
     return false; // is safe to spawn
+}
+
+GameServer.prototype.checkV = function(virus, node, size) {
+    var vBound = {
+        minx: virus.position.x - size,
+        miny: virus.position.y - size,
+        maxx: virus.position.x + size,
+        maxy: virus.position.y + size
+    }
+    if (!this.quadTree.intersects(vBound, node.quadItem.bound))
+        return true;
 }
 
 GameServer.prototype.splitCells = function(client) {
