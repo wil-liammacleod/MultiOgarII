@@ -72,14 +72,14 @@ QuadNode.prototype.find = function (bound, callback) {
         } else {
             for (var i = 0; i < this.childNodes.length; i++) {
                 var node = this.childNodes[i];
-                if (!intersects(node.bound, bound))
+                if (!this.intersects(node.bound, bound))
                     node.find(bound, callback);
             }
         }
     }
     for (var i = 0; i < this.items.length; i++) {
         var item = this.items[i];
-        if (!intersects(item.bound, bound))
+        if (!this.intersects(item.bound, bound))
             callback(item);
     }
 };
@@ -98,7 +98,7 @@ QuadNode.prototype.getQuad = function (bound) {
     return -1;  // cannot fit (too large size)
 };
 
-function intersects(a, b) {
+QuadNode.prototype.intersects = function (a, b) {
     return b.minx >= a.maxx ||
         b.maxx <= a.minx ||
         b.miny >= a.maxy ||
