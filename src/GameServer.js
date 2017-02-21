@@ -17,7 +17,7 @@ function GameServer() {
     
     // Startup
     this.run = true;
-    this.version = '1.5.0';
+    this.version = '1.6.0';
     this.httpServer = null;
     this.commands = null;
     this.lastNodeId = 1;
@@ -885,13 +885,13 @@ GameServer.prototype.willCollide = function(size, virus) {
 }
 
 GameServer.prototype.checkV = function(virus, node, size) {
-    var vBound = {
+    var bound = {
         minx: virus.position.x - size,
         miny: virus.position.y - size,
         maxx: virus.position.x + size,
         maxy: virus.position.y + size
     }
-    if (!this.quadTree.intersects(vBound, node.quadItem.bound))
+    if (!this.quadTree.intersects(bound, node.quadItem.bound))
         return true;
 }
 
