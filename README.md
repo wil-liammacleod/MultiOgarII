@@ -16,6 +16,11 @@ Original Ogar found [here](https://github.com/OgarProject/Ogar)
 
 The goal is to make vanilla physics, cleanup the code, and add many features, while also maintaining better performance than the original MultiOgar.
 
+## Wiki
+Please see the issue templete before you make an issue, you can find it [here](https://github.com/Megabyte918/MultiOgar-Edited/wiki/Issue-Template). More coming soon!
+
+
+
 ## Ogar Server Tracker
 
 You can found active Ogar servers on http://ogar-tracker.tk
