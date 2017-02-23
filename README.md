@@ -85,12 +85,11 @@ sudo node index.js
 
 Replace 127.0.0.1:443 with server and port 
 
-URL | Protocol | Description
---- | --- | ---
-http://agar.io/?ip=127.0.0.1:443 | 8 | Vanilla
-http://ogar.mivabe.nl/?ip=127.0.0.1:443 | early 5 | MivaBe, pretty smooth, custom graphics (anime)
-http://old.ogarul.io/?ip=127.0.0.1:443 | 4 | OgarUL, old vanilla style
-http://c0nsume.me/private4.php?ip=127.0.0.1:443 | 5 | Vanilla style
-http://astr.io/?ip=127.0.0.1:443 | 9 | Extension like
+URL | Protocol 
+--- | --- 
+http://agar.io/?ip=127.0.0.1:443 | 8 
+http://old.ogarul.io/?ip=127.0.0.1:443 | 4 
+http://c0nsume.me/private4.php?ip=127.0.0.1:443 | 5  
+http://astr.io/?ip=127.0.0.1:443 | 9 
 
 
