@@ -145,7 +145,6 @@ http://ogar.mivabe.nl/?ip=127.0.0.1:443 | early 5 | MivaBe, pretty smooth, custo
 http://old.ogarul.io/?ip=127.0.0.1:443 | 4 | OgarUL, old vanilla style
 http://c0nsume.me/private4.php?ip=127.0.0.1:443 | 5 | Vanilla style
 http://astr.io/?ip=127.0.0.1:443 | 6 | Extension like
-http://alis.io/?ip=127.0.0.1:443 | 5 | Extension like
 
 
 Most of the physics code from the original MultiOgar were rewritten.
