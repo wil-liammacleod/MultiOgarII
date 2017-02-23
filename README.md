@@ -1,8 +1,8 @@
 # MultiOgar - Edited
 Ogar game server with fast and smooth vanilla physics and multi-protocol support.
 
-https://github.com/Megabyte918/MultiOgar-Edited/wiki/Issue-Templete
-See the issue templete before you make a issue
+https://github.com/Megabyte918/MultiOgar-Edited/wiki/Issue-Template
+Please see the issue templete before you make an issue
 
 Since Barbosik stopped working on the original MultiOgar, I decided to continue it on this fork =D
 
@@ -18,6 +18,11 @@ The [OgarProject](https://ogarproject.com) owns Ogar, and I do not claim it as m
 Original Ogar found [here](https://github.com/OgarProject/Ogar)
 
 The goal is to make vanilla physics, cleanup the code, and add many features, while also maintaining better performance than the original MultiOgar.
+
+## Wiki
+Please see the issue templete before you make an issue, you can find it [here](https://github.com/Megabyte918/MultiOgar-Edited/wiki/Issue-Template). More coming soon!
+
+
 
 ## Ogar Server Tracker
 
