@@ -27,7 +27,6 @@ Original MultiOgar code is based on the private server implementation [Ogar](htt
 * Unzip MultiOgar code into some folder.
 
 *Quick*
-
 1. Run the win-Install_Dep.bat file.
 2. Run win-Start.bat
 * All these files can be found in the *run* folder.
@@ -39,7 +38,7 @@ Start command line and execute from MultiOgar folder.
 
 Install modules
 
-```batch
+```
 npm install
 ```
 
@@ -48,6 +47,10 @@ Run the server
 ```
 cd src
 node index.js
+
+or 
+
+npm start
 ```
 
 #### Linux:
