@@ -2,6 +2,7 @@
 var Logger = require('./modules/Logger');
 var Commands = require('./modules/CommandList');
 var GameServer = require('./GameServer');
+var figlet = require('figlet');
 
 // Init variables
 var showConsole = true;
@@ -35,14 +36,14 @@ process.argv.forEach(function (val) {
 var gameServer = new GameServer();
 Logger.info("\u001B[1m\u001B[32mMultiOgar-Edited " + gameServer.version + "\u001B[37m - An open source multi-protocol ogar server\u001B[0m");
 gameServer.start();
-figlet('MultiOgar-Edited', function(err, data) {
-    if (err) {
-        console.log('Something went wrong...');
-        console.dir(err);
-        return;
-    }
-    console.log(data)
-});
+figlet(('MultiOgar-Edited  ' + gameServer.version), function(err, data) {
+     if (err) {
+         console.log('Something went wrong...');
+         console.dir(err);
+         return;
+     }
+     console.log(data)
+ });
 
 // Add command handler
 gameServer.commands = Commands.list;
