@@ -2,6 +2,7 @@
 var Logger = require('./modules/Logger');
 var Commands = require('./modules/CommandList');
 var GameServer = require('./GameServer');
+var figlet = require('figlet');
 
 // Init variables
 var showConsole = true;
