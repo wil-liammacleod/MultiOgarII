@@ -15,7 +15,7 @@ function Cell(gameServer, owner, position, size) {
     this.killedBy = null;   // Cell that ate this cell
     this.isMoving = false;  // Indicate that cell is in boosted mode
     this.boostDistance = 0;
-    this.boostDirection = { x: 1, y: 0, angle: Math.PI / 2 };
+    this.boostDirection = new Vec2(1, 0);
     
     if (this.gameServer) {
         this.tickOfBirth = this.gameServer.tickCounter;
@@ -48,8 +48,7 @@ Cell.prototype.canEat = function (cell) {
 
 // Returns cell age in ticks for specified game tick
 Cell.prototype.getAge = function () {
-    if (this.tickOfBirth == null) return 0; // age cant be less than 0
-    return Math.max(0, this.gameServer.tickCounter - this.tickOfBirth);
+    return this.gameServer.tickCounter - this.tickOfBirth;
 };
 
 // Called to eat prey cell
@@ -63,10 +62,10 @@ Cell.prototype.onEat = function (prey) {
 
 Cell.prototype.setBoost = function (distance, angle) {
     this.boostDistance = distance;
-    this.boostDirection = {
-        x: Math.sin(angle),
-        y: Math.cos(angle),
-    };
+    this.boostDirection = new Vec2(
+        Math.sin(angle),
+        Math.cos(angle)
+    );
     this.isMoving = true;
     if (!this.owner) {
         var index = this.gameServer.movingNodes.indexOf(this);
@@ -77,12 +76,12 @@ Cell.prototype.setBoost = function (distance, angle) {
 Cell.prototype.checkBorder = function (b) {
     var r = this._size / 2;
     if (this.position.x < b.minx + r || this.position.x > b.maxx - r) {
-        this.boostDirection.x = -this.boostDirection.x; // reflect
+        this.boostDirection.scale(-1, 1); // reflect left-right
         this.position.x = Math.max(this.position.x, b.minx + r);
         this.position.x = Math.min(this.position.x, b.maxx - r);
     }
     if (this.position.y < b.miny + r || this.position.y > b.maxy - r) {
-        this.boostDirection.y = -this.boostDirection.y; // reflect
+        this.boostDirection.scale(1, -1); // reflect up-down
         this.position.y = Math.max(this.position.y, b.miny + r);
         this.position.y = Math.min(this.position.y, b.maxy - r);
     }
