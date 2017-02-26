@@ -41,8 +41,8 @@ Vec2.prototype.sub2 = function(d, m) {
     return this;
 };
 
-Vec2.prototype.angle = function(a) {
-    return Math.atan2(a.x, a.y);
+Vec2.prototype.angle = function() {
+    return Math.atan2(this.x, this.y);
 };
 
 Vec2.prototype.clone = function() {
