@@ -101,7 +101,10 @@ PlayerTracker.prototype.scramble = function() {
 
 PlayerTracker.prototype.setName = function(name) {
     this._name = name;
-    var writer = new BinaryWriter();
+    var writer = new BinaryWriter()
+    writer.writeStringZeroUnicode(name);
+    this._nameUnicode = writer.toBuffer();
+    writer = new BinaryWriter();
     writer.writeStringZeroUtf8(name);
     this._nameUtf8 = writer.toBuffer();
 };
