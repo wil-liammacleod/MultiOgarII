@@ -745,7 +745,7 @@ GameServer.prototype.checkRigidCollision = function(m) {
 GameServer.prototype.resolveRigidCollision = function(m) {
     var r = m.cell._size + m.check._size; // radius sum of cell & check
     var push = Math.min((r - m.d) / m.d, r - m.d); // min extrusion force
-    if (push <= 0) return; // do not apply force
+    if (push <= 0) return; // do not apply extrusion force
 
     // body impulse (TODO: convert to size)
     var mt = m.cell._mass + m.check._mass;
@@ -842,7 +842,7 @@ GameServer.prototype.spawnCells = function() {
 
 GameServer.prototype.spawnPlayer = function(player, pos) {
     if (this.disableSpawn) return; // Not allowed to spawn!
-    
+
     // Check for special start size(s)
     var size = this.config.playerStartSize;
     if (player.spawnmass && !player.isMi) {
@@ -863,14 +863,15 @@ GameServer.prototype.spawnPlayer = function(player, pos) {
         size = Math.max(size, eject._size * 1.15)
     }
     // Spawn player safely (do not check minions)
-    if (this.willCollide(size) && !player.isMi) return; // not safe
-    else this.addNode(new Entity.PlayerCell(this, player, pos, size));
+    if (this.willCollide(size) && !player.isMi)
+        pos = this.randomPos(); // Not safe => choose new position
+    this.addNode(new Entity.PlayerCell(this, player, pos, size));
 
     // Set initial mouse coords
     player.mouse = new Vec2(pos.x, pos.y);
 };
 
-GameServer.prototype.willCollide = function(size, virus) {
+GameServer.prototype.willCollide = function(size, cell) {
     var sqSize = size * size; // squared size
     var pos = this.randomPos();
     for (var i = 0; i < this.nodesPlayer.length; i++) {
@@ -878,20 +879,19 @@ GameServer.prototype.willCollide = function(size, virus) {
         var d = node.position.clone().sub(pos);
         if (d.dist(d) + sqSize <= sqSize * 2)
             return true; // not safe to spawn
-        if (virus && this.checkV(virus, node, size))
+        if (cell && this.intersects(cell, node, size))
             return true; // not safe to spawn viruses
     }
     return false; // is safe to spawn
 }
 
-GameServer.prototype.checkV = function(virus, node, size) {
-    var bound = {
-        minx: virus.position.x - size,
-        miny: virus.position.y - size,
-        maxx: virus.position.x + size,
-        maxy: virus.position.y + size
-    }
-    if (!this.quadTree.intersects(bound, node.quadItem.bound))
+GameServer.prototype.intersects = function(cell, node, size) {
+    if (!this.quadTree.intersects({
+        minx: cell.position.x - size,
+        miny: cell.position.y - size,
+        maxx: cell.position.x + size,
+        maxy: cell.position.y + size
+    }, node.quadItem.bound))
         return true;
 }
 
@@ -918,7 +918,7 @@ GameServer.prototype.splitCells = function(client) {
         if (client.cells.length >= max) return;
 
         // Now split player cells
-        this.splitPlayerCell(client, cell, d.angle(d), cell._mass*.5);
+        this.splitPlayerCell(client, cell, d.angle(), cell._mass*.5);
     }
 };
 
@@ -961,7 +961,7 @@ GameServer.prototype.ejectMass = function(client) {
             cell.position.x + d.x * cell._size,
             cell.position.y + d.y * cell._size
         );
-        var angle = d.angle(d) + (Math.random() * .6) - .3;
+        var angle = d.angle() + (Math.random() * .6) - .3;
         
         // Create cell and add it to node list
         if (!this.config.ejectVirus) {
