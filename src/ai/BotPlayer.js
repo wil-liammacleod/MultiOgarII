@@ -49,15 +49,13 @@ BotPlayer.prototype.decide = function (cell) {
         var influence = 0;
         if (check.cellType == 0) {
             // Player cell
-            if (this.gameServer.gameMode.haveTeams && (cell.owner.team == check.owner.team)) {
+            if (this.gameServer.gameMode.haveTeams && cell.owner.team == check.owner.team) {
                 // Same team cell
                 influence = 0;
-            }
-            else if (cell._size > check._size * 1.15) {
+            } else if (cell._size > check._size * 1.15) {
                 // Can eat it
                 influence = check._size * 2.5;
-            }
-            else if (check._size > cell._size * 1.15) {
+            } else if (check._size > cell._size * 1.15) {
                 // Can eat me
                 influence = -check._size;
             } else {
@@ -89,7 +87,7 @@ BotPlayer.prototype.decide = function (cell) {
         }
         
         // Apply influence if it isn't 0
-        if (!influence) continue;
+        if (influence == 0) continue;
         
         // Calculate separation between cell and check
         var displacement = new Vec2(check.position.x - cell.position.x, check.position.y - cell.position.y);
@@ -105,9 +103,6 @@ BotPlayer.prototype.decide = function (cell) {
         if (distance < 1) distance = 1; // Avoid NaN and positive influence with negative distance & attraction
         influence /= distance;
         
-        // Produce force vector exerted by this entity on the cell
-        var force = displacement.normalize().scale(influence);
-        
         // Splitting conditions
         if (check.cellType == 0 && cell._size > check._size * 1.15
             && !this.splitCooldown && this.cells.length < 8 && 
@@ -117,10 +112,9 @@ BotPlayer.prototype.decide = function (cell) {
             this.mouse = check.position.clone();
             this.socket.packetHandler.pressSpace = true;
             return;
-        } else {
-            // Add up forces on the entity
-            result.add(force);
-        }
+        } else
+            // Produce force vector exerted by this entity on the cell
+            result.add(displacement.normalize().scale(influence));
     }
     // Normalize the resulting vector
     result.normalize();
