@@ -358,3 +358,15 @@ choco_heart
 strawberry
 love_arrow
 bunny
+palm_tree
+samba
+mountain
+bird_mask
+trickster
+golden_mask
+performer
+diva
+songsmith
+icon
+metal_face
+soloist
