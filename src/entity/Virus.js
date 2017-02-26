@@ -15,19 +15,17 @@ Virus.prototype = new Cell();
 
 Virus.prototype.canEat = function (cell) {
     // cannot eat if virusMaxAmount is reached
-    if (this.gameServer.nodesVirus.length < this.gameServer.config.virusMaxAmount) {
+    if (this.gameServer.nodesVirus.length < this.gameServer.config.virusMaxAmount)
         return cell.cellType == 3; // virus can eat ejected mass only
-    }
 };
 
 Virus.prototype.onEat = function (prey) {
     // Called to eat prey cell
     this.setSize(Math.sqrt(this._sizeSquared + prey._sizeSquared));
-    var angle = Math.atan2(prey.boostDirection.x, prey.boostDirection.y);
     
     if (this._size >= this.gameServer.config.virusMaxSize) {
         this.setSize(this.gameServer.config.virusMinSize); // Reset mass
-        this.gameServer.shootVirus(this, angle);
+        this.gameServer.shootVirus(this, prey.boostDirection.angle());
     }
 };
 
@@ -47,7 +45,7 @@ Virus.prototype.onEaten = function (c) {
     // Monotone explosion(s)
     else if (c._size > 216) {
         // virus explosion multipliers
-        var exp = Math.random() * (5 - 3.33) + 3.33;
+        var exp = Math.random() * (4.5 - 3.33) + 3.33;
         while (threshold / exp > 24) {
             threshold /= exp;
             exp = 2;
