@@ -318,7 +318,7 @@ PlayerTracker.prototype.updateSpecView = function(len) {
             // free roam
             var d = this.mouse.clone().sub(this.centerPos);
             var scale = this.gameServer.config.serverSpectatorScale;
-            this.setCenterPos(this.centerPos.add2(d, 32 / d.sqDist(d)));
+            this.setCenterPos(this.centerPos.add(d, 32 / d.sqDist()));
         } else {
             // spectate target
             var player = this.getSpecTarget();
