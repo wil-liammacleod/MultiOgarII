@@ -596,7 +596,7 @@ GameServer.prototype.mainLoop = function() {
             this.autoSplit(cell, cell.owner);
             // Decay player cells once per second
             if (((this.tickCounter + 3) % 25) === 0)
-                this.updateMassDecay(cell);
+                this.updateSizeDecay(cell);
             // Remove external minions if necessary
             if (cell.owner.isMinion) {
                 cell.owner.socket.close(1000, "Minion");
@@ -632,9 +632,9 @@ GameServer.prototype.movePlayer = function(cell, client) {
 
     // get movement from vector
     var d = cell.position.clone().sub(client.mouse).scale(-1);
-    var move = cell.getSpeed(~~d.sqDist(d)); // movement speed
+    var move = cell.getSpeed(~~d.sqDist()); // movement speed
     if (!move) return; // avoid jittering
-    cell.position.add2(d, move);
+    cell.position.add(d, move);
 
     // update remerge
     var time = this.config.playerRecombineTime,
@@ -649,22 +649,17 @@ GameServer.prototype.movePlayer = function(cell, client) {
 };
 
 // decay player cells
-GameServer.prototype.updateMassDecay = function(cell) {
+GameServer.prototype.updateSizeDecay = function(cell) {
     var rate = this.config.playerDecayRate,
-        cap = this.config.playerDecayCap,
-        size = cell._size;
+        cap = this.config.playerDecayCap;
 
-    if (!rate || size <= this.config.playerMinSize)
+    if (!rate || cell._size <= this.config.playerMinSize)
         return;
 
-    // get actual decay rate
+    // remove size from cell at decay rate
     if (cap && cell._mass > cap) rate *= 10;
     var decay = 1 - rate * this.gameMode.decayMod;
-
-    // remove size from cell
-    size = Math.sqrt(size * size * decay);
-    size = Math.max(size, this.config.playerMinSize);
-    cell.setSize(size);
+    cell.setSize(Math.sqrt(cell._size * cell._size * decay));
 };
 
 GameServer.prototype.boostCell = function(cell) {
@@ -676,7 +671,7 @@ GameServer.prototype.boostCell = function(cell) {
     // decay boost-speed from distance
     var speed = cell.boostDistance / 9; // val: 87
     cell.boostDistance -= speed; // decays from speed
-    cell.position.add2(cell.boostDirection, speed)
+    cell.position.add(cell.boostDirection, speed)
 
     // update boundries
     cell.checkBorder(this.border);
@@ -685,8 +680,8 @@ GameServer.prototype.boostCell = function(cell) {
 
 GameServer.prototype.autoSplit = function(cell, client) {
     // get size limit based off of rec mode
-    if (!client.rec) var maxSize = this.config.playerMaxSize; 
-    else maxSize = 1e9; // increase limit for rec (1 bil)
+    if (client.rec) var maxSize = 1e9; // increase limit for rec (1 bil)
+    else maxSize = this.config.playerMaxSize; 
 
     // check size limit
     if (client.mergeOverride || cell._size < maxSize) return;
@@ -714,7 +709,7 @@ GameServer.prototype.updateNodeQuad = function(node) {
 // Checks cells for collision
 GameServer.prototype.checkCellCollision = function(cell, check) {
     var p = check.position.clone().sub(cell.position);
-    var d = p.sqDist(p);
+    var d = p.sqDist();
 
     // create collision manifold
     return {
@@ -754,7 +749,7 @@ GameServer.prototype.resolveRigidCollision = function(m) {
 
     // apply extrusion force
     m.cell.position.sub2(m.p, m2);
-    m.check.position.add2(m.p, m1);
+    m.check.position.add(m.p, m1);
 };
 
 // Resolves non-rigid body collision
@@ -877,7 +872,7 @@ GameServer.prototype.willCollide = function(size, cell) {
     for (var i = 0; i < this.nodesPlayer.length; i++) {
         var node = this.nodesPlayer[i];
         var d = node.position.clone().sub(pos);
-        if (d.dist(d) + sqSize <= sqSize * 2)
+        if (d.dist() + sqSize <= sqSize * 2)
             return true; // not safe to spawn
         if (cell && this.intersects(cell, node, size))
             return true; // not safe to spawn viruses
@@ -908,7 +903,7 @@ GameServer.prototype.splitCells = function(client) {
     for (var i = 0; i < cellToSplit.length; i++) {
         var cell = cellToSplit[i];
         var d = client.mouse.clone().sub(cell.position);
-        if (d.dist(d) < 1) {
+        if (d.dist() < 1) {
             d.x = 1, d.y = 0;
         }
 
@@ -947,7 +942,7 @@ GameServer.prototype.ejectMass = function(client) {
             continue; // Too small to eject
         
         var d = client.mouse.clone().sub(cell.position);
-        var sq = d.sqDist(d);
+        var sq = d.sqDist();
         d.x = sq > 1 ? d.x / sq : 1;
         d.y = sq > 1 ? d.y / sq : 0;
         
