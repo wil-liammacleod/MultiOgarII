@@ -46,8 +46,7 @@ Experimental.prototype.onServerInit = function (gameServer) {
     var self = this;
     Entity.Virus.prototype.onEat = function (prey) {
         // Pushes the virus
-        var angle = Math.atan2(prey.boostDirection.x, prey.boostDirection.y);
-        this.setBoost(16 * 20, angle);
+        this.setBoost(220, prey.boostDirection.angle());
     };
     Entity.MotherCell.prototype.onAdd = function () {
         self.nodesMother.push(this);
