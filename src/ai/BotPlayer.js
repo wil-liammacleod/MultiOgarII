@@ -93,7 +93,7 @@ BotPlayer.prototype.decide = function (cell) {
         var displacement = new Vec2(check.position.x - cell.position.x, check.position.y - cell.position.y);
         
         // Figure out distance between cells
-        var distance = displacement.length();
+        var distance = displacement.sqDist();
         if (influence < 0) {
             // Get edge distance
             distance -= cell._size + check._size;
@@ -114,10 +114,8 @@ BotPlayer.prototype.decide = function (cell) {
             return;
         } else
             // Produce force vector exerted by this entity on the cell
-            result.add(displacement.normalize().scale(influence));
+            result.add(displacement.normalize(), influence);
     }
-    // Normalize the resulting vector
-    result.normalize();
     // Set bot's mouse position
     this.mouse = new Vec2(
         cell.position.x + result.x * 800,
