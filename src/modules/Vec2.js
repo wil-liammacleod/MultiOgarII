@@ -7,18 +7,7 @@ function Vec2(x, y) {
     this.y = y;
 }
 
-Vec2.prototype.add = function(x, y) {
-    if (x instanceof Vec2) {
-	this.x += x.x;
-	this.y += x.y;
-    } else {
-	this.x += x;
-	this.y += y;
-    }
-    return this;
-};
-
-Vec2.prototype.add2 = function(d, m) {
+Vec2.prototype.add = function(d, m) {
     this.x += d.x * m;
     this.y += d.y * m;
     return this;
@@ -49,20 +38,16 @@ Vec2.prototype.clone = function() {
     return new Vec2(this.x, this.y);
 };
 
-Vec2.prototype.dist = function(d) {
-    return ~~d.x * ~~d.x + ~~d.y * ~~d.y;
+Vec2.prototype.dist = function() {
+    return ~~this.x * ~~this.x + ~~this.y * ~~this.y;
 };
 
-Vec2.prototype.sqDist = function(d) {
-    return Math.sqrt(d.x * d.x + d.y * d.y);
-};
-
-Vec2.prototype.length = function() {
-    return this.sqDist(this);
+Vec2.prototype.sqDist = function() {
+    return Math.sqrt(this.dist());
 };
 
 Vec2.prototype.normalize = function() {
-    return this.scale(1/this.length());
+    return this.scale(1/this.sqDist());
 };
 
 Vec2.prototype.scale = function(scaleX, scaleY) {
