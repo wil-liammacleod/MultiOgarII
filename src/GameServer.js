@@ -774,7 +774,7 @@ GameServer.prototype.resolveCollision = function(m) {
     if (cell.owner && cell.owner == check.owner) {
         if (cell.getAge() < 13 || check.getAge() < 13)
             return; // just splited => ignore
-    } else if (check._size < cell._size * 1.11 || !check.canEat(cell))
+    } else if (check._size < cell._size * 1.14017543 || !check.canEat(cell))
         return; // Cannot eat or cell refuses to be eaten
 
     // Consume effect
@@ -791,7 +791,7 @@ GameServer.prototype.splitPlayerCell = function(client, parent, angle, mass) {
     var size1 = Math.sqrt(parent._size * parent._size - size * size);
 
     // Too small to split
-    if (isNaN(size1) || size < this.config.playerMinSize) 
+    if (isNaN(size1) || size1 < this.config.playerMinSize) 
         return;
 
     // Remove size from parent cell
