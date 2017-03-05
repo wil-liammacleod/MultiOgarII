@@ -111,10 +111,6 @@ PlayerTracker.prototype.setName = function(name) {
 
 PlayerTracker.prototype.setSkin = function (skin) {
     this._skin = skin;
-    if (!skin || !skin.length) {
-        this._skinUtf8 = null;
-        return;
-    }
     var writer = new BinaryWriter();
     writer.writeStringZeroUtf8(skin);
     this._skinUtf8 = writer.toBuffer();
