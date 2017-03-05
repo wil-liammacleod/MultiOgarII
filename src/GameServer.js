@@ -565,8 +565,7 @@ GameServer.prototype.mainLoop = function() {
         // Move moving nodes first
         for (var i = 0, len = this.movingNodes.length; i < len; i++) {
             var cell = this.movingNodes[i];
-            if (!cell || cell.isRemoved || cell.cellType == 1) 
-                continue;
+            if (!cell || cell.isRemoved) continue;
             // Scan and check for ejected mass / virus collisions
             this.boostCell(cell);
             this.quadTree.find(cell.quadItem.bound, function(item) {
