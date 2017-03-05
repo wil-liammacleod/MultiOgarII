@@ -12,6 +12,7 @@ function PlayerTracker(gameServer, socket) {
     this._name = "";
     this._skin = "";
     this._nameUtf8 = null;
+    this._skinUtf8protocol11 = null;
     this._nameUnicode = null;
     this._skinUtf8 = null;
     this.color = { r: 0, g: 0, b: 0 };
