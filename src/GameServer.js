@@ -159,9 +159,7 @@ function GameServer() {
     this.setBorder(this.config.borderWidth, this.config.borderHeight);
     this.quadTree = new QuadNode(this.border);
     
-    // Gamemodes
-    var Gamemode = require('./gamemodes');
-    this.gameMode = Gamemode.get(this.config.serverGamemode);
+    
 }
 
 module.exports = GameServer;
@@ -170,6 +168,10 @@ GameServer.prototype.start = function() {
     this.timerLoopBind = this.timerLoop.bind(this);
     this.mainLoopBind = this.mainLoop.bind(this);
 
+	// Gamemodes
+    var Gamemode = require('./gamemodes');
+    this.gameMode = Gamemode.get(this.config.serverGamemode);
+	
     // Gamemode configurations
     this.gameMode.onServerInit(this);
     
