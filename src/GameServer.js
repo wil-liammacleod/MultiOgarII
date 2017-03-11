@@ -1159,34 +1159,7 @@ GameServer.prototype.pingServerTracker = function() {
         }
     }
 
-    // ogar-tracker.tk
-    var obj = {
-        port: this.config.serverPort,               // [mandatory] web socket port which listens for game client connections
-        name: this.config.serverName,               // [mandatory] server name
-        mode: this.gameMode.name,                   // [mandatory] game mode
-        total: totalPlayers,                        // [mandatory] total online players (server bots is not included!)
-        alive: alivePlayers,                        // [mandatory] alive players (server bots is not included!)
-        spect: spectatePlayers,                     // [mandatory] spectate players (server bots is not included!)
-        robot: robotPlayers,                        // [mandatory] server bots
-        limit: this.config.serverMaxConnections,    // [mandatory] maximum allowed connection count
-        protocol: 'M',                              // [mandatory] required protocol id or 'M' for multiprotocol (if all protocols is supported)   
-        uptime: process.uptime() >> 0,              // [mandatory] server uptime [seconds]
-        w: this.border.width >> 0,                  // [mandatory] map border width [integer]
-        h: this.border.height >> 0,                 // [mandatory] map border height [integer]
-        version: 'MultiOgar-Edited ' + this.version,       // [optional]  server version
-        stpavg: this.updateTimeAvg >> 0,            // [optional]  average server loop time
-        chat: this.config.serverChat ? 1 : 0,       // [optional]  0 - chat disabled, 1 - chat enabled
-        os: os.platform()                           // [optional]  operating system
-    };
-    trackerRequest({
-        host: 'ogar-tracker.tk',
-        port: 80,
-        path: '/api/ping',
-        method: 'PUT'
-    }, 'application/json', JSON.stringify(obj));
-    
-
-    // mivabe.nl
+    // ogar.mivabe.nl/master
     var data = 'current_players=' + totalPlayers +
                '&alive=' + alivePlayers +
                '&spectators=' + spectatePlayers +
@@ -1203,14 +1176,6 @@ GameServer.prototype.pingServerTracker = function() {
         host: 'ogar.mivabe.nl',
         port: 80,
         path: '/master',
-        method: 'POST'
-    }, 'application/x-www-form-urlencoded', data);
-    
-    // c0nsume.me
-    trackerRequest({
-        host: 'c0nsume.me',
-        port: 80,
-        path: '/tracker.php',
         method: 'POST'
     }, 'application/x-www-form-urlencoded', data);
 };
