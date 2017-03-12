@@ -77,11 +77,12 @@ process.argv.forEach(function (item) {
 
 function getValue(param){
     var ind = process.argv.indexOf(param);
-    if (process.argv[ind + 1].indexOf('-') != -1){
+    var item  = process.argv[ind + 1]
+    if (!item || item.indexOf('-') != -1){
         Logger.error("No value for " + param);
         return null;
     } else{
-        return process.argv[ind + 1];
+        return item;
     }
 }
 
@@ -89,7 +90,7 @@ function setParam(paramName, val){
     if (!gameServer.config.hasOwnProperty(paramName)){
         Logger.error("Wrong parameter");
     }
-    if (val) {
+    if (val || val === 0) {
         if (typeof val === 'string'){
             val = "'" + val + "'";
         }
