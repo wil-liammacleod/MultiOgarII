@@ -370,3 +370,9 @@ songsmith
 icon
 metal_face
 soloist
+huntsman
+war_paint
+behemoth
+general
+giant_skull
+great_zilla
