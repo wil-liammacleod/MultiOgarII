@@ -112,7 +112,7 @@ Commands.list = {
             clientCells += gameServer.clients[i].playerTracker.cells.length;
         }
         // Output node information
-       Logger.print("Clients:        " + fillChar(gameServer.clients.length, " ", 4, true) + " / " + gameServer.config.serverMaxConnections + " + bots"+"\n"+
+        Logger.print("Clients:        " + fillChar(gameServer.clients.length, " ", 4, true) + " / " + gameServer.config.serverMaxConnections + " + bots"+"\n"+
                     "Total nodes:" + fillChar(gameServer.nodes.length, " ", 8, true)+"\n"+
                     "- Client cells: " + fillChar(clientCells, " ", 4, true) + " / " + (gameServer.clients.length * gameServer.config.playerMaxCells)+"\n"+
                     "- Ejected cells:" + fillChar(gameServer.nodesEjected.length, " ", 4, true)+"\n"+
@@ -804,15 +804,21 @@ Commands.list = {
         var humans = 0,
             bots = 0;
         for (var i = 0; i < gameServer.clients.length; i++) {
-            if ('_socket' in gameServer.clients[i]) {
+            if ('_socket' in gameServer.clients[i])
                 humans++;
-            } else {
+            else
                 bots++;
-            }
         }
+
+        // Get average score of all players
+        var scores = [];
+        for (var i in gameServer.clients)
+            scores.push(getScore(gameServer.clients[i].playerTracker))
+        if (!gameServer.clients.length) scores = [0];
         
         Logger.print("Connected players: " + gameServer.clients.length + "/" + gameServer.config.serverMaxConnections);
         Logger.print("Players: " + humans + " - Bots: " + bots);
+        Logger.print("Average score: " + (scores.reduce((x, y) => x + y) / scores.length).toFixed(2));
         Logger.print("Server has been running for " + Math.floor(process.uptime() / 60) + " minutes");
         Logger.print("Current memory usage: " + Math.round(process.memoryUsage().heapUsed / 1048576 * 10) / 10 + "/" + Math.round(process.memoryUsage().heapTotal / 1048576 * 10) / 10 + " mb");
         Logger.print("Current game mode: " + gameServer.gameMode.name);
