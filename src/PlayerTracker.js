@@ -110,7 +110,7 @@ PlayerTracker.prototype.setName = function(name) {
     this._nameUtf8 = writer.toBuffer();
 };
 
-PlayerTracker.prototype.setSkin = function (skin) {
+PlayerTracker.prototype.setSkin = function(skin) {
     this._skin = skin;
     var writer = new BinaryWriter();
     writer.writeStringZeroUtf8(skin);
@@ -226,9 +226,9 @@ PlayerTracker.prototype.updateTick = function() {
     // update visible nodes
     this.viewNodes = [];
     var self = this;
-    this.gameServer.quadTree.find(this.viewBox, function(quadItem) {
-        if (quadItem.cell.owner != self)
-            self.viewNodes.push(quadItem.cell);
+    this.gameServer.quadTree.find(this.viewBox, function(check) {
+        if (check.owner != self)
+            self.viewNodes.push(check);
     });
     this.viewNodes = this.viewNodes.concat(this.cells);
     this.viewNodes.sort(function(a, b) { return a.nodeId - b.nodeId; });
