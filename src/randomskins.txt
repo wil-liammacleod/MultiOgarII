@@ -376,3 +376,17 @@ behemoth
 general
 giant_skull
 great_zilla
+horse_boot
+happy_hat
+bad_clover
+gold_rush
+red_beard
+cloud_prism
+aries
+coil
+cat_cauldron
+seal_knight
+mystic_bird
+king_lion
+excalibur
+magic_hat
