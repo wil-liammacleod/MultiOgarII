@@ -101,16 +101,14 @@ function setParam(paramName, val){
 
 gameServer.start();
 figlet(('MultiOgar-Edited  ' + gameServer.version), function(err, data) {
-     if (err) {
-         console.log('Something went wrong...');
-         console.dir(err);
-         return;
-     }
-     console.log(data)
- });
+    if (err) {
+        console.log('Something went wrong...');
+        console.dir(err);
+        return;
+    }
+    console.log(data)
+});
 
-// Add command handler
-gameServer.commands = Commands.list;
 // Initialize the server console
 if (showConsole) {
     var readline = require('readline');
@@ -150,7 +148,7 @@ function parseCommands(str) {
     var first = split[0].toLowerCase();
     
     // Get command function
-    var execute = gameServer.commands[first];
+    var execute = Commands.list[first];
     if (typeof execute != 'undefined') {
         execute(gameServer, split);
     } else {
