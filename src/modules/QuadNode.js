@@ -11,14 +11,9 @@ function QuadNode(bound) {
     this.halfWidth = (bound.maxx - bound.minx) / 2;
     this.halfHeight = (bound.maxy - bound.miny) / 2;
     
-    this.bound = {
-        minx: bound.minx, 
-        miny: bound.miny,
-        maxx: bound.maxx,
-        maxy: bound.maxy,
-        cx: bound.minx + this.halfWidth,
-        cy: bound.miny + this.halfHeight
-    };
+    this.bound = bound;
+    this.bound.cx = bound.minx + this.halfWidth;
+    this.bound.cy = bound.miny + this.halfHeight;
     this.childNodes = [];
     this.items = [];
 }
@@ -33,12 +28,9 @@ QuadNode.prototype.insert = function (item) {
     }
     this.items.push(item);
     item._quadNode = this;  // used for quick search quad node by item
-    
-    // check if rebalance needed
-    if (this.childNodes.length != 0 || this.items.length < 64)
-        return;
+
     // split and rebalance current node
-    if (this.childNodes.length == 0) {
+    if (this.childNodes.length == 0 && this.items.length > 64) {
         // split into 4 subnodes (top, left, bottom, right)
         var w = this.halfWidth;
         var h = this.halfHeight;
@@ -80,7 +72,7 @@ QuadNode.prototype.find = function (bound, callback) {
     for (var i = 0; i < this.items.length; i++) {
         var item = this.items[i];
         if (!this.intersects(item.bound, bound))
-            callback(item);
+            callback(item.cell);
     }
 };
 
@@ -99,8 +91,6 @@ QuadNode.prototype.getQuad = function (bound) {
 };
 
 QuadNode.prototype.intersects = function (a, b) {
-    return b.minx >= a.maxx ||
-        b.maxx <= a.minx ||
-        b.miny >= a.maxy ||
-        b.maxy <= a.miny;
+    return b.minx >= a.maxx || b.maxx <= a.minx
+        || b.miny >= a.maxy || b.maxy <= a.miny;
 };
