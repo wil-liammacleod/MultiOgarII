@@ -72,6 +72,7 @@ function GameServer() {
         serverMaxLB: 10,            // Controls the maximum players displayed on the leaderboard.
         serverChat: 1,              // Allows the usage of server chat. 0 = no chat, 1 = use chat.
         serverChatAscii: 1,         // Set to 1 to disable non-ANSI letters in the chat (english only)
+        separateChatForTeams: 0,    // Set to 1 to separate chat for game modes with teams like 'Teams'
         serverName: 'MultiOgar-Edited #1',                  // Server name
         serverWelcome1: 'Welcome to MultiOgar-Edited!',     // First server welcome message
         serverWelcome2: '',         // Second server welcome message (optional, for info, etc)
@@ -516,8 +517,16 @@ GameServer.prototype.checkBadWord = function(value) {
 GameServer.prototype.sendChatMessage = function(from, to, message) {
     for (var i = 0, len = this.clients.length; i < len; i++) {
         if (!this.clients[i]) continue;
-        if (!to || to == this.clients[i].playerTracker)
-            this.clients[i].packetHandler.sendPacket(new Packet.ChatMessage(from, message));
+        if (!to || to == this.clients[i].playerTracker){
+            if (this.config.separateChatForTeams && this.gameMode.haveTeams){
+                if (from == null /*server*/ || from.team === this.clients[i].playerTracker.team){
+                    this.clients[i].packetHandler.sendPacket(new Packet.ChatMessage(from, message));
+                }
+            } else {
+                this.clients[i].packetHandler.sendPacket(new Packet.ChatMessage(from, message));
+            }
+        }
+
     }
 };
 
