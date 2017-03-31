@@ -519,7 +519,8 @@ GameServer.prototype.sendChatMessage = function(from, to, message) {
         if (!this.clients[i]) continue;
         if (!to || to == this.clients[i].playerTracker){
             if (this.config.separateChatForTeams && this.gameMode.haveTeams){
-                if (from == null /*server*/ || from.team === this.clients[i].playerTracker.team){
+                //  from equals null if message from server 
+                if (from == null || from.team === this.clients[i].playerTracker.team){
                     this.clients[i].packetHandler.sendPacket(new Packet.ChatMessage(from, message));
                 }
             } else {
