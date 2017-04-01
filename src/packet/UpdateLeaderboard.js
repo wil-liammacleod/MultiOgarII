@@ -22,10 +22,10 @@ UpdateLeaderboard.prototype.build = function(protocol) {
                 return this.buildFfa5();
             else if (protocol < 11)
                 return this.buildFfa6();
-            else if (protocol == 11)
-                return this.buildFfa11();
-            else if (protocol >= 13)
-                return this.buildFfa13();
+            //else if (protocol == 11)
+            	//return this.buildFfa11();
+            else
+            	return this.buildFfa13();
         case 50:
             // Team
             return this.buildTeam();
@@ -115,8 +115,8 @@ UpdateLeaderboard.prototype.buildFfa13 = function () {
         if (item == null) return null;  // bad leaderboardm just don't send it
 
         if (item === this.playerTracker) {
-            writer.writeUInt8(0x09);
-            writer.writeUInt16(1);
+        	writer.writeUInt8(0x09);
+        	writer.writeUInt16(1);
         } else {
         var name = item._name;
         writer.writeUInt8(0x02);
@@ -136,20 +136,25 @@ UpdateLeaderboard.prototype.buildFfa13 = function () {
     return writer.toBuffer();
 };
 
-// Party.
+// Party
 // TODO: Implement the "minimap"
 UpdateLeaderboard.prototype.buildParty = function () {
+	var protocol13s = 0;
+	for (var i in this.playerTracker.gameServer.clients) {
+		var client = this.playerTracker.gameServer.clients[i].packetHandler;
+		if (client.protocol >= 13)
+			protocol13s++;
+	}
     var writer = new BinaryWriter();
     writer.writeUInt8(0x34);                                 // Packet ID
-    if (this.playerTracker.cells.length) writer.writeUInt16(1);
-    else writer.writeUInt16(0);
+    writer.writeUInt16(protocol13s); // How many friends are in-game
     for (var i = 0; i < this.leaderboardCount; i++) {
         var item = this.leaderboard[i];
         if (item == null) return null;  // bad leaderboardm just don't send it
 
         if (item === this.playerTracker) {
-            writer.writeUInt8(0x09);
-            writer.writeUInt16(1);
+        	writer.writeUInt8(0x09);
+        	writer.writeUInt16(1);
         } else {
         var name = item._name;
         writer.writeUInt8(0x02);
@@ -163,7 +168,6 @@ UpdateLeaderboard.prototype.buildParty = function () {
     var place = (thing <= 10) ? null : thing;
 
     if (this.playerTracker.cells.length && place != null) {
-        writer.writeUInt8(0x09);
         writer.writeUInt16(place);
     }
     return writer.toBuffer();
