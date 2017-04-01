@@ -22,7 +22,10 @@ UpdateLeaderboard.prototype.build = function(protocol) {
                 return this.buildFfa5();
             else if (protocol < 11)
                 return this.buildFfa6();
-            else return this.buildFfa11();
+            else if (protocol == 11)
+                return this.buildFfa11();
+            else if (protocol >= 13)
+                return this.buildFfa13();
         case 50:
             // Team
             return this.buildTeam();
@@ -47,7 +50,7 @@ UpdateLeaderboard.prototype.buildUserText = function (protocol) {
 
 
 // FFA protocol 5
-UpdateLeaderboard.prototype.buildFfa5 = function() {
+UpdateLeaderboard.prototype.buildFfa5 = function () {
     var writer = new BinaryWriter();
     writeCount(writer, 0x31, this.leaderboardCount);
     for (var i = 0; i < this.leaderboardCount; i++) {
@@ -67,7 +70,7 @@ UpdateLeaderboard.prototype.buildFfa5 = function() {
 };
 
 // FFA protocol 6
-UpdateLeaderboard.prototype.buildFfa6 = function() {
+UpdateLeaderboard.prototype.buildFfa6 = function () {
     var writer = new BinaryWriter();
     writeCount(writer, 0x31, this.leaderboardCount);
     for (var i = 0; i < this.leaderboardCount; i++) {
@@ -85,7 +88,7 @@ UpdateLeaderboard.prototype.buildFfa6 = function() {
 };
 
 // FFA protocol 11
-UpdateLeaderboard.prototype.buildFfa11 = function() {
+UpdateLeaderboard.prototype.buildFfa11 = function () {
     var pos = require('./LeaderboardPosition');
     this.playerTracker.socket.packetHandler.sendPacket(
         new pos(this.leaderboard.indexOf(this.playerTracker) + 1)
@@ -99,6 +102,69 @@ UpdateLeaderboard.prototype.buildFfa11 = function() {
         var name = item._nameUtf8;
         if (name) writer.writeBytes(name);
         else writer.writeUInt8(0);
+    }
+    return writer.toBuffer();
+};
+
+// FFA protocol 13
+UpdateLeaderboard.prototype.buildFfa13 = function () {
+    var writer = new BinaryWriter();
+    writer.writeUInt8(0x33);                                 // Packet ID
+    for (var i = 0; i < this.leaderboardCount; i++) {
+        var item = this.leaderboard[i];
+        if (item == null) return null;  // bad leaderboardm just don't send it
+
+        if (item === this.playerTracker) {
+            writer.writeUInt8(0x09);
+            writer.writeUInt16(1);
+        } else {
+        var name = item._name;
+        writer.writeUInt8(0x02);
+        if (name != null && name.length)
+            writer.writeStringZeroUtf8(name);
+        else
+            writer.writeUInt8(0);
+    }
+}
+    var thing = this.leaderboard.indexOf(this.playerTracker) + 1;
+    var place = (thing <= 10) ? null : thing;
+
+    if (this.playerTracker.cells.length && place != null) {
+        writer.writeUInt8(0x09);
+        writer.writeUInt16(place);
+    }
+    return writer.toBuffer();
+};
+
+// Party.
+// TODO: Implement the "minimap"
+UpdateLeaderboard.prototype.buildParty = function () {
+    var writer = new BinaryWriter();
+    writer.writeUInt8(0x34);                                 // Packet ID
+    if (this.playerTracker.cells.length) writer.writeUInt16(1);
+    else writer.writeUInt16(0);
+    for (var i = 0; i < this.leaderboardCount; i++) {
+        var item = this.leaderboard[i];
+        if (item == null) return null;  // bad leaderboardm just don't send it
+
+        if (item === this.playerTracker) {
+            writer.writeUInt8(0x09);
+            writer.writeUInt16(1);
+        } else {
+        var name = item._name;
+        writer.writeUInt8(0x02);
+        if (name != null && name.length)
+            writer.writeStringZeroUtf8(name);
+        else
+            writer.writeUInt8(0);
+    }
+}
+    var thing = this.leaderboard.indexOf(this.playerTracker) + 1;
+    var place = (thing <= 10) ? null : thing;
+
+    if (this.playerTracker.cells.length && place != null) {
+        writer.writeUInt8(0x09);
+        writer.writeUInt16(place);
     }
     return writer.toBuffer();
 };
