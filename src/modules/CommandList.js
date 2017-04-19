@@ -795,7 +795,7 @@ Commands.list = {
     },
     reload: function(gameServer, split) {
         gameServer.loadFiles();
-        Logger.print("Reloaded files succesully");
+        Logger.print("Reloaded files successfully");
     },
     status: function(gameServer, split) {
         var ini = require('./ini.js');
