@@ -62,7 +62,7 @@ Commands.list = {
                     "│ pause                        │ Pause game, freeze all nodes              │\n"+
                     "│ board [string] [string] ...  │ Set scoreboard text                       │\n"+
                     "│ change [setting] [value]     │ Change specified settings                 │\n"+
-                    "│ reload                       │ Reload config file and banlist            │\n"+
+                    "│ reload                       │ Reload config, banlist, and role files    │\n"+
                     "│ ban [PlayerID │ IP]          │ Bans a player(s) IP                       │\n"+
                     "│ unban [IP]                   │ Unbans an IP                              │\n"+
                     "│ banlist                      │ Get list of banned IPs.                   │\n"+
@@ -794,9 +794,8 @@ Commands.list = {
         if (client == null) return void Logger.warn("That player ID is non-existant!");
     },
     reload: function(gameServer, split) {
-        gameServer.loadConfig();
-        gameServer.loadIpBanList();
-        Logger.print("Reloaded the config file succesully");
+        gameServer.loadFiles();
+        Logger.print("Reloaded files succesully");
     },
     status: function(gameServer, split) {
         var ini = require('./ini.js');
