@@ -22,7 +22,7 @@ PlayerCell.prototype.getSpeed = function (dist) {
 };
 
 PlayerCell.prototype.onAdd = function (gameServer) {
-    // Add to player nodes list
+     // Add to player nodes list
     this.gameServer.nodesPlayer.unshift(this);
 };
 
