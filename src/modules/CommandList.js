@@ -73,7 +73,7 @@ Commands.list = {
                     "│                          ----Miscellaneous----                           │\n"+
                     "│                                                                          │\n"+
                     "│ clear                        │ Clear console output                      │\n"+
-                    "│ reset                        │ Removes all nodes and readds them         │\n"+
+                    "│ reset                        │ Removes all nodes and reads them         │\n"+
                     "│ status                       │ Get server status                         │\n"+
                     "│ debug                        │ Get/check node lengths                    │\n"+
                     "│ exit                         │ Stops the server                          │\n"+
