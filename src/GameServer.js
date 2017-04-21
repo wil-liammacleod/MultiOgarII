@@ -823,15 +823,10 @@ GameServer.prototype.spawnCells = function() {
 GameServer.prototype.spawnPlayer = function(player, pos) {
     if (this.disableSpawn) return; // Not allowed to spawn!
 
-    // Check for special start size(s)
+    // Check for special starting size
     var size = this.config.playerStartSize;
-    if (player.spawnmass && !player.isMi) {
-        size = player.spawnmass;
-    } else if (player.isMi) {
-        size = this.config.minionStartSize;
-        if (this.config.minionMaxStartSize > size)
-        size = Math.random() * (this.config.minionMaxStartSize - size) + size;
-    }
+    if (player.spawnmass) size = player.spawnmass;
+    
     // Check if can spawn from ejected mass
     var index = (this.nodesEjected.length - 1) * ~~Math.random();
     var eject = this.nodesEjected[index]; // Randomly selected
