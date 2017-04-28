@@ -813,7 +813,7 @@ GameServer.prototype.spawnCells = function() {
     }
 
     // spawn viruses (safely)
-    while (this.nodesVirus.length < this.config.virusMinAmount) {
+    if (this.nodesVirus.length < this.config.virusMinAmount) {
         var virus = new Entity.Virus(this, null, this.randomPos(), this.config.virusMinSize);
         if (!this.willCollide(this.config.virusMinSize, virus))
             this.addNode(virus);
