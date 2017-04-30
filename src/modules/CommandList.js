@@ -345,9 +345,9 @@ Commands.list = {
             if (gameServer.clients[i].playerTracker.pID == id) {
                 var client = gameServer.clients[i].playerTracker;
                 if (!client.cells.length) return Logger.warn("That player is either dead or not playing!");
-                client.setColor(color); // Set color
+                client.color = color; // Set color
                 for (var j in client.cells) {
-                    client.cells[j].setColor(color);
+                    client.cells[j].color = color;
                 }
                 break;
             }
@@ -895,7 +895,7 @@ Commands.list = {
             Logger.print("Spawned 1 virus at (" + pos.x + " , " + pos.y + ")");
         } else if (ent == "food") {
             var food = new Entity.Food(gameServer, null, pos, size);
-            food.setColor(gameServer.getRandomColor());
+            food.color = gameServer.getRandomColor();
             gameServer.addNode(food);
             Logger.print("Spawned 1 food cell at (" + pos.x + " , " + pos.y + ")");
         } else if (ent == "mothercell") {
@@ -928,7 +928,7 @@ Commands.list = {
                         gameServer.addNode(virus);
                     } else if (ent == "food") {
                         var food = new Entity.Food(gameServer, null, cell.position, cell._size);
-                        food.setColor(gameServer.getRandomColor());
+                        food.color = gameServer.getRandomColor();
                         gameServer.addNode(food);
                     } else if (ent == "mothercell") {
                         var mother = new Entity.MotherCell(gameServer, null, cell.position, cell._size);
@@ -978,7 +978,7 @@ Commands.list = {
                         // remove mass from parent cell
                         var angle = 6.28 * Math.random();
                         var loss = gameServer.config.ejectSizeLoss;
-                        var size = cell._sizeSquared - loss * loss;
+                        var size = cell.radius - loss * loss;
                         cell.setSize(Math.sqrt(size));
                         // explode the cell
                         var pos = {
@@ -986,7 +986,7 @@ Commands.list = {
                             y: cell.position.y + angle
                         };
                         var ejected = new Entity.EjectedMass(gameServer, null, pos, gameServer.config.ejectSize);
-                        ejected.setColor(cell.color);
+                        ejected.color = cell.color;
                         ejected.setBoost(gameServer.config.ejectVelocity * Math.random(), angle);
                         gameServer.addNode(ejected);
                     }
