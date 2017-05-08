@@ -21,7 +21,7 @@ Please see the issue templete before you make an issue, you can find it [here](h
 ### Windows:
 * Download and install node.js: https://nodejs.org/en/download/ 
 * Download this repo
-* Unzip MultiOgar code into some folder.
+* Unzip MultiOgar-Edited code into some folder.
 
 1. Run the win-Install_Dep.bat file.
 2. Run win-Start.bat
@@ -53,7 +53,7 @@ sudo apt-get install nodejs-legacy npm
 git clone git://github.com/Megabyte918/MultiOgar-Edited.git
 
 # Install dependencies:
-cd MultiOgar
+cd MultiOgar-Edited
 npm install
 
 # Run the server:
@@ -74,11 +74,11 @@ Version 1.2.8 (Original MultiOgar):
 * Works slightly slower than normal, speed decreases gradually as bots get larger.
 * CPU load: 14% (x4 cores)
 * Memory usage: 70 MB
-* MS [lag]: Minimum of around 78
+* MS response time: Minimum of around 78
 
 Version 1.6.0 (MultiOgar-Edited):
 * 1000 bots, 500 viruses, 1000 foods, map 14142x14142
 * Works very-very smooth, speed decreases gradually as bots get larger.
 * CPU load: 24% (x2 cores)
 * Memory usage: 35 MB
-* MS [lag]: Minimum of around 45
+* MS response time: Minimum of around 45
