@@ -15,7 +15,7 @@ Original MultiOgar code is based on the private server implementation [Ogar](htt
 MultiOgar-Edited code however, is based on MultiOgar code that has been heavily modified and improved by many collaborators. The overall goal of this fork is to make physics as vanilla as possible, cleanup most of the code, and add lots of new features while maintaining better performance than the original MultiOgar.
 
 ## MultiOgar-Edited Wiki
-Please see the issue templete before you make an issue, you can find it [here](https://github.com/Megabyte918/MultiOgar-Edited/wiki/Issue-Template). Along with client information, and a FAQ section. More coming soon!
+Please see the issue template before you make an issue, you can find it [here](https://github.com/Megabyte918/MultiOgar-Edited/wiki/Issue-Template). Along with client information, and a FAQ section. More coming soon!
 
 ## Installation
 ### Windows:
@@ -49,7 +49,7 @@ sudo apt-get install git
 # Install node.js:
 sudo apt-get install nodejs-legacy npm
 
-# Clone MultiOgar:
+# Clone MultiOgar-Edited:
 git clone git://github.com/Megabyte918/MultiOgar-Edited.git
 
 # Install dependencies:
