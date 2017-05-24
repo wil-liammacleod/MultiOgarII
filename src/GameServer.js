@@ -1084,7 +1084,7 @@ GameServer.prototype.getStats = function() {
     var spectatePlayers = 0;
     for (var i = 0, len = this.clients.length; i < len; i++) {
         var socket = this.clients[i];
-        if (!socket || !socket.isConnected)
+        if (!socket || !socket.isConnected || socket.playerTracker.isMi)
             continue;
         totalPlayers++;
         if (socket.playerTracker.cells.length) alivePlayers++;
