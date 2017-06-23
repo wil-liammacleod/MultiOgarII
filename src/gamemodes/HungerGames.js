@@ -145,7 +145,9 @@ HungerGames.prototype.onServerInit = function (gameServer) {
     gameServer.config.virusMaxAmount = 100;
     gameServer.config.ejectSpawnPlayer = 0;
     gameServer.config.playerDisconnectTime = 10; // So that people dont disconnect and stall the game for too long
-    
+    gameServer.setBorder(
+        gameServer.border.width,
+        gameServer.border.height);
     // Spawn Initial Virus/Large food
     var mapWidth = gameServer.border.width;
     var mapHeight = gameServer.border.height;
@@ -290,7 +292,7 @@ HungerGames.prototype.onServerInit = function (gameServer) {
 HungerGames.prototype.onPlayerSpawn = function (gameServer, player) {
     // Only spawn players if the game hasnt started yet
     if ((this.gamePhase == 0) && (this.contenders.length < this.maxContenders)) {
-        player.setColor(gameServer.getRandomColor()); // Random color
+        player.color = gameServer.getRandomColor(); // Random color
         this.contenders.push(player); // Add to contenders list
         gameServer.spawnPlayer(player, this.getPos());
         
