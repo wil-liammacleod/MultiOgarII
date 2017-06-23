@@ -596,6 +596,8 @@ GameServer.prototype.mainLoop = function() {
         this.gameMode.onTick(this);
         this.tickCounter++;
     }
+    if(!this.run && this.gameMode.IsTournament)
+       this.tickCounter++;
     this.updateClients();
 
     // update leaderboard
