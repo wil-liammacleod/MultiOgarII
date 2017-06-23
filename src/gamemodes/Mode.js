@@ -5,6 +5,7 @@ function Mode() {
     this.packetLB = 49; // Packet id for leaderboard packet (48 = Text List, 49 = List, 50 = Pie chart)
     this.haveTeams = false; // True = gamemode uses teams, false = gamemode doesnt use teams
     this.specByLeaderboard = false; // false = spectate from player list instead of leaderboard
+    this.IsTournament = false;
 }
 
 module.exports = Mode;
