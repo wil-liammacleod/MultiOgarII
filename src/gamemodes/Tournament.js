@@ -214,13 +214,11 @@ Tournament.prototype.updateLB = function (gameServer, lb) {
             break;
         case 3:
             lb[0] = "Congratulations";
-            lb[1] = this.winner.getName();
+            lb[1] = this.winner._name;
             lb[2] = "for winning!";
             if (this.timer <= 0) {
                 // Reset the game
-                this.onServerInit(gameServer);
-                // Respawn starting food
-                gameServer.startingFood();
+                process.exit(3);
             } else {
                 lb[3] = "Game restarting in";
                 lb[4] = this.timer.toString();
@@ -232,9 +230,7 @@ Tournament.prototype.updateLB = function (gameServer, lb) {
             lb[1] = "Reached!";
             if (this.timer <= 0) {
                 // Reset the game
-                this.onServerInit(gameServer);
-                // Respawn starting food
-                gameServer.startingFood();
+                process.exit(3);
             } else {
                 lb[2] = "Game restarting in";
                 lb[3] = this.timer.toString();
