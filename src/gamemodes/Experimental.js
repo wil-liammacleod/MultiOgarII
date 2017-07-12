@@ -1,6 +1,5 @@
 var FFA = require('./FFA'); // Base gamemode
 var Entity = require('../entity');
-var Logger = require('../modules/Logger');
 
 function Experimental() {
     FFA.apply(this, Array.prototype.slice.call(arguments));

@@ -4,6 +4,8 @@ module.exports = {
     Teams: require('./Teams'),
     Experimental: require('./Experimental'),
     Rainbow: require('./Rainbow'),
+    Tournament: require('./Tournament'),
+    HungerGames: require('./HungerGames'),
 };
 
 var get = function (id) {
@@ -17,6 +19,12 @@ var get = function (id) {
             break;
         case 3: // Rainbow
             mode = new module.exports.Rainbow();
+            break;
+        case 4:// Tournament
+            mode = new module.exports.Tournament();
+            break;
+        case 5:// Hunger Games
+            mode = new module.exports.HungerGames();
             break;
         default: // FFA is default
             mode = new module.exports.FFA();
