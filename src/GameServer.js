@@ -473,11 +473,10 @@ GameServer.prototype.updateLeaderboard = function() {
 GameServer.prototype.onChatMessage = function(from, to, message) {
     if (!message) return;
     message = message.trim();
-    if (message === "") return;
-    if (message == "")
-    this.sendChatMessage(null, from, "Message failed - Your message can not be blank!");
-     return;
-    
+    if (message === "") {
+        this.sendChatMessage(null, from, "Message failed - Your message can not be blank!");
+        return;
+    }
     if (from && message.length && message[0] == '/') {
         // player command
         message = message.slice(1, message.length);
