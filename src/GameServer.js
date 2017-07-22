@@ -500,7 +500,7 @@ GameServer.prototype.onChatMessage = function(from, to, message) {
         }
     }
     if (this.checkBadWord(message) && from) {
-        this.sendChatMessage(null, from, "Message failed - Please remove any swear / racist words from your message then try again.");
+        this.sendChatMessage(null, from, "Message failed - Please remove any profanity from your message then try again.");
         return;
     }
     this.sendChatMessage(from, to, message);
