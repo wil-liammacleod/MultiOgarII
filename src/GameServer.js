@@ -474,6 +474,10 @@ GameServer.prototype.onChatMessage = function(from, to, message) {
     if (!message) return;
     message = message.trim();
     if (message === "") return;
+    if (message == "")
+    this.sendChatMessage(null, from, "Message failed - Your message can not be blank!");
+     return;
+    
     if (from && message.length && message[0] == '/') {
         // player command
         message = message.slice(1, message.length);
@@ -490,13 +494,13 @@ GameServer.prototype.onChatMessage = function(from, to, message) {
     if (this.config.serverChatAscii) {
         for (var i = 0; i < message.length; i++) {
             if ((message.charCodeAt(i) < 0x20 || message.charCodeAt(i) > 0x7F) && from) {
-                this.sendChatMessage(null, from, "You can use ASCII text only!");
+                this.sendChatMessage(null, from, "Message failed - You can use ASCII text only!");
                 return;
             }
         }
     }
     if (this.checkBadWord(message) && from) {
-        this.sendChatMessage(null, from, "Stop insulting others! Keep calm and be friendly please");
+        this.sendChatMessage(null, from, "Message failed - Please remove any profanity from your message then try again.");
         return;
     }
     this.sendChatMessage(from, to, message);
