@@ -234,7 +234,7 @@ GameServer.prototype.onServerSocketError = function(error) {
             Logger.error("Please close out of Skype or change 'serverPort' in gameserver.ini to a different number.");
             break;
         case "EACCES":
-            Logger.error("Please make sure you are running Ogar with root privileges.");
+            Logger.error("Please make sure you are running MultiOgar-Edited with root privileges.");
             break;
     }
     process.exit(1); // Exits the program
