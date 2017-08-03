@@ -39,7 +39,7 @@ PlayerCommand.prototype.userLogin = function (ip, password) {
         var user = this.gameServer.userList[i];
         if (user.password != password)
             continue;
-        if (user.ip && user.ip != ip)
+        if (user.ip && user.ip != ip && user.ip != "*") // * - means any IP
             continue;
         return user;
     }
