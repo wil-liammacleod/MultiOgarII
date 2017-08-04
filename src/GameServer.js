@@ -509,10 +509,9 @@ GameServer.prototype.checkBadWord = function(value) {
     if (!value) return false;
     value = value.toLowerCase().trim();
     if (!value) return false;
+    var split = value.split(" ");
     for (var i = 0; i < this.badWords.length; i++) {
-        if (value.indexOf(this.badWords[i]) >= 0) {
-            return true;
-        }
+        for (var j = 0; j < split.length; j++) if (split[j] === this.badWords[i]) return true;
     }
     return false;
 };
