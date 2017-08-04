@@ -512,7 +512,6 @@ GameServer.prototype.checkBadWord = function(value) {
     var split = value.split(" ");
     for (var i = 0; i < this.badWords.length; i++) {
         for (var j = 0; j < split.length; j++) if (split[j] === this.badWords[i]) return true;
-        }
     }
     return false;
 };
