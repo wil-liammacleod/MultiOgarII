@@ -474,9 +474,7 @@ GameServer.prototype.onChatMessage = function(from, to, message) {
     if (!message) return;
     message = message.trim();
     if (message === "") {
-        this.sendChatMessage(null, from, "Message failed - Your message can not be blank!");
         return;
-    }
     if (from && message.length && message[0] == '/') {
         // player command
         message = message.slice(1, message.length);
@@ -499,7 +497,7 @@ GameServer.prototype.onChatMessage = function(from, to, message) {
         }
     }
     if (this.checkBadWord(message) && from) {
-        this.sendChatMessage(null, from, "Message failed - Please remove any profanity from your message then try again.");
+        this.sendChatMessage(null, from, "Message failed - Stop insulting others! Keep calm and be friendly please.");
         return;
     }
     this.sendChatMessage(from, to, message);
