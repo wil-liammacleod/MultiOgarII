@@ -105,6 +105,7 @@ function GameServer() {
         virusMaxAmount: 100, // Maximum number of viruses on the map. If this number is reached, then ejected cells will pass through viruses.
         motherCellMaxMass: 0, // Maximum amount of mass a mothercell is allowed to have (0 for no limit)
         virusVelocity: 780, // Velocity of moving viruses (speed and distance)
+        virusMaxCells: 16 // Maximum cells a player can have from viruses.
 
         /** EJECTED MASS **/
         ejectSize: 36.06, // vanilla: mass = val*val/100 = 13 mass?
