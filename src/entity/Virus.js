@@ -32,7 +32,7 @@ Virus.prototype.onEat = function (prey) {
 Virus.prototype.onEaten = function (c) {
     if (!c.owner) return; // Only players can explode
     var minSize = this.gameServer.config.playerMinSize - 2.6227766017,          // maximum size of small splits
-    cellsLeft = this.gameServer.config.playerMaxCells - c.owner.cells.length,   // how many cells can split
+    cellsLeft = (this.gameServer.config.virusMaxCells || this.gameServer.config.playerMaxCells) - c.owner.cells.length,   // how many cells can split
     threshold = c._mass - cellsLeft * minSize;                                  // size check for exploding cells
     c.div = 20;
     // Diverse explosion(s)
