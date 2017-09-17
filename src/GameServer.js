@@ -511,7 +511,7 @@ GameServer.prototype.onChatMessage = function (from, to, message) {
             }
         }
     }
-    if (this.checkBadWord(message) && from) {
+    if (this.checkBadWord(message) && from && this.config.badWordFilter) {
         this.sendChatMessage(null, from, "Message failed - Stop insulting others! Keep calm and be friendly please.");
         return;
     }
