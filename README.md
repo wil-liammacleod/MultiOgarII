@@ -61,6 +61,10 @@ cd src
 sudo node index.js
 ```
 
+##### Running
+
+For details on running the server, please take a look inside the 'run' folder.
+
 ## Gallery
 ### Console:
 ![Console](http://i.imgur.com/bS5ToRD.png)
