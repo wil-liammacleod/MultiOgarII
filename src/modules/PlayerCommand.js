@@ -70,7 +70,7 @@ var playerCommands = {
             this.writeLine("/spawnmass - gives yourself or other player spawnmass");
             this.writeLine("/minion - gives yourself or other player minions");
             this.writeLine("/minion remove - removes all of your minions or other players minions");
-            this.writeLine("/addbot - Adds AI Bots to the Server);
+            this.writeLine("/addbot - Adds AI Bots to the Server");
             this.writeLine("/shutdown - SHUTDOWNS THE SERVER");
             this.writeLine("/status - Shows Status of the Server");
             this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
