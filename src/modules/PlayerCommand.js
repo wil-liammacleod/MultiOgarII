@@ -48,14 +48,27 @@ PlayerCommand.prototype.userLogin = function (ip, password) {
 
 var playerCommands = {
     help: function (args) {
-        if (this.playerTracker.userRole == UserRoleEnum.ADMIN || this.playerTracker.userRole == UserRoleEnum.MODER) {
+        if (this.playerTracker.userRole == UserRoleEnum.MODER) {
+                this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            this.writeLine("/skin %shark - change skin");
+            this.writeLine("/kill - self kill");
+            this.writeLine("/help - this command list");
+            this.writeLine("/id - Gets your playerID");
+            this.writeLine("/mass - gives mass to yourself or to other player");
+            this.writeLine("/minion - gives yourself or other player minions");
+            this.writeLine("/minion remove - removes all of your minions or other players minions");
+            this.writeLine("/status - Shows Status of the Server");
             this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        }
+        if (this.playerTracker.userRole == UserRoleEnum.ADMIN) {
+                        this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             this.writeLine("/skin %shark - change skin");
             this.writeLine("/kill - self kill");
             this.writeLine("/help - this command list");
             this.writeLine("/id - Gets your playerID");
             this.writeLine("/mass - gives mass to yourself or to other player");
             this.writeLine("/spawnmass - gives yourself or other player spawnmass - MUST BE ADMIN");
+            this.writeLine("/killall - kills everyone.")
             this.writeLine("/minion - gives yourself or other player minions");
             this.writeLine("/minion remove - removes all of your minions or other players minions");
             this.writeLine("/addbot - Adds Bots to the Server - MUST BE ADMIN");
@@ -71,6 +84,8 @@ var playerCommands = {
             this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         }
     },
+    
+    
     id: function (args) {
         this.writeLine("Your PlayerID is " + this.playerTracker.pID);
     },
