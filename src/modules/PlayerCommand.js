@@ -52,6 +52,7 @@ var playerCommands = {
                 this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             this.writeLine("/skin %shark - change skin");
             this.writeLine("/kill - self kill");
+            this.writeLine("/killall - kills everyone.")
             this.writeLine("/help - this command list");
             this.writeLine("/id - Gets your playerID");
             this.writeLine("/mass - gives mass to yourself or to other player");
@@ -64,6 +65,7 @@ var playerCommands = {
         this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             this.writeLine("/skin %shark - change skin");
             this.writeLine("/kill - self kill");
+            this.writeLine("/killall - kills everyone.")
             this.writeLine("/help - this command list");
             this.writeLine("/id - Gets your playerID");
             this.writeLine("/mass - gives mass to yourself or to other player");
@@ -117,6 +119,24 @@ var playerCommands = {
         }
         this.writeLine("You killed yourself");
     },
+    
+    killall: function (args) {
+if (this.playerTracker.userRole != UserRoleEnum.ADMIN && this.playerTracker.userRole != UserRoleEnum.MODER) {
+this.writeLine("ERROR: access denied!");
+return;
+}
+var count = 0;
+var cell = this.playerTracker.cells[0];
+for (var i = 0; i < this.gameServer.clients.length; i++) {
+var playerTracker = this.gameServer.clients[i].playerTracker;
+while (playerTracker.cells.length > 0) {
+this.gameServer.removeNode(playerTracker.cells[0]);
+count++;
+}
+}
+this.writeLine("You killed everyone. (" + count + (" cells.)"));
+},
+    
     mass: function (args) {
         if (this.playerTracker.userRole != UserRoleEnum.ADMIN && this.playerTracker.userRole != UserRoleEnum.MODER) {
             this.writeLine("ERROR: access denied!");
