@@ -32,5 +32,12 @@ else
     fi
 fi
 
+while true
+do
+ node ../src/index.js
+ echo "Restarting server..."
+done
+
+
 # Pause
 #pause
