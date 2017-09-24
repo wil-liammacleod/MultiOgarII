@@ -333,7 +333,7 @@ this.writeLine("You killed everyone. (" + count + (" cells.)"));
     },
     restart: function (args) {
         if (this.playerTracker.userRole != UserRoleEnum.ADMIN) {
-            this.writeLine("ERROR: acces denied!");
+            this.writeLine("ERROR: access denied!");
             return;
         }
         Logger.warn("RESTART REQUEST FROM " + this.playerTracker.socket.remoteAddress + " as " + this.playerTracker.userAuth);
