@@ -66,6 +66,8 @@ function GameServer() {
         serverStatsPort: 88, // Port for stats server. Having a negative number will disable the stats server.
         serverStatsUpdate: 60, // Update interval of server stats in seconds
         mobilePhysics: 0, // Whether or not the server uses mobile agar.io physics
+        badWordFilter: 1, // Toggle whether you want the bad word filter on (0 to disable, 1 to enable) 
+        serverRestart: 0, // Toggle whether you want your server to auto restart in minutes. (0 to disable)
 
         /** CLIENT **/
         serverMaxLB: 10, // Controls the maximum players displayed on the leaderboard.
@@ -192,6 +194,9 @@ GameServer.prototype.start = function () {
     // Start stats port (if needed)
     if (this.config.serverStatsPort > 0) {
         this.startStatsServer(this.config.serverStatsPort);
+        this.time = this.config.serverRestart; 
+    setTimeout(function(){process.exit(1);}, this.time * 60 * 1000);
+
     }
 };
 
