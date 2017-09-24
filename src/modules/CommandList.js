@@ -360,6 +360,11 @@ Commands.list = {
         gameServer.wsServer.close();
         process.exit(1);
     },
+    restart: function(gameServer) {
+        Logger.warn("Restarting server...");
+        gameServer.wsServer.close();
+        process.exit(3)
+    },
     kick: function(gameServer, split) {
         var id = parseInt(split[1]);
         if (isNaN(id)) {
