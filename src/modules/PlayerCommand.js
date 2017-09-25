@@ -331,4 +331,12 @@ this.writeLine("You killed everyone. (" + count + (" cells.)"));
         Logger.warn("SHUTDOWN REQUEST FROM " + this.playerTracker.socket.remoteAddress + " as " + this.playerTracker.userAuth);
         process.exit(0);
     },
+    restart: function (args) {
+        if (this.playerTracker.userRole != UserRoleEnum.ADMIN) {
+            this.writeLine("ERROR: access denied!");
+            return;
+        }
+        Logger.warn("RESTART REQUEST FROM " + this.playerTracker.socket.remoteAddress + " as " + this.playerTracker.userAuth);
+        process.exit(3);
+    }
 };
