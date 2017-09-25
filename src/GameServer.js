@@ -194,9 +194,6 @@ GameServer.prototype.start = function () {
     // Start stats port (if needed)
     if (this.config.serverStatsPort > 0) {
         this.startStatsServer(this.config.serverStatsPort);
-        this.time = this.config.serverRestart; 
-    setTimeout(function(){process.exit(1);}, this.time * 60 * 1000);
-
     }
 };
 
@@ -574,6 +571,8 @@ GameServer.prototype.mainLoop = function () {
     var tStart = process.hrtime();
     var self = this;
 
+    if (this.tickCounter > this.config.serverRestart) process.exit(1);
+    
     // Loop main functions
     if (this.run) {
         // Move moving nodes first
@@ -1087,6 +1086,9 @@ GameServer.prototype.loadFiles = function () {
         Logger.error(err.stack);
         Logger.error("Failed to load " + fileNameIpBan + ": " + err.message);
     }
+    
+    // Convert config settings
+    this.config.serverRestart = this.config.serverRestart === 0 ? 1e999 : this.config.serverRestart * 1500;
 };
 
 GameServer.prototype.startStatsServer = function (port) {
