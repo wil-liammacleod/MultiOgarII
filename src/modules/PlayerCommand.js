@@ -236,12 +236,9 @@ var playerCommands = {
             for (var i in this.gameServer.clients) {
                 var client = this.gameServer.clients[i].playerTracker;
                 if (client.pID == id) {
-                    
-                    // Prevent the user from giving minions to bots or minions
-                    if (client.isBot === true) {
-                        Logger.warn("You cannot give minions to a bot!");
-                        return;
-                    } else if (client.isMi) {
+
+                    // Prevent the user from giving minions, to minions
+                    if (client.isMi) {
                         Logger.warn("You cannot give minions to a minion!")
                     };
 
