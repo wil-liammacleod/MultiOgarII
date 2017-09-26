@@ -151,6 +151,15 @@ Commands.list = {
             var client = gameServer.clients[i].playerTracker;
             
             if (client.pID == id) {
+
+                // Prevent the user from giving minions to bots or minions
+                if (client.isBot === true) {
+                    Logger.warn("You cannot give minions to a bot!");
+                    return;
+                } else if (client.isMi) {
+                    Logger.warn("You cannot give minions to a minion!")
+                };
+
                 // Remove minions
                 if (client.minionControl === true && isNaN(add)) {
                     client.minionControl = false;
@@ -167,7 +176,7 @@ Commands.list = {
                     Logger.print("Added " + add + " minions for " + getName(client._name));
                 }
                 break;
-            }
+            } 
         }
     },
     addbot: function(gameServer, split) {

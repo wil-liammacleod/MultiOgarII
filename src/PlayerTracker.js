@@ -63,6 +63,9 @@ function PlayerTracker(gameServer, socket) {
     this.minionControl = false;
     this.collectPellets = false;
 
+    // Bots
+    this.isBot = false;
+
     // Gamemode function
     if (gameServer) {
         // Player id
