@@ -154,7 +154,8 @@ Commands.list = {
 
                 // Prevent the user from giving minions, to minions
                 if (client.isMi) {
-                    Logger.warn("You cannot give minions to a minion!")
+                    Logger.warn("You cannot give minions to a minion!");
+                    return;
                 };
 
                 // Remove minions

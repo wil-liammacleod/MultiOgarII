@@ -4,7 +4,6 @@ var Vec2 = require('../modules/Vec2');
 function BotPlayer() {
     PlayerTracker.apply(this, Array.prototype.slice.call(arguments));
     this.splitCooldown = 0;
-    this.isBot = true;
 }
 module.exports = BotPlayer;
 BotPlayer.prototype = new PlayerTracker();
