@@ -46,7 +46,7 @@ function GameServer() {
 
     // Config
     this.config = {
-        /** LOGGING **/
+        /** LOGGING/DEBUG **/
         logVerbosity: 4, // Console log level (0=NONE; 1=FATAL; 2=ERROR; 3=WARN; 4=INFO; 5=DEBUG)
         logFileVerbosity: 5, // File log level
 
@@ -135,6 +135,7 @@ function GameServer() {
         /** MINIONS **/
         minionStartSize: 31.6227766017, // Start size of minions (mass = 32*32/100 = 10.24)
         minionMaxStartSize: 31.6227766017, // Maximum value of random start size for minions (set value higher than minionStartSize to enable)
+        minionCollideTeam: 0, //Determines whether minions colide with their team in the Teams gamemode (0 = OFF, 1 = ON)
         disableERTP: 1, // Whether or not to disable ERTP controls for minions. (must use ERTPcontrol script in /scripts) (Set to 0 to enable)
         disableQ: 0, // Whether or not to disable Q controls for minions. (Set 0 to enable)
         serverMinions: 0, // Amount of minions each player gets once they spawn
@@ -572,7 +573,7 @@ GameServer.prototype.mainLoop = function () {
     var self = this;
 
     if (this.tickCounter > this.config.serverRestart) process.exit(1);
-    
+
     // Loop main functions
     if (this.run) {
         // Move moving nodes first
@@ -739,7 +740,9 @@ GameServer.prototype.checkCellCollision = function (cell, check) {
 GameServer.prototype.checkRigidCollision = function (m) {
     if (!m.cell.owner || !m.check.owner)
         return false;
-    if (m.cell.owner != m.check.owner) {
+
+    // Minions don't collide with their team when the config value is 0
+    if (m.cell.owner != m.check.owner&& this.config.minionCollideTeam === 0) {
         // Different owners => same team
         return this.gameMode.haveTeams &&
             m.cell.owner.team == m.check.owner.team;
@@ -1086,7 +1089,7 @@ GameServer.prototype.loadFiles = function () {
         Logger.error(err.stack);
         Logger.error("Failed to load " + fileNameIpBan + ": " + err.message);
     }
-    
+
     // Convert config settings
     this.config.serverRestart = this.config.serverRestart === 0 ? 1e999 : this.config.serverRestart * 1500;
 };
