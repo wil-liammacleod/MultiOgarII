@@ -135,6 +135,7 @@ function GameServer() {
         /** MINIONS **/
         minionStartSize: 31.6227766017, // Start size of minions (mass = 32*32/100 = 10.24)
         minionMaxStartSize: 31.6227766017, // Maximum value of random start size for minions (set value higher than minionStartSize to enable)
+        minionCollideTeam: 0, //Determines whether minions colide with their team in the Teams gamemode (0 = OFF, 1 = ON)
         disableERTP: 1, // Whether or not to disable ERTP controls for minions. (must use ERTPcontrol script in /scripts) (Set to 0 to enable)
         disableQ: 0, // Whether or not to disable Q controls for minions. (Set 0 to enable)
         serverMinions: 0, // Amount of minions each player gets once they spawn
@@ -741,9 +742,14 @@ GameServer.prototype.checkRigidCollision = function (m) {
         return false;
 
     if (m.cell.owner != m.check.owner) {
-        // Different owners => same team
-        return this.gameMode.haveTeams &&
-            m.cell.owner.team == m.check.owner.team;
+        // Minions don't collide with their team when the config value is 0
+        if (this.gameMode.haveTeams && m.check.owner.isMi || m.cell.owner.isMi && this.config.minionCollideTeam === 0) {
+            return false;
+        } else {
+            // Different owners => same team
+            return this.gameMode.haveTeams &&
+                m.cell.owner.team == m.check.owner.team;
+        }
     }
     var r = this.config.mobilePhysics ? 1 : 13;
     if (m.cell.getAge() < r || m.check.getAge() < r) {
