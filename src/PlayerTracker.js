@@ -127,7 +127,7 @@ PlayerTracker.prototype.getScale = function() {
         scale += this.cells[i]._size;
         this._score += this.cells[i]._mass;
     }
-    if (!scale) return scale = this._score = 0; // reset
+    if (!scale) return scale = this._score = 0.4; // reset scale
     else return this._scale = Math.pow(Math.min(64 / scale, 1), 0.4);
 };
 
