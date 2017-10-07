@@ -69,6 +69,7 @@ Commands.list = {
             "│ mute [PlayerID]              │ Mute player from chat by client ID        │\n" +
             "│ unmute [PlayerID]            │ Unmute player from chat by client ID      │\n" +
             "| lms                          | Starts/ends last man standing             |\n" +
+            "| chat                         | Sends a server message to all clients     |\n" +
             "│                                                                          │\n" +
             "│                          ----Miscellaneous----                           │\n" +
             "│                                                                          │\n" +
@@ -104,6 +105,11 @@ Commands.list = {
             "│ rep                         │ Alias for replace                          │\n" +
             "| e                           | Alias for explode                          |\n" +
             "└─────────────────────────────┴────────────────────────────────────────────┘");
+    },
+    chat: function (gameServer, split) {
+        for (var i = 0; i < gameServer.clients.length; i++) {
+            gameServer.sendChatMessage(null, i, split[1]);
+        }
     },
     debug: function (gameServer, split) {
         // Count client cells
