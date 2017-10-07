@@ -108,7 +108,7 @@ Commands.list = {
     },
     chat: function (gameServer, split) {
         for (var i = 0; i < gameServer.clients.length; i++) {
-            gameServer.sendChatMessage(null, i, split[1]);
+            gameServer.sendChatMessage(null, i, String(split.slice(1, split.length).join(" ")));
         }
     },
     debug: function (gameServer, split) {
