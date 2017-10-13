@@ -275,7 +275,7 @@ GameServer.prototype.onClientSocketOpen = function (ws) {
             return;
         }
     }
-    if (this.config.clientBind.length && this.clientBind.indexOf(ws.upgradeReq.headers.origin) < 0) {
+    if (this.config.clientBind.length && ws.upgradeReq.headers.origin.indexOf(this.clientBind) < 0) {
         ws.close(1000, "Client not allowed");
         return;
     }
