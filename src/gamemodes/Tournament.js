@@ -243,7 +243,7 @@ Tournament.prototype.updateLB = function (gameServer, lb) {
                 // Timed out
                 this.endGame(gameServer);
             } else {
-                if (this.timeLimit % 10 == 0) {
+                if (this.timeLimit % gameServer.config.tourneyLeaderboardToggleTime == 0) {
                     this.isPlayerLb ^= true;
                 }
                 this.timeLimit--;
