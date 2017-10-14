@@ -59,7 +59,7 @@ HungerGames.prototype = new Tournament();
 
 // Gamemode Specific Functions
 
-HungerGames.prototype.getPos = function () {
+HungerGames.prototype.getPos = function (gameServer) {
     var pos = {
         x: 0,
         y: 0
@@ -69,6 +69,7 @@ HungerGames.prototype.getPos = function () {
     if (this.contenderSpawnPoints.length > 0) {
         var index = Math.floor(Math.random() * this.contenderSpawnPoints.length);
         pos = this.contenderSpawnPoints[index];
+        toCartesian(gameServer, pos);
         this.contenderSpawnPoints.splice(index, 1);
     }
     
@@ -79,15 +80,25 @@ HungerGames.prototype.getPos = function () {
 };
 
 HungerGames.prototype.spawnFood = function (gameServer, mass, pos) {
+    toCartesian(gameServer, pos);
     var cell = new Entity.Food(gameServer, null, pos, mass);
     cell.color = gameServer.getRandomColor();
     gameServer.addNode(cell);
 };
 
 HungerGames.prototype.spawnVirus = function (gameServer, pos) {
+    toCartesian(gameServer, pos);
     var v = new Entity.Virus(gameServer, null, pos, gameServer.config.virusMinSize);
     gameServer.addNode(v);
 };
+
+function toCartesian (gameServer, pos) {
+    var midOfX = gameServer.border.minx + gameServer.border.width;
+    var midOfY = gameServer.border.miny + gameServer.border.height;
+
+    pos.x = pos.x - midOfX;
+    pos.y = midOfY - pos.y;
+}
 
 HungerGames.prototype.onPlayerDeath = function (gameServer) {
     gameServer.setBorder(
@@ -294,7 +305,7 @@ HungerGames.prototype.onPlayerSpawn = function (gameServer, player) {
     if ((this.gamePhase == 0) && (this.contenders.length < this.maxContenders)) {
         player.color = gameServer.getRandomColor(); // Random color
         this.contenders.push(player); // Add to contenders list
-        gameServer.spawnPlayer(player, this.getPos());
+        gameServer.spawnPlayer(player, this.getPos(gameServer));
         
         if (this.contenders.length == this.maxContenders) {
             // Start the game once there is enough players
