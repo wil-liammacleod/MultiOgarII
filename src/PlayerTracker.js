@@ -203,7 +203,7 @@ PlayerTracker.prototype.updateTick = function() {
     if (this.isRemoved || this.isMinion)
         return; // do not update
     this.socket.packetHandler.process();
-    if (this.isMi && this.gameServer.config.minionsOnLeaderboard == 0) return;
+    if (this.isMi) return;
 
     // update viewbox
     this.updateSpecView(this.cells.length);
