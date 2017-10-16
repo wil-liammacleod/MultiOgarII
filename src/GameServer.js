@@ -150,6 +150,7 @@ function GameServer() {
         tourneyTimeLimit: 20, // Time limit of the game, in minutes.
         tourneyAutoFill: 0, // If set to a value higher than 0, the tournament match will automatically fill up with bots after this amount of seconds
         tourneyAutoFillPlayers: 1, // The timer for filling the server with bots will not count down unless there is this amount of real players
+        tourneyLeaderboardToggleTime: 10, //Time for toggling the leaderboard, in seconds.If value set to 0, leaderboard will not toggle.
     };
 
     this.ipBanList = [];
@@ -276,7 +277,7 @@ GameServer.prototype.onClientSocketOpen = function (ws) {
             return;
         }
     }
-    if (this.config.clientBind.length && this.clientBind.indexOf(ws.upgradeReq.headers.origin) < 0) {
+    if (this.config.clientBind.length && ws.upgradeReq.headers.origin.indexOf(this.clientBind) < 0) {
         ws.close(1000, "Client not allowed");
         return;
     }
