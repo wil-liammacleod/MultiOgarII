@@ -131,11 +131,12 @@ Commands.list = {
     reset: function(gameServer, split) {
         var ent = split[1];
         if ("ejected" != ent && "food" != ent && "virus" != ent) {
-            for (Logger.warn("Removed " + gameServer.nodes.length + " nodes"); gameServer.nodes.length;) gameServer.removeNode(gameServer.nodes[0]);
+            for (; gameServer.nodes.length;) gameServer.removeNode(gameServer.nodes[0]);
             for (; gameServer.nodesEject.length;) gameServer.removeNode(gameServer.nodesEject[0]);
             for (; gameServer.nodesFood.length;) gameServer.removeNode(gameServer.nodesFood[0]);
             for (; gameServer.nodesVirus.length;) gameServer.removeNode(gameServer.nodesVirus[0]);
             Commands.list.killall(gameServer, split);
+            Logger.warn("Removed " + gameServer.nodes.length + " nodes");
         }
         if ("ejected" == ent) {
             for (; gameServer.nodesEject.length;) gameServer.removeNode(gameServer.nodesEject[0]);
