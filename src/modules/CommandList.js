@@ -128,18 +128,27 @@ Commands.list = {
             "Quad nodes:     " + fillChar(scanNodeCount(gameServer.quadTree), " ", 4, true) + "\n" +
             "Quad items:     " + fillChar(scanItemCount(gameServer.quadTree), " ", 4, true));
     },
-    reset: function (gameServer, split) {
-        Logger.warn("Removed " + gameServer.nodes.length + " nodes");
-        // Remove all nodes in the entire server
-        while (gameServer.nodes.length)
-            gameServer.removeNode(gameServer.nodes[0]);
-        while (gameServer.nodesEjected.length)
-            gameServer.removeNode(gameServer.nodesEjected[0]);
-        while (gameServer.nodesFood.length)
-            gameServer.removeNode(gameServer.nodesFood[0]);
-        while (gameServer.nodesVirus.length)
-            gameServer.removeNode(gameServer.nodesVirus[0]);
-        Commands.list.killall(gameServer, split);
+    reset: function(gameServer, split) {
+        var ent = split[1];
+        if ("ejected" != ent && "food" != ent && "virus" != ent) {
+            for (Logger.warn("Removed " + gameServer.nodes.length + " nodes"); gameServer.nodes.length;) gameServer.removeNode(gameServer.nodes[0]);
+            for (; gameServer.nodesEject.length;) gameServer.removeNode(gameServer.nodesEject[0]);
+            for (; gameServer.nodesFood.length;) gameServer.removeNode(gameServer.nodesFood[0]);
+            for (; gameServer.nodesVirus.length;) gameServer.removeNode(gameServer.nodesVirus[0]);
+            Commands.list.killall(gameServer, split);
+        }
+        if ("ejected" == ent) {
+            for (; gameServer.nodesEject.length;) gameServer.removeNode(gameServer.nodesEject[0]);
+            Logger.print("Removed " + gameServer.nodesEject.length + " ejected nodes");
+        }
+        if ("food" == ent) {
+            for (; gameServer.nodesFood.length;) gameServer.removeNode(gameServer.nodesFood[0]);
+            Logger.print("Removed " + gameServer.nodesFood.length + " food nodes");
+        }
+        if ("virus" == ent) {
+            for (; gameServer.nodesVirus.length;) gameServer.removeNode(gameServer.nodesVirus[0]);
+            Logger.print("Removed " + gameServer.nodesFood.length + " virus nodes");
+        }
     },
     minion: function (gameServer, split) {
         var id = parseInt(split[1]);
