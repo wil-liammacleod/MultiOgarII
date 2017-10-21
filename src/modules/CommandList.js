@@ -148,7 +148,7 @@ Commands.list = {
         }
         if ("virus" == ent) {
             for (; gameServer.nodesVirus.length;) gameServer.removeNode(gameServer.nodesVirus[0]);
-            Logger.print("Removed " + gameServer.nodesFood.length + " virus nodes");
+            Logger.print("Removed " + gameServer.nodesVirus.length + " virus nodes");
         }
     },
     minion: function (gameServer, split) {
