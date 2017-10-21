@@ -141,6 +141,7 @@ function GameServer() {
         serverMinions: 0, // Amount of minions each player gets once they spawn
         collectPellets: 0, // Enable collect pellets mode. To use just press P or Q. (Warning: this disables Q controls, so make sure that disableERT is 0)
         defaultName: "minion", // Default name for all minions if name is not specified using command (put <r> before the name for random skins!)
+        minionsOnLeaderboard: 0, // Whether or not to show minions on the leaderboard. (Set 0 to disable)
 
         /** TOURNAMENT **/
         tourneyMaxPlayers: 12, // Maximum number of participants for tournament style game modes
@@ -149,6 +150,7 @@ function GameServer() {
         tourneyTimeLimit: 20, // Time limit of the game, in minutes.
         tourneyAutoFill: 0, // If set to a value higher than 0, the tournament match will automatically fill up with bots after this amount of seconds
         tourneyAutoFillPlayers: 1, // The timer for filling the server with bots will not count down unless there is this amount of real players
+        tourneyLeaderboardToggleTime: 10, //Time for toggling the leaderboard, in seconds.If value set to 0, leaderboard will not toggle.
     };
 
     this.ipBanList = [];
@@ -275,7 +277,7 @@ GameServer.prototype.onClientSocketOpen = function (ws) {
             return;
         }
     }
-    if (this.config.clientBind.length && this.clientBind.indexOf(ws.upgradeReq.headers.origin) < 0) {
+    if (this.config.clientBind.length && ws.upgradeReq.headers.origin.indexOf(this.clientBind) < 0) {
         ws.close(1000, "Client not allowed");
         return;
     }
