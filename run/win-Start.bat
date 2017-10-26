@@ -1,5 +1,5 @@
 @echo off
 :a
-node ../src/index.js
+node ../src
 @echo Restarting server
 goto :a
