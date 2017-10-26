@@ -59,7 +59,7 @@ MotherCell.prototype.onUpdate = function () {
         this.gameServer.addNode(food);
         
         // Eject to random distance
-        food.setBoost(32 + 32 * Math.random(), angle);
+        food.setBoost(32 + 42 * Math.random(), angle);
         
         if (this.gameServer.nodesFood.length >= maxFood || size1 <= this.motherCellMinSize) {
             break;
