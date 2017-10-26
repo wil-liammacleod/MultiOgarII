@@ -574,7 +574,32 @@ GameServer.prototype.mainLoop = function () {
     var tStart = process.hrtime();
     var self = this;
 
-    if (this.tickCounter > this.config.serverRestart) process.exit(1);
+    if (this.tickCounter > this.config.serverRestart) {
+        var QuadNode = require('./modules/QuadNode.js');
+        this.httpServer = null;
+        this.wsServer = null;
+        this.run = true;
+        this.lastNodeId = 1;
+        this.lastPlayerId = 1;
+
+        for (var i = 0; i < this.clients.length; i++) {
+            var client = this.clients[i];
+            client.close();
+        };
+
+        this.nodes = [];
+        this.nodesMine = [];
+        this.nodesEjected = [];
+        this.quadTree = null;
+        this.currentpellet = 0;
+        this.movingNodes = [];
+        this.commands;
+        this.tickCounter = 0;
+        this.setBorder(10000, 10000);
+        this.startTime = Date.now();
+        this.setBorder(this.config.borderWidth, this.config.borderHeight);
+        this.quadTree = new QuadNode(this.border, 64, 32);
+    };
 
     // Loop main functions
     if (this.run) {

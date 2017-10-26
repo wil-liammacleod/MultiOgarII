@@ -275,7 +275,7 @@ PlayerTracker.prototype.sendUpdate = function() {
         var node = this.viewNodes[newIndex];
         if (node.isRemoved) continue;
         // only send update for moving or player nodes
-        if (node.isMoving || node.cellType == 0 || node.cellType == 2)
+        if (node.isMoving || node.cellType == 0 || node.cellType == 2 || this.gameServer.config.serverGamemode == 3 && node.cellType == 1)
             updNodes.push(node);
         newIndex++;
         oldIndex++;
