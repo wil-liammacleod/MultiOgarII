@@ -2,11 +2,11 @@ var FFA = require('./FFA'); // Base gamemode
 
 function Rainbow() {
     FFA.apply(this, Array.prototype.slice.call(arguments));
-    
+
     this.ID = 3;
     this.name = "Rainbow FFA";
     this.specByLeaderboard = true;
-    
+
     this.colors = [{
             'r': 255,
             'g': 0,
@@ -144,14 +144,13 @@ Rainbow.prototype.changeColor = function (node) {
     if (node.rainbow >= this.colorsLength) {
         node.rainbow = 0;
     }
-    node.color = this.colors[node.rainbow];
+    node.color = "#" + ((1 << 24) * Math.random() | 0).toString(16);
     node.rainbow += this.speed;
 };
 
 // Override
 
-Rainbow.prototype.onServerInit = function () {
-};
+Rainbow.prototype.onServerInit = function () {};
 
 Rainbow.prototype.onTick = function (gameServer) {
     // Change color
