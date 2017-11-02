@@ -139,7 +139,7 @@ Commands.list = {
             Logger.warn("Removed " + gameServer.nodes.length + " nodes");
         }
         if ("ejected" == ent) {
-            for (; gameServer.nodesEject.length;) gameServer.removeNode(gameServer.nodesEject[0]);
+            for (; gameServer.nodesEjected.length;) gameServer.removeNode(gameServer.nodesEjected[0]);
             Logger.print("Removed " + gameServer.nodesEject.length + " ejected nodes");
         }
         if ("food" == ent) {
