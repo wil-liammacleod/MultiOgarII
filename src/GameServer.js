@@ -330,7 +330,7 @@ GameServer.prototype.onClientSocketOpen = function (ws, req) {
     this.clients.push(ws);
 
     // Check for external minions
-    this.checkMinion(ws);
+    this.checkMinion(ws, req);
 };
 
 GameServer.prototype.checkMinion = function (ws, req) {
