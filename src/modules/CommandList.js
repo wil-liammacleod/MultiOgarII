@@ -130,19 +130,19 @@ Commands.list = {
     },
     reset: function(gameServer, split) {
         var ent = split[1];
-        if ("ejected" != ent && "food" != ent && "virus" != ent) {
+        if (ent != "ejected" && ent != "food" && ent != "virus") {
             Logger.warn("Removed " + gameServer.nodes.length + " nodes");
             for (; gameServer.nodes.length;) gameServer.removeNode(gameServer.nodes[0]);
         }
-        if ("ejected" == ent) {
+        if (ent == "ejected") {
             Logger.print("Removed " + gameServer.nodesEjected.length + " ejected nodes");
             for (; gameServer.nodesEjected.length;) gameServer.removeNode(gameServer.nodesEjected[0]);
         }
-        if ("food" == ent) {
+        if (ent == "food") {
             Logger.print("Removed " + gameServer.nodesFood.length + " food nodes");
             for (; gameServer.nodesFood.length;) gameServer.removeNode(gameServer.nodesFood[0]);
         }
-        if ("virus" == ent) {
+        if (ent == "virus") {
             Logger.print("Removed " + gameServer.nodesVirus.length + " virus nodes");
             for (; gameServer.nodesVirus.length;) gameServer.removeNode(gameServer.nodesVirus[0]);
         }
