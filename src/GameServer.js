@@ -251,7 +251,7 @@ GameServer.prototype.onServerSocketError = function (error) {
     process.exit(1); // Exits the program
 };
 
-GameServer.prototype.onClientSocketOpen = function (ws) {
+GameServer.prototype.onClientSocketOpen = function (ws, req) {
     var logip = ws._socket.remoteAddress + ":" + ws._socket.remotePort;
     ws.on('error', function (err) {
         Logger.writeError("[" + logip + "] " + err.stack);
@@ -277,7 +277,7 @@ GameServer.prototype.onClientSocketOpen = function (ws) {
             return;
         }
     }
-    if (this.config.clientBind.length && ws.upgradeReq.headers.origin.indexOf(this.clientBind) < 0) {
+    if (this.config.clientBind.length && req.headers.origin.indexOf(this.clientBind) < 0) {
         ws.close(1000, "Client not allowed");
         return;
     }
@@ -285,7 +285,7 @@ GameServer.prototype.onClientSocketOpen = function (ws) {
     ws.remoteAddress = ws._socket.remoteAddress;
     ws.remotePort = ws._socket.remotePort;
     ws.lastAliveTime = Date.now();
-    Logger.write("CONNECTED " + ws.remoteAddress + ":" + ws.remotePort + ", origin: \"" + ws.upgradeReq.headers.origin + "\"");
+    Logger.write("CONNECTED " + ws.remoteAddress + ":" + ws.remotePort + ", origin: \"" + req.headers.origin + "\"");
 
 
     var PlayerTracker = require('./PlayerTracker');
@@ -312,7 +312,7 @@ GameServer.prototype.onClientSocketOpen = function (ws) {
         ws.packetHandler.sendPacket = function (data) {};
     });
     ws.on('close', function (reason) {
-        if (ws._socket.destroy != null && typeof ws._socket.destroy == 'function') {
+        if (ws._socket && ws._socket.destroy != null && typeof ws._socket.destroy == 'function') {
             ws._socket.destroy();
         }
         self.socketCount--;
@@ -333,10 +333,10 @@ GameServer.prototype.onClientSocketOpen = function (ws) {
     this.checkMinion(ws);
 };
 
-GameServer.prototype.checkMinion = function (ws) {
+GameServer.prototype.checkMinion = function (ws, req) {
     // Check headers (maybe have a config for this?)
-    if (!ws.upgradeReq.headers['user-agent'] || !ws.upgradeReq.headers['cache-control'] ||
-        ws.upgradeReq.headers['user-agent'].length < 50) {
+    if (!req.headers['user-agent'] || !req.headers['cache-control'] ||
+        req.headers['user-agent'].length < 50) {
         ws.playerTracker.isMinion = true;
     }
     // External minion detection
