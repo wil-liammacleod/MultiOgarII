@@ -130,25 +130,21 @@ Commands.list = {
     },
     reset: function(gameServer, split) {
         var ent = split[1];
-        if ("ejected" != ent && "food" != ent && "virus" != ent) {
-            for (; gameServer.nodes.length;) gameServer.removeNode(gameServer.nodes[0]);
-            for (; gameServer.nodesEject.length;) gameServer.removeNode(gameServer.nodesEject[0]);
-            for (; gameServer.nodesFood.length;) gameServer.removeNode(gameServer.nodesFood[0]);
-            for (; gameServer.nodesVirus.length;) gameServer.removeNode(gameServer.nodesVirus[0]);
-            Commands.list.killall(gameServer, split);
+        if (ent != "ejected" && ent != "food" && ent != "virus") {
             Logger.warn("Removed " + gameServer.nodes.length + " nodes");
+            for (; gameServer.nodes.length;) gameServer.removeNode(gameServer.nodes[0]);
         }
-        if ("ejected" == ent) {
-            for (; gameServer.nodesEject.length;) gameServer.removeNode(gameServer.nodesEject[0]);
-            Logger.print("Removed " + gameServer.nodesEject.length + " ejected nodes");
+        if (ent == "ejected") {
+            Logger.print("Removed " + gameServer.nodesEjected.length + " ejected nodes");
+            for (; gameServer.nodesEjected.length;) gameServer.removeNode(gameServer.nodesEjected[0]);
         }
-        if ("food" == ent) {
-            for (; gameServer.nodesFood.length;) gameServer.removeNode(gameServer.nodesFood[0]);
+        if (ent == "food") {
             Logger.print("Removed " + gameServer.nodesFood.length + " food nodes");
+            for (; gameServer.nodesFood.length;) gameServer.removeNode(gameServer.nodesFood[0]);
         }
-        if ("virus" == ent) {
-            for (; gameServer.nodesVirus.length;) gameServer.removeNode(gameServer.nodesVirus[0]);
+        if (ent == "virus") {
             Logger.print("Removed " + gameServer.nodesVirus.length + " virus nodes");
+            for (; gameServer.nodesVirus.length;) gameServer.removeNode(gameServer.nodesVirus[0]);
         }
     },
     minion: function (gameServer, split) {
@@ -178,7 +174,7 @@ Commands.list = {
                 if (client.minionControl === true && isNaN(add)) {
                     client.minionControl = false;
                     client.miQ = 0;
-                    Logger.print("Succesfully removed minions for " + getName(client._name));
+                    Logger.print("Successfully removed minions for " + getName(client._name));
                     // Add minions
                 } else {
                     client.minionControl = true;
