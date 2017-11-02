@@ -178,7 +178,7 @@ Commands.list = {
                 if (client.minionControl === true && isNaN(add)) {
                     client.minionControl = false;
                     client.miQ = 0;
-                    Logger.print("Succesfully removed minions for " + getName(client._name));
+                    Logger.print("Successfully removed minions for " + getName(client._name));
                     // Add minions
                 } else {
                     client.minionControl = true;
