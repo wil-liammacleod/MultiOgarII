@@ -1,3 +1,6 @@
+// Libraries
+var figlet = require('figlet');
+
 // Imports
 var GameMode = require('../gamemodes');
 var Logger = require('./Logger');
@@ -128,7 +131,7 @@ Commands.list = {
             "Quad nodes:     " + fillChar(scanNodeCount(gameServer.quadTree), " ", 4, true) + "\n" +
             "Quad items:     " + fillChar(scanItemCount(gameServer.quadTree), " ", 4, true));
     },
-    reset: function(gameServer, split) {
+    reset: function (gameServer, split) {
         var ent = split[1];
         if (ent != "ejected" && ent != "food" && ent != "virus") {
             Logger.warn("Removed " + gameServer.nodes.length + " nodes");
@@ -343,8 +346,21 @@ Commands.list = {
         Logger.setFileVerbosity(gameServer.config.logFileVerbosity);
         Logger.print("Set " + key + " = " + gameServer.config[key]);
     },
-    clear: function () {
+    clear: function (gameServer) {
         process.stdout.write("\u001b[2J\u001b[0;0H");
+
+        figlet(('MultiOgar-Edited  ' + gameServer.version), function(err, data) {
+            if (err) {
+                console.log('Something went wrong...');
+                console.dir(err);
+                return;
+            }
+            console.log(data)
+        });
+
+        Logger.info("\u001B[1m\u001B[32mMultiOgar-Edited " + gameServer.version + "\u001B[37m - An open source multi-protocol ogar server\u001B[0m");
+        Logger.info("Listening on port " + gameServer.config.serverPort);
+        Logger.info("Current game mode is " + gameServer.gameMode.name + "\n");    
     },
     color: function (gameServer, split) {
         // Validation checks
@@ -870,7 +886,9 @@ Commands.list = {
 
         Logger.print("Connected players: " + gameServer.clients.length + "/" + gameServer.config.serverMaxConnections);
         Logger.print("Players: " + humans + " - Bots: " + bots);
-        Logger.print("Average score: " + (scores.reduce(function(x, y) { return x + y; }) / scores.length).toFixed(2));
+        Logger.print("Average score: " + (scores.reduce(function (x, y) {
+            return x + y;
+        }) / scores.length).toFixed(2));
         Logger.print("Server has been running for a total of" + Math.floor(process.uptime() / 60) + " minutes");
         Logger.print("Current memory usage: " + Math.round(process.memoryUsage().heapUsed / 1048576 * 10) / 10 + "/" + Math.round(process.memoryUsage().heapTotal / 1048576 * 10) / 10 + " mb");
         Logger.print("Current game mode: " + gameServer.gameMode.name);
