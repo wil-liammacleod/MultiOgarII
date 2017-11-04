@@ -1,3 +1,6 @@
+// Libraries
+var figlet = require('figlet');
+
 // Imports
 var GameMode = require('../gamemodes');
 var Logger = require('./Logger');
@@ -128,27 +131,23 @@ Commands.list = {
             "Quad nodes:     " + fillChar(scanNodeCount(gameServer.quadTree), " ", 4, true) + "\n" +
             "Quad items:     " + fillChar(scanItemCount(gameServer.quadTree), " ", 4, true));
     },
-    reset: function(gameServer, split) {
+    reset: function (gameServer, split) {
         var ent = split[1];
-        if ("ejected" != ent && "food" != ent && "virus" != ent) {
-            for (; gameServer.nodes.length;) gameServer.removeNode(gameServer.nodes[0]);
-            for (; gameServer.nodesEject.length;) gameServer.removeNode(gameServer.nodesEject[0]);
-            for (; gameServer.nodesFood.length;) gameServer.removeNode(gameServer.nodesFood[0]);
-            for (; gameServer.nodesVirus.length;) gameServer.removeNode(gameServer.nodesVirus[0]);
-            Commands.list.killall(gameServer, split);
+        if (ent != "ejected" && ent != "food" && ent != "virus") {
             Logger.warn("Removed " + gameServer.nodes.length + " nodes");
+            for (; gameServer.nodes.length;) gameServer.removeNode(gameServer.nodes[0]);
         }
-        if ("ejected" == ent) {
-            for (; gameServer.nodesEject.length;) gameServer.removeNode(gameServer.nodesEject[0]);
-            Logger.print("Removed " + gameServer.nodesEject.length + " ejected nodes");
+        if (ent == "ejected") {
+            Logger.print("Removed " + gameServer.nodesEjected.length + " ejected nodes");
+            for (; gameServer.nodesEjected.length;) gameServer.removeNode(gameServer.nodesEjected[0]);
         }
-        if ("food" == ent) {
-            for (; gameServer.nodesFood.length;) gameServer.removeNode(gameServer.nodesFood[0]);
+        if (ent == "food") {
             Logger.print("Removed " + gameServer.nodesFood.length + " food nodes");
+            for (; gameServer.nodesFood.length;) gameServer.removeNode(gameServer.nodesFood[0]);
         }
-        if ("virus" == ent) {
-            for (; gameServer.nodesVirus.length;) gameServer.removeNode(gameServer.nodesVirus[0]);
+        if (ent == "virus") {
             Logger.print("Removed " + gameServer.nodesVirus.length + " virus nodes");
+            for (; gameServer.nodesVirus.length;) gameServer.removeNode(gameServer.nodesVirus[0]);
         }
     },
     minion: function (gameServer, split) {
@@ -178,7 +177,7 @@ Commands.list = {
                 if (client.minionControl === true && isNaN(add)) {
                     client.minionControl = false;
                     client.miQ = 0;
-                    Logger.print("Succesfully removed minions for " + getName(client._name));
+                    Logger.print("Successfully removed minions for " + getName(client._name));
                     // Add minions
                 } else {
                     client.minionControl = true;
@@ -347,8 +346,21 @@ Commands.list = {
         Logger.setFileVerbosity(gameServer.config.logFileVerbosity);
         Logger.print("Set " + key + " = " + gameServer.config[key]);
     },
-    clear: function () {
+    clear: function (gameServer) {
         process.stdout.write("\u001b[2J\u001b[0;0H");
+
+        figlet(('MultiOgar-Edited  ' + gameServer.version), function(err, data) {
+            if (err) {
+                console.log('Something went wrong...');
+                console.dir(err);
+                return;
+            }
+            console.log(data)
+        });
+
+        Logger.info("\u001B[1m\u001B[32mMultiOgar-Edited " + gameServer.version + "\u001B[37m - An open source multi-protocol ogar server\u001B[0m");
+        Logger.info("Listening on port " + gameServer.config.serverPort);
+        Logger.info("Current game mode is " + gameServer.gameMode.name + "\n");    
     },
     color: function (gameServer, split) {
         // Validation checks
@@ -388,9 +400,31 @@ Commands.list = {
         process.exit(1);
     },
     restart: function (gameServer) {
+        var QuadNode = require('./QuadNode.js');
         Logger.warn("Restarting server...");
-        gameServer.wsServer.close();
-        process.exit(3)
+        gameServer.httpServer = null;
+        gameServer.wsServer = null;
+        gameServer.run = true;
+        gameServer.lastNodeId = 1;
+        gameServer.lastPlayerId = 1;
+
+        for (var i = 0; i < gameServer.clients.length; i++) {
+            var client = gameServer.clients[i];
+            client.close();
+        };
+
+        gameServer.nodes = []; 
+        gameServer.nodesVirus = []; 
+        gameServer.nodesFood = []; 
+        gameServer.nodesEjected = []; 
+        gameServer.nodesPlayer = []; 
+        gameServer.movingNodes = [];
+        gameServer.commands;
+        gameServer.tickCounter = 0;
+        gameServer.startTime = Date.now();
+        gameServer.setBorder(gameServer.config.borderWidth, gameServer.config.borderHeight);
+        gameServer.quadTree = new QuadNode(gameServer.border, 64, 32);
+
     },
     kick: function (gameServer, split) {
         var id = parseInt(split[1]);
@@ -851,7 +885,9 @@ Commands.list = {
 
         Logger.print("Connected players: " + gameServer.clients.length + "/" + gameServer.config.serverMaxConnections);
         Logger.print("Players: " + humans + " - Bots: " + bots);
-        Logger.print("Average score: " + (scores.reduce((x, y) => x + y) / scores.length).toFixed(2));
+        Logger.print("Average score: " + (scores.reduce(function (x, y) {
+            return x + y;
+        }) / scores.length).toFixed(2));
         Logger.print("Server has been running for a total of" + Math.floor(process.uptime() / 60) + " minutes");
         Logger.print("Current memory usage: " + Math.round(process.memoryUsage().heapUsed / 1048576 * 10) / 10 + "/" + Math.round(process.memoryUsage().heapTotal / 1048576 * 10) / 10 + " mb");
         Logger.print("Current game mode: " + gameServer.gameMode.name);
