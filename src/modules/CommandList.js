@@ -413,12 +413,12 @@ Commands.list = {
             client.close();
         };
 
-        this.nodes = []; 
-        this.nodesVirus = []; 
-        this.nodesFood = []; 
-        this.nodesEjected = []; 
-        this.nodesPlayer = []; 
-        this.movingNodes = [];
+        gameServer.nodes = []; 
+        gameServer.nodesVirus = []; 
+        gameServer.nodesFood = []; 
+        gameServer.nodesEjected = []; 
+        gameServer.nodesPlayer = []; 
+        gameServer.movingNodes = [];
         gameServer.commands;
         gameServer.tickCounter = 0;
         gameServer.startTime = Date.now();
