@@ -413,15 +413,14 @@ Commands.list = {
             client.close();
         };
 
-        gameServer.nodes = [];
-        gameServer.nodesMine = [];
-        gameServer.nodesEjected = [];
-        gameServer.quadTree = null;
-        gameServer.currentpellet = 0;
-        gameServer.movingNodes = [];
+        this.nodes = []; 
+        this.nodesVirus = []; 
+        this.nodesFood = []; 
+        this.nodesEjected = []; 
+        this.nodesPlayer = []; 
+        this.movingNodes = [];
         gameServer.commands;
         gameServer.tickCounter = 0;
-        gameServer.setBorder(10000, 10000);
         gameServer.startTime = Date.now();
         gameServer.setBorder(gameServer.config.borderWidth, gameServer.config.borderHeight);
         gameServer.quadTree = new QuadNode(gameServer.border, 64, 32);
