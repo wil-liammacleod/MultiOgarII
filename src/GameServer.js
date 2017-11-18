@@ -887,7 +887,7 @@ GameServer.prototype.spawnPlayer = function (player, pos) {
     if (player.spawnmass) size = player.spawnmass;
 
     // Check if can spawn from ejected mass
-    var index = (this.nodesEjected.length - 1) * ~~Math.random();
+    var index = ~~(this.nodesEjected.length * Math.random());
     var eject = this.nodesEjected[index]; // Randomly selected
     if (Math.random() <= this.config.ejectSpawnPercent &&
         eject && eject.boostDistance < 1) {
