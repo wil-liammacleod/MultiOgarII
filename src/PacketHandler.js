@@ -10,7 +10,6 @@ function PacketHandler(gameServer, socket) {
     this.lastJoinTick = 0;
     this.lastChatTick = 0;
     this.lastStatTick = 0;
-    this.lastWTick = 0;
     this.lastQTick = 0;
     this.lastSpaceTick = 0;
     this.pressQ = false;
