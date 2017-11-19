@@ -10,7 +10,6 @@ function PacketHandler(gameServer, socket) {
     this.lastJoinTick = 0;
     this.lastChatTick = 0;
     this.lastStatTick = 0;
-    this.lastWTick = 0;
     this.lastQTick = 0;
     this.lastSpaceTick = 0;
     this.pressQ = false;
@@ -142,12 +141,6 @@ PacketHandler.prototype.message_onKeyQ = function (message) {
 
 PacketHandler.prototype.message_onKeyW = function (message) {
     if (message.length !== 1) return;
-    var tick = this.gameServer.tickCounter;
-    var dt = tick - this.lastWTick;
-    if (dt < this.gameServer.config.ejectCooldown) {
-        return;
-    }
-    this.lastWTick = tick;
     if (this.socket.playerTracker.miQ) {
         this.socket.playerTracker.minionEject = true;
     } else {
