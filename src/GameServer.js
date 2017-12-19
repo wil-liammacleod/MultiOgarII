@@ -103,8 +103,6 @@ function GameServer() {
         /** VIRUSES **/
         virusMinSize: 100, // Minimum virus size. (vanilla: mass = val*val/100 = 100 mass)
         virusMaxSize: 141.421356237, // Maximum virus size (vanilla: mass = val*val/100 = 200 mass)
-        virusMaxPoppedSize: 60, // Maximum size a popped cell can have
-        virusEqualPopSize: 0, // Whether popped cells have equal size or not (1 to enable)
         virusMinAmount: 50, // Minimum number of viruses on the map.
         virusMaxAmount: 100, // Maximum number of viruses on the map. If this number is reached, then ejected cells will pass through viruses.
         motherCellMaxMass: 0, // Maximum amount of mass a mothercell is allowed to have (0 for no limit)
