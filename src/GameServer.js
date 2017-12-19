@@ -588,9 +588,9 @@ GameServer.prototype.mainLoop = function () {
             client.close();
         };
 
-        this.nodes = []; 
+        this.nodes = [];
         this.nodesVirus = [];
-        this.nodesFood = []; 
+        this.nodesFood = [];
         this.nodesEjected = [];
         this.nodesPlayer = [];
         this.movingNodes = [];
@@ -838,8 +838,8 @@ GameServer.prototype.splitPlayerCell = function (client, parent, angle, mass) {
     var size = Math.sqrt(mass * 100);
     var size1 = Math.sqrt(parent.radius - size * size);
 
-    // Too small to split
-    if (!size1 || size1 < this.config.playerMinSize)
+    // Too small to split or the client has reached the maximum amount of cells
+    if (!size1 || size1 < this.config.playerMinSize || client.cells.length >= this.config.playerMaxCells)
         return;
 
     // Remove size from parent cell
