@@ -20,7 +20,8 @@ module.exports = MotherCell;
 MotherCell.prototype = new Cell();
 
 // Main Functions
-MotherCell.prototype.onEaten = Virus.prototype.onEaten; // Copies the virus prototype function
+MotherCell.prototype.onEaten = Virus.prototype.onEaten; // Copies the onEaten function
+MotherCell.prototype.explodeCell = Virus.prototype.explodeCell; // Copied the explodeCell function
 
 MotherCell.prototype.canEat = function (cell) {
     var maxMass = this.gameServer.config.motherCellMaxMass;
