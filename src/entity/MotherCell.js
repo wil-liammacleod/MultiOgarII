@@ -32,9 +32,6 @@ MotherCell.prototype.canEat = function (cell) {
 };
 
 MotherCell.prototype.onUpdate = function () {
-    if (this._size <= this.motherCellMinSize) {
-        return;
-    }
     var maxFood = this.gameServer.config.foodMaxAmount;
     if (this.gameServer.nodesFood.length >= maxFood) {
         return;
@@ -48,10 +45,9 @@ MotherCell.prototype.onUpdate = function () {
         
         // Spawn food with size2
         var angle = Math.random() * 2 * Math.PI;
-        var r = this._size;
         var pos = {
-            x: this.position.x + r * Math.sin(angle),
-            y: this.position.y + r * Math.cos(angle)
+            x: this.position.x + size1 * Math.sin(angle),
+            y: this.position.y + size1 * Math.cos(angle)
         };
         
         // Spawn food
