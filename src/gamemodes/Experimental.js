@@ -10,8 +10,6 @@ function Experimental() {
     
     // Gamemode Specific Variables
     this.nodesMother = [];
-    this.tickMotherSpawn = 0;
-    this.tickMotherUpdate = 0;
     
     // Config
     this.motherSpawnInterval = 125; // How many ticks it takes to spawn another mother cell (5 seconds)
