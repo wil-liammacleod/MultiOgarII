@@ -38,7 +38,7 @@ Virus.prototype.onEaten = function(cell) {
     var config = this.gameServer.config;
 
     var cellsLeft = (config.virusMaxCells || config.playerMaxCells) - cell.owner.cells.length;
-    if (cellsLeft === 0) return;
+    if (cellsLeft <= 0) return;
     var splitMin = config.virusMaxPoppedSize * config.virusMaxPoppedSize / 100;
     var cellMass = cell._mass, splits = [], splitCount, splitMass;
 
