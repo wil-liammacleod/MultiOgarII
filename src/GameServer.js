@@ -1053,7 +1053,7 @@ GameServer.prototype.loadFiles = function () {
                 return " " + arg.trim().toLowerCase() + " "; // Formatting
             });
             words = words.filter(function (arg) {
-                return !!arg;
+                return arg.length > 2;
             });
             this.badWords = words;
             Logger.info(this.badWords.length + " bad words loaded");
