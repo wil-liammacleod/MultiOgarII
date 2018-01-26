@@ -526,10 +526,9 @@ GameServer.prototype.onChatMessage = function (from, to, message) {
     this.sendChatMessage(from, to, message);
 };
 
-GameServer.prototype.checkBadWord = function(value) {
+GameServer.prototype.checkBadWord = function (value) {
     if (!value) return false;
     value = " " + value.toLowerCase().trim() + " ";
-    if (!value) return false;
     for (var i = 0; i < this.badWords.length; i++) {
         if (value.indexOf(this.badWords[i]) >= 0) {
             return true;
