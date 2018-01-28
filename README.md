@@ -2,7 +2,7 @@
 
 A fast, open source [Agar.io](http://agar.io/) server that supports multiple protocol versions and smooth vanilla physics.
 
-Since August of 2016, [Barbosik](https://github.com/Barbosik) has stopped working on this project. So I forked the code and remade it into MultiOgar-Edited. An updated version of the previous MultiOgar.
+Since August of 2016, [Barbosik](https://github.com/Barbosik) has stopped working on this project. So I forked the code and remade it into MultiOgar-Edited, an updated version of the previous MultiOgar.
 
 >---
 
@@ -15,12 +15,6 @@ Current version : **1.6.1**
 Original MultiOgar code is based on the private server implementation [Ogar](https://github.com/OgarProject/Ogar). The original code rightfully belongs to the [OgarProject](https://github.com/OgarProject).
 
 MultiOgar-Edited code however, is based on MultiOgar code that has been heavily modified and improved by many collaborators. The overall goal of this fork is to make physics as vanilla as possible, cleanup most of the code, and add lots of new features while maintaining better performance than the original MultiOgar.
-
->---
-
-## Discord Server
-
-**Yes, we have a Discord Server. This will be used to give you extra assistance and help you with your custom code. Join here: https://discord.gg/FGsB4mJ**
 
 >---
 
