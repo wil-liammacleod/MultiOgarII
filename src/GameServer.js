@@ -584,12 +584,15 @@ GameServer.prototype.mainLoop = function () {
         this.run = true;
         this.lastNodeId = 1;
         this.lastPlayerId = 1;
-
+        if (this.config.serverBots) {
+            for (var i = 0; i < this.config.serverBots; i++)
+                this.bots.addBot();
+            Logger.info("Added " + this.config.serverBots + " player bots");
+        };
         for (var i = 0; i < this.clients.length; i++) {
             var client = this.clients[i];
             client.close();
         };
-
         this.nodes = []; 
         this.nodesVirus = [];
         this.nodesFood = []; 
