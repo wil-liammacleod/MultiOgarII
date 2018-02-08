@@ -222,7 +222,7 @@ PacketHandler.prototype.processMouse = function () {
         // protocol 4
         var x = reader.readDouble() - client.scrambleX;
         var y = reader.readDouble() - client.scrambleY;
-        if (!isNaN(x) && !isNaN(y)) {
+        if (!isNaN(x) && !isNaN(y) && isFinite(x) && isFinite(y)) {
             client.mouse.x = x;
             client.mouse.y = y;
         }
