@@ -55,7 +55,7 @@ Commands.list = {
             "│ skin [PlayerID] [string]     │ Change cell(s) skin by client ID          │\n" +
             "│ rec [PlayerID]               │ Gives a player instant-recombine + more   │\n" +
             "│ split [PlayerID] [Amount]    │ Forces a player to split                  │\n" +
-            "│ tp [X] [Y]                   │ Teleports player(s) to XY coordinates     │\n" +
+            "│ tp [PlayerID] [X] [Y]        │ Teleports player to XY coordinates        │\n" +
             "│ replace [PlayerID] [entity]  │ Replaces a player with an entity          │\n" +
             "│ pop [PlayerID]               │ Pops a player with a virus                │\n" +
             "| explode [PlayerID]           | Explodes a player into ejected mass       |\n" +
