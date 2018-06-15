@@ -210,6 +210,8 @@ var playerCommands = {
         }
         var add = args[1];
         var id = parseInt(args[2]);
+        // Name of bots
+        var name  = args.slice(3, args.length).join(' ');
         var player = this.playerTracker;
 
         /** For you **/
@@ -226,7 +228,8 @@ var playerCommands = {
                 // Add minions for self
                 if (isNaN(parseInt(add))) add = 1;
                 for (var i = 0; i < add; i++) {
-                    this.gameServer.bots.addMinion(player);
+                    // Add bots with name
+                    this.gameServer.bots.addMinion(player, name);
                 }
                 this.writeLine("Added " + add + " minions for " + player._name);
             }
@@ -256,7 +259,8 @@ var playerCommands = {
                         // Add minions for client
                         if (isNaN(add)) add = 1;
                         for (var i = 0; i < add; i++) {
-                            this.gameServer.bots.addMinion(client);
+                            // Do the same here for names
+                            this.gameServer.bots.addMinion(client, name);
                         }
                         this.writeLine("Added " + add + " minions for " + client._name);
                         var text = this.playerTracker._name + " gave you " + add + " minions.";
