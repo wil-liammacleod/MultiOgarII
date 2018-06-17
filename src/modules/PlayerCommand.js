@@ -210,12 +210,13 @@ var playerCommands = {
         }
         var add = args[1];
         var id = parseInt(args[2]);
-        // Name of bots
-        var name  = args.slice(3, args.length).join(' ');
+	var name  = args.slice(3, args.length).join(' ');
+	var mass = parseInt(args.slice(-1));
         var player = this.playerTracker;
 
         /** For you **/
         if (isNaN(id)) {
+	    name = args.slice(2,3).join(' ');
             this.writeLine("Warn: missing ID arguments. This will give you minions.");
             // Remove minions
             if (player.minionControl == true && add == "remove") {
@@ -228,8 +229,7 @@ var playerCommands = {
                 // Add minions for self
                 if (isNaN(parseInt(add))) add = 1;
                 for (var i = 0; i < add; i++) {
-                    // Add bots with name
-                    this.gameServer.bots.addMinion(player, name);
+                    this.gameServer.bots.addMinion(player, name, mass);
                 }
                 this.writeLine("Added " + add + " minions for " + player._name);
             }
@@ -237,6 +237,7 @@ var playerCommands = {
         } else {
             /** For others **/
             for (var i in this.gameServer.clients) {
+		name = args.slice(3,4).join(' ');
                 var client = this.gameServer.clients[i].playerTracker;
                 if (client.pID == id) {
 
@@ -247,7 +248,7 @@ var playerCommands = {
                     };
 
                     // Remove minions
-                    if (client.minionControl == true) {
+                    if (client.minionControl == true && add == "remove") {
                         client.minionControl = false;
                         client.miQ = 0;
                         this.writeLine("Succesfully removed minions for " + client._name);
@@ -259,8 +260,7 @@ var playerCommands = {
                         // Add minions for client
                         if (isNaN(add)) add = 1;
                         for (var i = 0; i < add; i++) {
-                            // Do the same here for names
-                            this.gameServer.bots.addMinion(client, name);
+                            this.gameServer.bots.addMinion(client, name, mass);
                         }
                         this.writeLine("Added " + add + " minions for " + client._name);
                         var text = this.playerTracker._name + " gave you " + add + " minions.";
