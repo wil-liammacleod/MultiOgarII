@@ -210,13 +210,13 @@ var playerCommands = {
         }
         var add = args[1];
         var id = parseInt(args[2]);
-	var name  = args.slice(3, args.length).join(' ');
+	var name;
 	var mass = parseInt(args.slice(-1));
         var player = this.playerTracker;
 
         /** For you **/
         if (isNaN(id)) {
-	    name = args.slice(2,3).join(' ');
+	    name = args.slice(2,-1).join(' ');
             this.writeLine("Warn: missing ID arguments. This will give you minions.");
             // Remove minions
             if (player.minionControl == true && add == "remove") {
@@ -237,7 +237,7 @@ var playerCommands = {
         } else {
             /** For others **/
             for (var i in this.gameServer.clients) {
-		name = args.slice(3,4).join(' ');
+		name = args.slice(3,-1).join(' ');
                 var client = this.gameServer.clients[i].playerTracker;
                 if (client.pID == id) {
 
