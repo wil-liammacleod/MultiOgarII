@@ -12,6 +12,7 @@ PlayerCommand.prototype.writeLine = function (text) {
     this.gameServer.sendChatMessage(null, this.playerTracker, text);
 };
 
+
 PlayerCommand.prototype.executeCommandLine = function (commandLine) {
     if (!commandLine) return;
 
@@ -208,17 +209,26 @@ var playerCommands = {
             this.writeLine("ERROR: access denied!");
             return;
         }
-        var add = args[1];
+        var add = args[1]
         var id = parseInt(args[2]);
 	var name;
-	var mass = parseInt(args.slice(-1));
+	var mass = parseInt(args.slice(-1, 2 + args.length));
         var player = this.playerTracker;
 
         /** For you **/
         if (isNaN(id)) {
-	    name = args.slice(2,-1).join(' ');
+	    // Add check if mass is not a number
+	    if (isNaN(mass)) {
+	        name = args.slice(2).join(' ');
+	    } else {
+		name = args.slice(2, -1).join(' ');
+	    }
             this.writeLine("Warn: missing ID arguments. This will give you minions.");
-            // Remove minions
+            // Add checks if the first argument is the same as Mass, this add prevention from Amount of Bots with same Mass
+	    if (parseInt(add) === mass) {
+	    	mass = this.gameServer.config.minionMaxStartSize*this.gameServer.config.minionMaxStartSize/100;
+	    }
+	    // Remove minions
             if (player.minionControl == true && add == "remove") {
                 player.minionControl = false;
                 player.miQ = 0;
@@ -236,8 +246,12 @@ var playerCommands = {
 
         } else {
             /** For others **/
+	    if (isNaN(mass)) {
+	        name = args.slice(3).join(' ');
+	    } else {
+		name = args.slice(3, -1).join(' ');
+	    }
             for (var i in this.gameServer.clients) {
-		name = args.slice(3,-1).join(' ');
                 var client = this.gameServer.clients[i].playerTracker;
                 if (client.pID == id) {
 
@@ -246,7 +260,10 @@ var playerCommands = {
                         Logger.warn("You cannot give minions to a minion!");
                         return;
                     };
-
+            	    // Add checks if the second argument is the same as Mass, this add prevention from Player ID with same Mass
+	    	    if (id === mass) {
+	    		mass = this.gameServer.config.minionMaxStartSize*this.gameServer.config.minionMaxStartSize/100;
+		    }
                     // Remove minions
                     if (client.minionControl == true && add == "remove") {
                         client.minionControl = false;
