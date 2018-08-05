@@ -20,9 +20,9 @@
  */
 
 function checkAlloc(writer, size) {
-    const needed = writer._length + size;
-    const chunk = Math.max(Buffer.poolSize / 2, 1024);
-    const chunkCount = (needed / chunk) >>> 0;
+    let needed = writer._length + size;
+    let chunk = Math.max(Buffer.poolSize / 2, 1024);
+    let chunkCount = (needed / chunk) >>> 0;
 
     if (writer._buffer.length >= needed)
         return;
@@ -31,7 +31,7 @@ function checkAlloc(writer, size) {
         chunkCount += 1;
     };
     
-    const buffer = Buffer.alloc(chunkCount * chunk);
+    let buffer = Buffer.alloc(chunkCount * chunk);
     writer._buffer.copy(buffer, 0, 0, writer._length);
     writer._buffer = buffer;
 };
@@ -103,14 +103,14 @@ class BinaryWriter {
     };
 
     writeStringUtf8(value) {
-        const length = Buffer.byteLength(value, 'utf8');
+        let length = Buffer.byteLength(value, 'utf8');
         checkAlloc(this, length);
         this._buffer.write(value, this._length, 'utf8');
         this._length += length;
     };
 
     writeStringUnicode(value) {
-        const length = Buffer.byteLength(value, 'ucs2');
+        let length = Buffer.byteLength(value, 'ucs2');
         checkAlloc(this, length);
         this._buffer.write(value, this._length, 'ucs2');
         this._length += length;

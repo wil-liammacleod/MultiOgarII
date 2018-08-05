@@ -24,56 +24,56 @@ class BinaryReader {
     };
 
     readUInt8() {
-        const value = this._buffer.readUInt8(this._offset);
+        let value = this._buffer.readUInt8(this._offset);
         this._offset++;
 
         return value;
     };
 
     readInt8() {
-        const value = this._buffer.readInt8(this._offset);
+        let value = this._buffer.readInt8(this._offset);
         this._offset++;
 
         return value;
     };
 
     readUInt16() {
-        const value = this._buffer.readUInt16LE(this._offset);
+        let value = this._buffer.readUInt16LE(this._offset);
         this._offset += 2;
 
         return value;
     };
 
     readInt16() {
-        const value = this._buffer.readInt16LE(this._offset);
+        let value = this._buffer.readInt16LE(this._offset);
         this._offset += 2;
 
         return value;
     };
 
     readUInt32() {
-        const value = this._buffer.readUInt32LE(this._offset);
+        let value = this._buffer.readUInt32LE(this._offset);
         this._offset += 4;
 
         return value;
     };
 
     readInt32() {
-        const value = this._buffer.readInt32LE(this._offset);
+        let value = this._buffer.readInt32LE(this._offset);
         this._offset += 4;
 
         return value;
     };
 
     readFloat() {
-        const value = this._buffer.readFloatLE(this._offset);
+        let value = this._buffer.readFloatLE(this._offset);
         this._offset += 4;
 
         return value;
     };
 
     readDouble() {
-        const value = this._buffer.readDoubleLE(this._offset);
+        let value = this._buffer.readDoubleLE(this._offset);
         this._offset += 8;
 
         return value;
@@ -94,7 +94,7 @@ class BinaryReader {
 
         length = Math.max(0, length);
 
-        const value = this._buffer.toString('utf8', this._offset, this._offset + length);
+        let value = this._buffer.toString('utf8', this._offset, this._offset + length);
         this._offset += length;
 
         return value;
@@ -109,7 +109,7 @@ class BinaryReader {
         let safeLength = length - (length % 2);
         safeLength = Math.max(0, safeLength);
 
-        const value = this._buffer.toString('ucs2', this._offset, this._offset + safeLength);
+        let value = this._buffer.toString('ucs2', this._offset, this._offset + safeLength);
         this._offset += length;
 
         return value;
@@ -127,7 +127,7 @@ class BinaryReader {
             length++;
         };
         
-        const value = this.readStringUtf8(length);
+        let value = this.readStringUtf8(length);
         this._offset += terminatorLength;
 
         return value;
@@ -145,7 +145,7 @@ class BinaryReader {
             length += 2;
         };
 
-        const value = this.readStringUnicode(length);
+        let value = this.readStringUnicode(length);
         this._offset += terminatorLength;
         
         return value;
