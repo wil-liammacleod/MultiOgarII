@@ -18,7 +18,7 @@ Mode.prototype.onServerInit = function (gameServer) {
 };
 
 Mode.prototype.onTick = function (gameServer) {
-    // Called on every game tick 
+    // Called on every game tick
 };
 
 Mode.prototype.onPlayerInit = function (player) {

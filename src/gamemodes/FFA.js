@@ -24,7 +24,7 @@ FFA.prototype.updateLB = function(gameServer, lb) {
 
     for (var i = 0, pos = 0; i < gameServer.clients.length; i++) {
         var player = gameServer.clients[i].playerTracker;
-        if (player.isRemoved || !player.cells.length || 
+        if (player.isRemoved || !player.cells.length ||
             player.socket.isConnected == false || (!gameServer.config.minionsOnLeaderboard && player.isMi))
             continue;
 

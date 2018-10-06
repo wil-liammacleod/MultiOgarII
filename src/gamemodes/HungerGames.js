@@ -3,10 +3,10 @@ var Entity = require('../entity');
 
 function HungerGames() {
     Tournament.apply(this, Array.prototype.slice.call(arguments));
-    
+
     this.ID = 5;
     this.name = "Hunger Games";
-    
+
     // Gamemode Specific Variables
     this.maxContenders = 12;
     this.baseSpawnPoints = [
@@ -41,14 +41,14 @@ HungerGames.prototype.getPos = function () {
         x: 0,
         y: 0
     };
-    
+
     // Random Position
     if (this.contenderSpawnPoints.length > 0) {
         var index = Math.floor(Math.random() * this.contenderSpawnPoints.length);
         pos = this.contenderSpawnPoints[index];
         this.contenderSpawnPoints.splice(index, 1);
     }
-    
+
     return {
         x: pos.x,
         y: pos.y
@@ -68,19 +68,19 @@ HungerGames.prototype.spawnVirus = function (gameServer, pos) {
 
 HungerGames.prototype.onPlayerDeath = function (gameServer) {
     gameServer.setBorder(
-        gameServer.border.width - this.borderDec * 2, 
+        gameServer.border.width - this.borderDec * 2,
         gameServer.border.height - this.borderDec * 2
     );
-    
+
     // Remove all cells
     var len = gameServer.nodes.length;
     for (var i = 0; i < len; i++) {
         var node = gameServer.nodes[i];
-        
+
         if ((!node) || (node.cellType == 0)) {
             continue;
         }
-        
+
         // Move
         if (node.position.x < gameServer.border.minx) {
             gameServer.removeNode(node);
@@ -103,10 +103,10 @@ HungerGames.prototype.onPlayerDeath = function (gameServer) {
 HungerGames.prototype.onServerInit = function (gameServer) {
     // Prepare
     this.prepare(gameServer);
-    
+
     // Resets spawn points
     this.contenderSpawnPoints = this.baseSpawnPoints.slice();
-    
+
     // Override config values
     if (gameServer.config.serverBots > this.maxContenders) {
         // The number of bots cannot exceed the maximum amount of contenders
@@ -173,7 +173,7 @@ HungerGames.prototype.onPlayerSpawn = function (gameServer, player) {
         player.color = gameServer.getRandomColor(); // Random color
         this.contenders.push(player); // Add to contenders list
         gameServer.spawnPlayer(player, this.getPos());
-        
+
         if (this.contenders.length == this.maxContenders) {
             // Start the game once there is enough players
             this.startGamePrep(gameServer);

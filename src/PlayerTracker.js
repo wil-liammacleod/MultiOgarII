@@ -229,7 +229,7 @@ PlayerTracker.prototype.updateTick = function() {
 PlayerTracker.prototype.sendUpdate = function() {
     if (this.isRemoved || !this.socket.packetHandler.protocol ||
         !this.socket.isConnected || this.isMi || this.isMinion ||
-        (this.socket._socket.writable != null && !this.socket._socket.writable) || 
+        (this.socket._socket.writable != null && !this.socket._socket.writable) ||
         this.socket.readyState != this.socket.OPEN) {
         // do not send update for disconnected clients
         // also do not send if initialization is not complete yet
@@ -350,7 +350,7 @@ PlayerTracker.prototype.pressSpace = function() {
         if (this.cells.length <= 2)
             this.mergeOverride = false;
         // Cant split if merging or frozen
-        if (this.mergeOverride || this.frozen) 
+        if (this.mergeOverride || this.frozen)
             return;
         this.gameServer.splitCells(this);
     }

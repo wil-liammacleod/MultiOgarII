@@ -113,18 +113,18 @@ const config = require('./console-plus.json');
   }
 
 //******************** server ***************
-  
+
   var http = require('http');
   var fs = require('fs');
   var consoleServer = http.createServer(function (request, response) {
-      //  console.log('request starting...');  
+      //  console.log('request starting...');
       var credentials = auth(request);
-      if (!credentials || credentials.name !== config.username || credentials.pass !== config.password) 
+      if (!credentials || credentials.name !== config.username || credentials.pass !== config.password)
       {
               response.statusCode = 401;
               response.setHeader('WWW-Authenticate', 'Basic realm="example"');
               response.end('Access denied');
-      } else 
+      } else
       {
         fs.readFile('./console-plus.html', function(error, content) {
           if (error) {
@@ -135,11 +135,11 @@ const config = require('./console-plus.json');
             response.writeHead(200, { 'Content-Type': 'text/html' });
             response.end(content, 'utf-8');
           }
-        }); 
-      } 
+        });
+      }
 
   }).listen(config.port, function() {
-        console.log(/*(new Date()) + */' consoleServer is listening on port ' + config.port);  
+        console.log(/*(new Date()) + */' consoleServer is listening on port ' + config.port);
      });
 
 //============== interseption ===============
@@ -156,14 +156,14 @@ const config = require('./console-plus.json');
   MO.stdout.on('data', function (data) { // send data to remote console
 //       console.log((data+"").trim()); // loopback OUT
        for (var i in clients) {
-          if (clients.hasOwnProperty(i)) {     
+          if (clients.hasOwnProperty(i)) {
               clients[i].send((data+"").trim());
           }
        }
   });
 
   MO.stderr.on('data', function (data) {
-       console.log('stderr: ' + data); // should be directed to logger 
+       console.log('stderr: ' + data); // should be directed to logger
   });
 
 //+++++++++++++++++ sockets +++++++++++++++++
@@ -172,7 +172,7 @@ const config = require('./console-plus.json');
   var clients = {};
 
   var wsOptions = {
-        server: consoleServer, 
+        server: consoleServer,
         perMessageDeflate: false,
         maxPayload: 4096,
         protocolVersion: 8,
@@ -200,18 +200,18 @@ const config = require('./console-plus.json');
 
       // Store the connection method so we can loop through & contact all clients
       clients[id] = ws;
-      
+
       console.log(/*(new Date()) +*/' Connection [' + id + '] '+ hst+' / '+ org + ' ACCEPTED');
 
 
       // Create event listener
       ws.on('message', function(message) {
           // get line from remote
-          MO.stdin.write(message.replace("<br>","")+"\n"); 
-          for (var i in clients) { 
-            if (clients.hasOwnProperty(i)) {   
+          MO.stdin.write(message.replace("<br>","")+"\n");
+          for (var i in clients) {
+            if (clients.hasOwnProperty(i)) {
               clients[i].send((message+"").trim());
-            }  
+            }
           }
       });
 

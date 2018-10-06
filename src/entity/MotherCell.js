@@ -4,7 +4,7 @@ var Virus = require('./Virus');
 
 function MotherCell() {
     Cell.apply(this, Array.prototype.slice.call(arguments));
-    
+
     this.cellType = 2;
     this.isSpiked = true;
     this.isMotherCell = true;       // Not to confuse bots
@@ -42,22 +42,22 @@ MotherCell.prototype.onUpdate = function () {
         size1 = Math.sqrt(size1 * size1 - size2 * size2);
         size1 = Math.max(size1, this.motherCellMinSize);
         this.setSize(size1);
-        
+
         // Spawn food with size2
         var angle = Math.random() * 2 * Math.PI;
         var pos = {
             x: this.position.x + size1 * Math.sin(angle),
             y: this.position.y + size1 * Math.cos(angle)
         };
-        
+
         // Spawn food
         var food = new Food(this.gameServer, null, pos, size2);
         food.color = this.gameServer.getRandomColor();
         this.gameServer.addNode(food);
-        
+
         // Eject to random distance
         food.setBoost(32 + 42 * Math.random(), angle);
-        
+
         if (this.gameServer.nodesFood.length >= maxFood || size1 <= this.motherCellMinSize) {
             break;
         }

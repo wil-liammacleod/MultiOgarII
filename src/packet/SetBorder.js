@@ -31,7 +31,7 @@ SetBorder.prototype.build = function (protocol) {
     if (name == null) name = "";
     if (protocol < 6)
         writer.writeStringZeroUnicode(name);
-    else 
+    else
         writer.writeStringZeroUtf8(name);
     return writer.toBuffer();
 };
