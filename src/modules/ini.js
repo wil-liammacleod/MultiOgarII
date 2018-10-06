@@ -1,4 +1,4 @@
-﻿exports.parse = exports.decode = decode;
+exports.parse = exports.decode = decode;
 exports.stringify = exports.encode = encode;
 
 exports.safe = safe;

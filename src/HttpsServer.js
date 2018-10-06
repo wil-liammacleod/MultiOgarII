@@ -1,4 +1,4 @@
-﻿var http = require('http'),
+var http = require('http'),
     https = require('https'),
     inherits = require('util').inherits,
     httpSocketHandler = http._connectionListener;
