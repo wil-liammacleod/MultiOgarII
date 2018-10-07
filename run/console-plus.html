@@ -2,34 +2,34 @@
 <html>
 
   <head>
-    <style>                                               
-      *{                                                              
-          background: #000;                                           
-          font-family: monospace;                                     
-          color: #0f0;                                               
-          -webkit-font-smoothing: none;                              
-          font-size: 17px;                                             
-        }                                                              
-      #input{outline: none;border: none;}                              
-    </style>  
+    <style>
+      *{
+          background: #000;
+          font-family: monospace;
+          color: #0f0;
+          -webkit-font-smoothing: none;
+          font-size: 17px;
+        }
+      #input{outline: none;border: none;}
+    </style>
   </head>
 
-  <body>                                                           
-    <div style='bottom: 1em;'>                    
-      <pre id='log'></pre>                                              
+  <body>
+    <div style='bottom: 1em;'>
+      <pre id='log'></pre>
       <label>><input id='input' autofocus'></label>
-    </div>   
-    
+    </div>
+
     <script>
-      var Host='127.0.0.1:1234';                        
+      var Host='127.0.0.1:1234';
       var idx=0;
-      buffer =[];      
-      var el = document.getElementById('input');                       
-      el.focus();                                                      
+      buffer =[];
+      var el = document.getElementById('input');
+      el.focus();
       el.onblur = function () { setTimeout(function () { el.focus(); });};
 
       document.onkeydown = function(e) {
-         
+
           switch (e.keyCode) {
               case 38: // up
                   prevCommand();
@@ -47,7 +47,7 @@
               case 13: // enter
                   {
                     if(el.value==='logout') { // logout
-                      window.location = 'http://log:out@'+Host+'/'; 
+                      window.location = 'http://log:out@'+Host+'/';
                       break;
                     }
                     buffer.push(el.value);
@@ -57,9 +57,9 @@
           }
       };
 
-      function  prevCommand(){ 
+      function  prevCommand(){
         if (idx >= buffer.length-1) idx=0;
-        else idx +=1;  
+        else idx +=1;
         el.value = buffer[idx];
       }
 
@@ -74,18 +74,18 @@
            if (typeof module != 'undefined') module.exports = exports
            else window[module_name] = exports
          }
-       
+
          function ansi2html(str) {
            var props = {}
              , open = false
-       
+
            var stylemap =
              { bold: "font-weight"
              , underline: "text-decoration"
              , color: "color"
              , background: "background"
              }
-       
+
            function style() {
              var key, val, style = []
              for (var key in props) {
@@ -99,15 +99,15 @@
              }
              return style.join(';')
            }
-  
+
            function tag(code) {
              var i
                , tag = ''
                , n = ansi2html.table[code]
-       
+
              if (open) tag += '</span>'
              open = false
-       
+
              if (n) {
                for (i in n) props[i] = n[i]
                tag += '<span style="' + style() + '">'
@@ -115,11 +115,11 @@
              } else {
                props = {}
              }
-       
+
              return tag
            }
 
-           
+
            return str.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\[(\d+;)?(\d+)+m/g, function(match, b1, b2) {
              var i, code, res = ''
              if (b2 == '' || b2 == null) b2 = '0'
@@ -131,7 +131,7 @@
              return res
            }) + tag()
          }
-       
+
          /* not implemented:
           *   italic
           *   blink
@@ -171,19 +171,19 @@
          , 47: { background: 'white' }
          , 49: { background: null }
          }
-       
-         declare('ansi2html', ansi2html) // ansi2html colors 
+
+         declare('ansi2html', ansi2html) // ansi2html colors
        })()
 
-      var ws = new WebSocket('ws://'+Host, 'echo-protocol');  
-      ws.addEventListener("message", function(e) {                   
-          console.log("get "+e.data);                                
-          var msg = e.data;                                           
-          if (msg == ">") msg='';                                   
-          var $log = document.getElementById('log');                   
-          
+      var ws = new WebSocket('ws://'+Host, 'echo-protocol');
+      ws.addEventListener("message", function(e) {
+          console.log("get "+e.data);
+          var msg = e.data;
+          if (msg == ">") msg='';
+          var $log = document.getElementById('log');
 
-          log.innerHTML = log.innerHTML + '\n' + ansi2html(msg);     
+
+          log.innerHTML = log.innerHTML + '\n' + ansi2html(msg);
           window.scrollTo(0,document.body.scrollHeight);
        });
     </script>

@@ -18,7 +18,7 @@
 * Fixed mothercell spawning issue;
 * Edited the Wiki, thanks to @AlexHGaming, @Steve7914, @Tyler3D, @ItzLevvie, and @MastaCoder;
 * Created the MultiOgar-Edited Wiki, thanks to @AlexHGaming;
-* Match randomskins.txt to Agar.io's skins, thanks to @ItzLevvie;	
+* Match randomskins.txt to Agar.io's skins, thanks to @ItzLevvie;
 
 -------------
 #### 1.6.0:
@@ -69,7 +69,7 @@
 * Fixed small bug with botplayers
 
 -------------
-#### 1.4.7: 
+#### 1.4.7:
 * Added web console! All thanks to @Gimmo :)
 * Cleaned more of CommandList, also thanks to @Gimmo;
 * Fixed teleport command, thanks to @Agarian;
@@ -102,7 +102,7 @@
 * Fixed some bugs
 
 --------------
-#### 1.4.2: 
+#### 1.4.2:
 * Added "replace" command;
 * Add srcFiles variable, thanks to @MastaCoder;
 * Added ejectSpawnPercent config;
@@ -111,7 +111,7 @@
 * Greatly improved performance, now 2x better than original MultiOgar
 
 --------------
-#### 1.4.1: 
+#### 1.4.1:
 * Fixed a few bugs;
 * Added back old commands;
 * Added two new commands, cleaned up "help" command;
@@ -119,7 +119,7 @@
 * Improved splitting and collision
 
 --------------
-#### 1.4.0: 
+#### 1.4.0:
 * Added pellet mode for minions! thanks to @ZfsrGhS953;
 * Cleaned/refactored the rest of GameServer;
 * Improved performance;
@@ -140,7 +140,7 @@
 * Removed unnecessary commands aswell as functions for said commands
 
 --------------
-#### 1.3.5: 
+#### 1.3.5:
 * Added new gamemode: Last Man Standing! Thanks to @Tyler3D;
 * Added new minion features;
 * Got rid of some more unnecessary gamemodes/commands;
@@ -179,7 +179,7 @@
 
 --------------
 #### 1.2.47:
-* Improved stability and performance; 
+* Improved stability and performance;
 * Added mute/unmute command
 
 --------------

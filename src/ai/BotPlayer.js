@@ -40,11 +40,11 @@ BotPlayer.prototype.sendUpdate = function () {
 BotPlayer.prototype.decide = function (cell) {
     if (!cell) return; // Cell was eaten, check in the next tick (I'm too lazy)
     var result = new Vec2(0, 0); // For splitting
-    
+
     for (var i = 0; i < this.viewNodes.length; i++) {
         var check = this.viewNodes[i];
         if (check.owner == this) continue;
-        
+
         // Get attraction of the cells - avoid larger cells, viruses and same team cells
         var influence = 0;
         if (check.cellType == 0) {
@@ -85,27 +85,27 @@ BotPlayer.prototype.decide = function (cell) {
                 // can eat
                 influence = check._size;
         }
-        
+
         // Apply influence if it isn't 0
         if (influence == 0) continue;
-        
+
         // Calculate separation between cell and check
         var displacement = new Vec2(check.position.x - cell.position.x, check.position.y - cell.position.y);
-        
+
         // Figure out distance between cells
         var distance = displacement.sqDist();
         if (influence < 0) {
             // Get edge distance
             distance -= cell._size + check._size;
         }
-        
+
         // The farther they are the smaller influnce it is
         if (distance < 1) distance = 1; // Avoid NaN and positive influence with negative distance & attraction
         influence /= distance;
-        
+
         // Splitting conditions
         if (check.cellType == 0 && cell._size > check._size * 1.15
-            && !this.splitCooldown && this.cells.length < 8 && 
+            && !this.splitCooldown && this.cells.length < 8 &&
             820 - cell._size / 2 - check._size >= distance) {
             // Splitkill the target
             this.splitCooldown = 15;

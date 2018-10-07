@@ -1,4 +1,4 @@
-﻿exports.parse = exports.decode = decode;
+exports.parse = exports.decode = decode;
 exports.stringify = exports.encode = encode;
 
 exports.safe = safe;
@@ -10,7 +10,7 @@ var eol = process.platform === "win32" ? "\r\n" : "\n";
 function encode(obj, opt) {
     var children = [],
         out = "";
-    
+
     if (typeof opt === "string") {
         opt = {
             section: opt,
@@ -20,9 +20,9 @@ function encode(obj, opt) {
         opt = opt || {};
         opt.whitespace = opt.whitespace === true;
     }
-    
+
     var separator = " = ";
-    
+
     Object.keys(obj).forEach(function (k, _, __) {
         var val = obj[k];
         if (val && Array.isArray(val)) {
@@ -35,11 +35,11 @@ function encode(obj, opt) {
             out += safe(k) + separator + safe(val) + eol;
         }
     });
-    
+
     if (opt.section && out.length) {
         out = "[" + safe(opt.section) + "]" + eol + out;
     }
-    
+
     children.forEach(function (k, _, __) {
         var nk = dotSplit(k).join('\\.');
         var section = (opt.section ? opt.section + "." : "") + nk;
@@ -52,7 +52,7 @@ function encode(obj, opt) {
         }
         out += child;
     });
-    
+
     return out;
 }
 
@@ -73,10 +73,10 @@ function decode(str) {
         re = /^\[([^\]]*)\]$|^([^=]+)(=(.*))?$/i,
         lines = str.split(/[\r\n]+/g),
         section = null;
-    
+
     lines.forEach(function (line, _, __) {
         var testLine = line.trim();
-        
+
         // skip empty lines or commented lines
         if (!line || line.match(/^\s*[;#]/)) {
             // skip commented lines
@@ -85,20 +85,20 @@ function decode(str) {
         // E.g. serverTimeout = 30
         // Returns ["serverTimeout = 30", undefined, "serverTimeout ", "= 30", "30"]
         var match = line.match(re);
-        
+
         if (!match) {
             return;
         }
-        
+
         if (match[1] !== undefined) {
             section = unsafe(match[1]);
             p = out[section] = out[section] || {};
             return;
         }
-        
+
         var key = unsafe(match[2]),
             value = match[3] ? unsafe((match[4] || "")) : true;
-        
+
         // Convert keys with '[]' suffix to an array
         if (key.length > 2 && key.slice(-2) === "[]") {
             key = key.substring(0, key.length - 2);
@@ -108,7 +108,7 @@ function decode(str) {
                 p[key] = [p[key]];
             }
         }
-        
+
         //// Mass to Size function catcher
         if (startsWith(value, "massToSize(") && endsWith(value, ")")) {
             // 11: length of "massToSize("
@@ -116,14 +116,14 @@ function decode(str) {
             value = Math.sqrt(parseFloat(strValue) * 100) + 0.5;
         }
         function startsWith(value, pattern) {
-            return value.length >= pattern.length && 
+            return value.length >= pattern.length &&
                 value.indexOf(pattern) === 0;
         };
         function endsWith(value, pattern) {
-            return value.length >= pattern.length && 
+            return value.length >= pattern.length &&
                 value.lastIndexOf(pattern) === value.length - pattern.length;
         };
-        
+
         // safeguard against resetting a previously defined
         // array by accidentally forgetting the brackets
         if (isNaN(value)) {
@@ -134,7 +134,7 @@ function decode(str) {
             p[key] = parseFloat(value);
         }
     });
-    
+
     // {a:{y:1},"a.b":{x:2}} --> {a:{y:1,b:{x:2}}}
     // use a filter to return the keys that have to be deleted.
     Object.keys(out).filter(function (k, _, __) {
@@ -159,7 +159,7 @@ function decode(str) {
     }).forEach(function (del, _, __) {
         delete out[del];
     });
-    
+
     return out;
 }
 

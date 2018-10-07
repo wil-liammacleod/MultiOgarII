@@ -23,7 +23,7 @@ MinionPlayer.prototype.checkConnection = function () {
     }
 
     // remove if owner has disconnected or has no control
-    if (this.owner.socket.isConnected == false || !this.owner.minionControl) 
+    if (this.owner.socket.isConnected == false || !this.owner.minionControl)
         this.socket.close();
 
     // frozen or not
@@ -31,7 +31,7 @@ MinionPlayer.prototype.checkConnection = function () {
     else this.frozen = false;
 
     // split cells
-    if (this.owner.minionSplit) 
+    if (this.owner.minionSplit)
         this.socket.packetHandler.pressSpace = true;
 
     // eject mass
@@ -40,7 +40,7 @@ MinionPlayer.prototype.checkConnection = function () {
 
     // follow owners mouse by default
     this.mouse = this.owner.mouse;
-    
+
     // pellet-collecting mode
     if (this.owner.collectPellets) {
 	this.viewNodes = [];

@@ -2,7 +2,7 @@ var Mode = require('./Mode');
 
 function Tournament() {
     Mode.apply(this, Array.prototype.slice.call(arguments));
-    
+
     this.ID = 4;
     this.name = "Tournament";
     this.packetLB = 48;
@@ -13,13 +13,13 @@ function Tournament() {
     this.autoFill = false;
     this.autoFillPlayers = 1;
     this.dcTime = 0;
-    
+
     // Gamemode Specific Variables
     this.gamePhase = 0; // 0 = Waiting for players, 1 = Prepare to start, 2 = Game in progress, 3 = End
     this.contenders = [];
     this.maxContenders = 12;
     this.isPlayerLb = false;
-    
+
     this.winner;
     this.timer;
     this.timeLimit = 3600; // in seconds
@@ -73,11 +73,11 @@ Tournament.prototype.prepare = function (gameServer) {
     var len = gameServer.nodes.length;
     for (var i = 0; i < len; i++) {
         var node = gameServer.nodes[0];
-        
+
         if (!node) {
             continue;
         }
-        
+
         gameServer.removeNode(node);
     }
 
@@ -87,13 +87,13 @@ Tournament.prototype.prepare = function (gameServer) {
             continue; // verify that the client is a bot
         gameServer.clients[i].close();
     }
-    
+
     gameServer.bots.loadNames();
-    
+
     // Pauses the server
     gameServer.run = false;
     this.gamePhase = 0;
-    
+
     // Get config values
     if (gameServer.config.tourneyAutoFill > 0) {
         this.timer = gameServer.config.tourneyAutoFill;
@@ -103,11 +103,11 @@ Tournament.prototype.prepare = function (gameServer) {
     // Handles disconnections
     this.dcTime = gameServer.config.playerDisconnectTime;
     gameServer.config.playerDisconnectTime = 0;
-    
+
     this.prepTime = gameServer.config.tourneyPrepTime;
     this.endTime = gameServer.config.tourneyEndTime;
     this.maxContenders = gameServer.config.tourneyMaxPlayers;
-    
+
     // Time limit
     this.timeLimit = gameServer.config.tourneyTimeLimit * 60; // in seconds
 };
@@ -139,7 +139,7 @@ Tournament.prototype.onPlayerSpawn = function (gameServer, player) {
         player.color = gameServer.getRandomColor(); // Random color
         this.contenders.push(player); // Add to contenders list
         gameServer.spawnPlayer(player, gameServer.randomPos());
-        
+
         if (this.contenders.length == this.maxContenders) {
             // Start the game once there is enough players
             this.startGamePrep(gameServer);
@@ -150,7 +150,7 @@ Tournament.prototype.onPlayerSpawn = function (gameServer, player) {
 Tournament.prototype.onCellRemove = function (cell) {
     var owner = cell.owner,
         human_just_died = false;
-    
+
     if (owner.cells.length <= 0) {
         // Remove from contenders list
         var index = this.contenders.indexOf(owner);
@@ -160,7 +160,7 @@ Tournament.prototype.onCellRemove = function (cell) {
             }
             this.contenders.splice(index, 1);
         }
-        
+
         // Victory conditions
         var humans = 0;
         for (var i = 0; i < this.contenders.length; i++) {
@@ -168,7 +168,7 @@ Tournament.prototype.onCellRemove = function (cell) {
                 humans++;
             }
         }
-        
+
         // the game is over if:
         // 1) there is only 1 player left, OR
         // 2) all the humans are dead, OR

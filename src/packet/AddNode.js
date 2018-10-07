@@ -1,4 +1,4 @@
-﻿var BinaryWriter = require("./BinaryWriter");
+var BinaryWriter = require("./BinaryWriter");
 
 function AddNode(playerTracker, item) {
     this.playerTracker = playerTracker;

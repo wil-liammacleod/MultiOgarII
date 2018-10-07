@@ -1,6 +1,6 @@
 # **Please read this notice throughly before creating your issue.**
 
-### Before you create your issue you ***MUST*** follow these rules: 
+### Before you create your issue you ***MUST*** follow these rules:
 
 1. **The issue is in written in English.**
 2. **The issue is directly related to the project.**
@@ -18,4 +18,4 @@ Please read through [this guide](https://guides.github.com/features/mastering-ma
 
 >---
 
-**IF YOU HAVE READ THESE RULES PLEASE DELETE THIS TEXT** 
+**IF YOU HAVE READ THESE RULES PLEASE DELETE THIS TEXT**

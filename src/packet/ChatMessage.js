@@ -26,7 +26,7 @@ ChatMessage.prototype.build = function (protocol) {
     var BinaryWriter = require("./BinaryWriter");
     var writer = new BinaryWriter();
     writer.writeUInt8(0x63);            // message id (decimal 99)
-    
+
     // flags
     var flags = 0;
     if (this.sender == null)
@@ -35,7 +35,7 @@ ChatMessage.prototype.build = function (protocol) {
         flags = 0x40;           // admin message
     else if (this.sender.userRole == UserRoleEnum.MODER)
         flags = 0x20;           // moder message
-    
+
     writer.writeUInt8(flags);
     writer.writeUInt8(color.r >> 0);
     writer.writeUInt8(color.g >> 0);

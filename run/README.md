@@ -22,13 +22,13 @@ You can enter any commands that you can from the regular terminal
 - Esc or "logout" -> terminal logout
 
 ---------------
-#### Configurations: 
+#### Configurations:
 1. default login/pass -> "admin" "pass"
   - Can be found here: https://github.com/Megabyte918/MultiOgar-Edited/blob/master/run/console-plus.js#L120
 
 2. address of server -> 127.0.0.1:1234
   - Can be found here: https://github.com/Megabyte918/MultiOgar-Edited/blob/master/run/console-plus.js#L177
   - And here: https://github.com/Megabyte918/MultiOgar-Edited/blob/master/run/console-plus.html#L24
-  
+
 3. port -> 1234
   - Can be found here: https://github.com/Megabyte918/MultiOgar-Edited/blob/master/run/console-plus.js#L139

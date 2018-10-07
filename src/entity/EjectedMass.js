@@ -1,8 +1,8 @@
-﻿var Cell = require('./Cell');
+var Cell = require('./Cell');
 
 function EjectedMass() {
     Cell.apply(this, Array.prototype.slice.call(arguments));
-    
+
     this.cellType = 3;
 }
 

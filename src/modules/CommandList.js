@@ -360,7 +360,7 @@ Commands.list = {
 
         Logger.info("\u001B[1m\u001B[32mMultiOgar-Edited " + gameServer.version + "\u001B[37m - An open source multi-protocol ogar server\u001B[0m");
         Logger.info("Listening on port " + gameServer.config.serverPort);
-        Logger.info("Current game mode is " + gameServer.gameMode.name + "\n");    
+        Logger.info("Current game mode is " + gameServer.gameMode.name + "\n");
     },
     color: function (gameServer, split) {
         // Validation checks
@@ -413,11 +413,11 @@ Commands.list = {
             client.close();
         };
 
-        gameServer.nodes = []; 
-        gameServer.nodesVirus = []; 
-        gameServer.nodesFood = []; 
-        gameServer.nodesEjected = []; 
-        gameServer.nodesPlayer = []; 
+        gameServer.nodes = [];
+        gameServer.nodesVirus = [];
+        gameServer.nodesFood = [];
+        gameServer.nodesEjected = [];
+        gameServer.nodesPlayer = [];
         gameServer.movingNodes = [];
         gameServer.commands;
         gameServer.tickCounter = 0;
@@ -945,7 +945,7 @@ Commands.list = {
             return;
         }
 
-        // Start size for each entity 
+        // Start size for each entity
         if (ent == "virus") {
             var size = gameServer.config.virusMinSize;
         } else if (ent == "mothercell") {

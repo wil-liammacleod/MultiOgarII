@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 /*
  * Simple logger.
  *
@@ -157,7 +157,7 @@ function writeLog(level, message) {
     else if (level == LogLevelEnum.NONE)
         prefix = "[NONE ]";
     prefix += "[" + getTimeString() + "] ";
-    
+
     writeQueue.push(prefix + message + EOL);
     if (writeShutdown) {
         flushSync();
@@ -202,11 +202,11 @@ function start() {
     writeStarted = true;
     try {
         console.log = function (message) { print(message); };
-        
+
         var timeString = getDateTimeString();
         var fileName = logFolder + "/" + logFileName + ".log";
         var fileName2 = logBackupFolder + "/" + logFileName + "-" + timeString + ".log";
-        
+
         if (!fs.existsSync(logFolder)) {
             // Make log folder
             fs.mkdirSync(logFolder);
@@ -218,7 +218,7 @@ function start() {
             // Backup previous log
             fs.renameSync(fileName, fileName2);
         }
-        
+
         fs.writeFileSync(fileName, "=== Started " + timeString + " ===" + EOL);
         var file = fs.createWriteStream(fileName, { flags: 'a' });
         file.on('open', function () {
