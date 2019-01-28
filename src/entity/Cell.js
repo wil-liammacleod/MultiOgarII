@@ -3,7 +3,7 @@ var Vec2 = require('../modules/Vec2');
 function Cell(gameServer, owner, position, size) {
     this.gameServer = gameServer;
     this.owner = owner;     // playerTracker that owns this cell
-    
+
     this.color = { r: 0, g: 0, b: 0 };
     this.radius = 0;
     this._size = 0;
@@ -15,7 +15,7 @@ function Cell(gameServer, owner, position, size) {
     this.isMoving = false;  // Indicate that cell is in boosted mode
     this.boostDistance = 0;
     this.boostDirection = new Vec2(1, 0);
-    
+
     if (this.gameServer) {
         this.tickOfBirth = this.gameServer.tickCounter;
         this.nodeId = this.gameServer.lastNodeId++ >> 0;

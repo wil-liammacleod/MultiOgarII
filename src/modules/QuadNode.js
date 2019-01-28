@@ -10,7 +10,7 @@
 function QuadNode(bound) {
     this.halfWidth = (bound.maxx - bound.minx) / 2;
     this.halfHeight = (bound.maxy - bound.miny) / 2;
-    
+
     this.bound = bound;
     this.bound.cx = bound.minx + this.halfWidth;
     this.bound.cy = bound.miny + this.halfHeight;

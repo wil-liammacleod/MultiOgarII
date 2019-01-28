@@ -34,7 +34,7 @@ PacketHandler.prototype.handleMessage = function (message) {
 PacketHandler.prototype.handshake_onProtocol = function (message) {
     if (message.length !== 5) return;
     this.handshakeProtocol = message[1] | (message[2] << 8) | (message[3] << 16) | (message[4] << 24);
-    if (this.handshakeProtocol < 1 || this.handshakeProtocol > 17) {
+    if (this.handshakeProtocol < 1 || this.handshakeProtocol > 18) {
         this.socket.close(1002, "Not supported protocol: " + this.handshakeProtocol);
         return;
     }
@@ -178,12 +178,12 @@ PacketHandler.prototype.message_onChat = function (message) {
     if (dt < 25 * 2) {
         return;
     }
-    
+
     var flags = message[1];    // flags
     var rvLength = (flags & 2 ? 4:0) + (flags & 4 ? 8:0) + (flags & 8 ? 16:0);
     if (message.length < 3 + rvLength) // second validation
         return;
-    
+
     var reader = new BinaryReader(message);
     reader.skipBytes(2 + rvLength);     // reserved
     var text = null;
@@ -283,21 +283,21 @@ PacketHandler.prototype.setNickname = function (text) {
         skin = skinName;
         name = userName;
     }
-    
+
     if (name.length > this.gameServer.config.playerMaxNickLength)
         name = name.substring(0, this.gameServer.config.playerMaxNickLength);
-    
+
     if (this.gameServer.checkBadWord(name)) {
         skin = null;
         name = "Hi there!";
     }
-    
+
     this.socket.playerTracker.joinGame(name, skin);
 };
 
 PacketHandler.prototype.sendPacket = function(packet) {
     var socket = this.socket;
-    if (!packet || socket.isConnected == null || socket.playerTracker.isMi) 
+    if (!packet || socket.isConnected == null || socket.playerTracker.isMi)
         return;
     if (socket.readyState == this.gameServer.WebSocket.OPEN) {
         var buffer = packet.build(this.protocol);

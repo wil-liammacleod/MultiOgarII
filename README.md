@@ -1,6 +1,6 @@
 # MultiOgar-Edited
 
-[![Discord](https://discordapp.com/api/guilds/407210435721560065/embed.png?style=banner2)](https://discord.gg/27v68Sb)
+[![Discord](https://discordapp.com/api/guilds/407210435721560065/embed.png?style=banner2)](https://discord.gg/66X2ESb)
 
 A fast, open source [Agar.io](http://agar.io/) server that supports multiple protocol versions and smooth vanilla physics.
 
@@ -23,7 +23,7 @@ MultiOgar-Edited code however, is based on MultiOgar code that has been heavily 
 # Installation
 ## Windows
 
-1. Download and install node.js: https://nodejs.org/en/download/ 
+1. Download and install node.js: https://nodejs.org/en/download/
 2. Download this repo
 3. Unzip MultiOgar-Edited code into some folder.
 4. Run the win-Install_Dep.bat file.
@@ -38,7 +38,7 @@ MultiOgar-Edited code however, is based on MultiOgar code that has been heavily 
 :: Install Required Modules.
 npm install
 
-:: Starting the server. 
+:: Starting the server.
 cd src
 node index.js
 ```
@@ -72,7 +72,7 @@ sudo node index.js
 
 # Creating Issues
 
-### Before you create your issue you ***MUST*** follow these rules: 
+### Before you create your issue you ***MUST*** follow these rules:
 
 1. **The issue is in written in English.**
 2. **The issue is directly related to the project.**
@@ -101,7 +101,7 @@ Please read through [this guide](https://guides.github.com/features/mastering-ma
 >---
 
 # Performance
->Version 1.2.8 (Original MultiOgar): 
+>Version 1.2.8 (Original MultiOgar):
 >>* 1000 bots, 500 viruses, 1000 foods, map 14142x14142
 >>* Works slightly slower than normal, speed decreases gradually as bots get larger.
 >>* CPU load: 14% (x4 cores)

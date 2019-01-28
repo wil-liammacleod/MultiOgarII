@@ -24,7 +24,7 @@ gameProcess.stdout.on('data', function (data) {
 });
 
 gameProcess.stderr.on('data', function (data) {
-  console.log('stderr: ' + data); // should be directed to logger 
+  console.log('stderr: ' + data); // should be directed to logger
 });
 
 function onNewBufferedMsg(msg) {

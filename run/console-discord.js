@@ -4,7 +4,7 @@ const index = require("../src/index");
 const Logger = require("../src/modules/Logger");
 const config = {
     role: "Moderator",
-    token: "Token here" 
+    token: "Token here"
 };
 
 class Bot {

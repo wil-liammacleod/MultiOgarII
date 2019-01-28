@@ -1,4 +1,4 @@
-﻿var BinaryWriter = require("./BinaryWriter");
+var BinaryWriter = require("./BinaryWriter");
 
 function UpdatePosition(playerTracker, x, y, scale) {
     this.playerTracker = playerTracker,

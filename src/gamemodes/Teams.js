@@ -2,14 +2,14 @@ var Mode = require('./Mode');
 
 function Teams() {
     Mode.apply(this, Array.prototype.slice.call(arguments));
-    
+
     this.ID = 1;
     this.name = "Teams";
     this.decayMod = 1.5;
     this.packetLB = 50;
     this.haveTeams = true;
     this.colorFuzziness = 32;
-    
+
     // Special
     this.teamAmount = 3; // Amount of teams. Having more than 3 teams will cause the leaderboard to work incorrectly (client issue).
     this.colors = [{
@@ -61,7 +61,7 @@ Teams.prototype.onServerInit = function (gameServer) {
     for (var i = 0; i < this.teamAmount; i++) {
         this.nodes[i] = [];
     }
-    
+
     // migrate current players to team mode
     for (var i = 0; i < gameServer.clients.length; i++) {
         var client = gameServer.clients[i].playerTracker;
@@ -98,11 +98,11 @@ Teams.prototype.onCellMove = function (cell, gameServer) {
     for (var i = 0; i < cell.owner.visibleNodes.length; i++) {
         // Only collide with player cells
         var check = cell.owner.visibleNodes[i];
-        
+
         if ((check.cellType != 0) || (cell.owner == check.owner)) {
             continue;
         }
-        
+
         // Collision with teammates
         var team = cell.owner.team;
         if (check.owner.team == team) {
@@ -123,7 +123,7 @@ Teams.prototype.updateLB = function (gameServer) {
     for (var i = 0; i < this.teamAmount; i++) {
         // Set starting mass
         teamMass[i] = 0;
-        
+
         // Loop through cells
         for (var j = 0; j < this.nodes[i].length; j++) {
             var cell = this.nodes[i][j];

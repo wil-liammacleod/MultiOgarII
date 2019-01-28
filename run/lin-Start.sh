@@ -24,7 +24,7 @@ if [ $? -eq 0 ]; then
     node ../src/index.js
 else
     command -v nodejs &>/dev/null
-    
+
     if [ $? -eq 0 ]; then
         node ../src/index.js
     else

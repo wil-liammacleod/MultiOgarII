@@ -3,14 +3,14 @@ var Entity = require('../entity');
 
 function Experimental() {
     FFA.apply(this, Array.prototype.slice.call(arguments));
-    
+
     this.ID = 2;
     this.name = "Experimental";
     this.specByLeaderboard = true;
-    
+
     // Gamemode Specific Variables
     this.nodesMother = [];
-    
+
     // Config
     this.motherSpawnInterval = 125; // How many ticks it takes to spawn another mother cell (5 seconds)
     this.motherMinAmount = 10;
@@ -37,7 +37,7 @@ Experimental.prototype.spawnMotherCell = function (gameServer) {
 Experimental.prototype.onServerInit = function (gameServer) {
     // Called when the server starts
     gameServer.run = true;
-    
+
     // Ovveride functions for special virus mechanics
     var self = this;
     Entity.Virus.prototype.onEat = function (prey) {
@@ -49,7 +49,7 @@ Experimental.prototype.onServerInit = function (gameServer) {
     };
     Entity.MotherCell.prototype.onRemove = function () {
         var index = self.nodesMother.indexOf(this);
-        if (index != -1) 
+        if (index != -1)
             self.nodesMother.splice(index, 1);
     };
 };

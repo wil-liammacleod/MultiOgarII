@@ -5,7 +5,7 @@
 
 ##Function Definition
 #Download, extract .tar.gz and clean function
-download_and_extract () { 
+download_and_extract () {
 if [ ! -d Ogar-master ]; then
 	if [ ! -f master.tar.gz ]; then
 			echo "No local master.tar.gz found, downloading with curl."
@@ -39,7 +39,7 @@ ogar_install() {
 			echo "Please specify the directory in which you would like to install Ogar."
 			exit 1
 	fi
-	
+
 	echo "The Ogar server will be installed inside $2/ogar."
 	echo "Do you wish to continue? (Y/N)"
 	read -r yn
@@ -47,18 +47,18 @@ ogar_install() {
 			[Yy]* ) ;;
 			 * ) exit 1;;
 	esac
-	
+
 	if [ ! -d "$2" ]; then
 			echo "$2 doesn't exist or is otherwise not accessible. Make sure you use absolute paths."
 			exit 1
 	fi
-	
+
 	if [[ ! "$2" = /* ]]
 	then
 	   echo "$2 isn't an absolute path! This is required for proper installation."
 	   exit 1
 	fi
-	
+
 	if grep "Arch Linux" /etc/*-release > /dev/null; then
 		echo "You are running Arch Linux. It is recommended to use the Ogar AUR package - https://aur4.archlinux.org/packages/ogar-git/"
 		echo "Do you wish to continue? (Y/N)"
@@ -73,7 +73,7 @@ ogar_install() {
 	cp -RTf Ogar-master "$2"/ogar
 	echo "Removing temporary files"
 	rm -R Ogar-master
-	
+
 	echo "Creating ogar user and group if they don't exist"
 	if ! getent group "ogar" >/dev/null; then
 		groupadd -r ogar
@@ -81,19 +81,19 @@ ogar_install() {
 	if ! getent passwd "ogar" >/dev/null; then
 		useradd -r -M -N -g ogar -d "$2"/ogar -s /usr/bin/nologin -c 'Ogar Server' ogar
 	fi
-	
+
 	echo "Installing ws module"
 	rm -R /root/.npm
 	cd "$2"/ogar || exit 1
 	npm install ws
-	
+
 	echo "Symlinking gameserver.ini to /etc/ogar"
 	ln -s "$2"/ogar/gameserver.ini /etc/ogar
-	
+
 	echo "Setting proper permissions"
 	chown -R ogar:ogar "$2"/ogar
 	chmod -R 755 "$2"/ogar
-	
+
 	echo "Finished installing! :D"
 }
 
@@ -104,7 +104,7 @@ ogar_update() {
 			echo "Please specify your existing Ogar installation."
 			exit 1
 	fi
-	
+
 	echo "The Ogar server inside $2/ogar will be updated."
 	echo "Do you wish to continue? (Y/N)"
 	read -r yn
@@ -112,18 +112,18 @@ ogar_update() {
 			[Yy]* ) ;;
 			 * ) exit 1;;
 	esac
-	
+
 	if [ ! -f "$2/ogar/src/index.js" ]; then
 			echo "$2/ogar/src/index.js either way doesn't exist or isn't accesible. Are you sure this is an Ogar installation?"
 			exit 1
 	fi
-	
+
 	if [[ ! "$2" = /* ]]
 	then
 	   echo "$2 isn't an absolute path! This is required for proper installation."
 	   exit 1
 	fi
-	
+
 	download_and_extract
 	echo "Do you wish to install a fresh gamserver.ini? (Y/N)"
 	read -r yn
@@ -135,16 +135,16 @@ ogar_update() {
 	cp -RTf Ogar-master "$2"/ogar
 	echo "Removing temporary files"
 	rm -R Ogar-master
-	
+
 	echo "Updating ws module"
 	rm -R /root/.npm
 	cd "$2"/ogar || exit 1
 	npm install ws
-	
+
 	echo "Setting proper permissions"
 	chown -R ogar:ogar "$2"/ogar
 	chmod -R 755 "$2"/ogar
-	
+
 	echo "Finished updating! :D"
 }
 
@@ -155,12 +155,12 @@ ogar_uninstall() {
 			echo "Please specify the directory in which Ogar is installed."
 			exit 1
 	fi
-	
+
 	if [ ! -f "$2/ogar/src/index.js" ]; then
 			echo "$2/ogar/src/index.js either way doesn't exist or isn't accesible. Are you sure this is an Ogar installation?"
 			exit 1
 	fi
-	
+
 	echo "The ENTIRE $2/ogar folder will be DELETED."
 	echo "Do you wish to continue? (Y/N)"
 	read -r yn
@@ -168,7 +168,7 @@ ogar_uninstall() {
 			[Yy]* ) ;;
 			* ) exit 1;;
 	esac
-	
+
 	echo "Removing ogar user and group"
 	if getent passwd "ogar" >/dev/null; then
 		userdel ogar > /dev/null
@@ -176,14 +176,14 @@ ogar_uninstall() {
 	if getent group "ogar" >/dev/null; then
 		groupdel ogar >/dev/null
 	fi
-	
+
 	echo "Unlinking /etc/ogar"
 	unlink /etc/ogar
-	
+
 	echo "Removing ws module"
 	cd "$2"/ogar || exit 1
 	npm uninstall ws
-	
+
 	echo "Removing the ENTIRE Ogar folder"
 	rm -R "$2"/ogar
 	echo "Finished uninstalling!"
