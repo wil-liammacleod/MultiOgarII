@@ -83,7 +83,7 @@ class Teams extends Mode{
         for (var i = 0; i < cell.owner.visibleNodes.length; i++) {
             // Only collide with player cells
             var check = cell.owner.visibleNodes[i];
-            if ((check.cellType != 0) || (cell.owner == check.owner)) {
+            if ((check.type != 0) || (cell.owner == check.owner)) {
                 continue;
             }
             // Collision with teammates

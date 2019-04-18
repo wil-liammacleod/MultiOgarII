@@ -3,7 +3,7 @@ var Cell = require('./Cell');
 class Virus extends Cell {
     constructor(server, owner, position, size) {
         super(server, owner, position, size);
-        this.cellType = 2;
+        this.type = 2;
         this.isSpiked = true;
         this.isMotherCell = false; // Not to confuse bots
         this.color = {
@@ -16,7 +16,7 @@ class Virus extends Cell {
     canEat(cell) {
         // cannot eat if virusMaxAmount is reached
         if (this.server.nodesVirus.length < this.server.config.virusMaxAmount)
-            return cell.cellType == 3; // virus can eat ejected mass only
+            return cell.type == 3; // virus can eat ejected mass only
     }
     onEat(prey) {
         // Called to eat prey cell

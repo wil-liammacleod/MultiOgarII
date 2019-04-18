@@ -578,7 +578,7 @@ class Server {
                 this.boostCell(cell);
                 this.quadTree.find(cell.quadItem.bound, function (check) {
                     var m = self.checkCellCollision(cell, check);
-                    if (cell.cellType == 3 && check.cellType == 3 && !self.config.mobilePhysics)
+                    if (cell.type == 3 && check.type == 3 && !self.config.mobilePhysics)
                         self.resolveRigidCollision(m);
                     else
                         self.resolveCollision(m);
@@ -856,7 +856,7 @@ class Server {
             maxx: cell.position.x + cell._size,
             maxy: cell.position.y + cell._size
         }, function (n) {
-            if (n.cellType == 0)
+            if (n.type == 0)
                 notSafe = true;
         });
         return notSafe;

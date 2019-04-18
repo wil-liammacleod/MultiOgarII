@@ -8,7 +8,7 @@ class Cell {
         this.radius = 0;
         this._size = 0;
         this._mass = 0;
-        this.cellType = -1; // 0 = Player Cell, 1 = Food, 2 = Virus, 3 = Ejected Mass
+        this.type = -1; // 0 = Player Cell, 1 = Food, 2 = Virus, 3 = Ejected Mass
         this.isSpiked = false; // If true, then this cell has spikes around it
         this.isAgitated = false; // If true, then this cell has waves on it's outline
         this.killedBy = null; // Cell that ate this cell
@@ -41,7 +41,7 @@ class Cell {
     // Called to eat prey cell
     onEat(prey) {
         if (!this.server.config.playerBotGrow) {
-            if (this._size >= 250 && prey._size <= 41 && prey.cellType == 0)
+            if (this._size >= 250 && prey._size <= 41 && prey.type == 0)
                 prey.radius = 0; // Can't grow from players under 17 mass
         }
         this.setSize(Math.sqrt(this.radius + prey.radius));

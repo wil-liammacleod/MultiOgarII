@@ -267,7 +267,7 @@ class PlayerTracker {
             if (node.isRemoved)
                 continue;
             // only send update for moving or player nodes
-            if (node.isMoving || node.cellType == 0 || node.cellType == 2 || this.server.config.serverGamemode == 3 && node.cellType == 1)
+            if (node.isMoving || node.type == 0 || node.type == 2 || this.server.config.serverGamemode == 3 && node.type == 1)
                 updNodes.push(node);
             newIndex++;
             oldIndex++;

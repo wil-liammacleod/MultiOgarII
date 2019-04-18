@@ -41,7 +41,7 @@ class MinionPlayer extends PlayerTracker {
             var self = this;
             this.viewBox = this.owner.viewBox;
             this.server.quadTree.find(this.viewBox, function (check) {
-                if (check.cellType == 1)
+                if (check.type == 1)
                     self.viewNodes.push(check);
             });
             var bestDistance = 1e999;

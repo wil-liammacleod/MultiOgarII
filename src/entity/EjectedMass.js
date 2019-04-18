@@ -3,7 +3,7 @@ var Cell = require('./Cell');
 class EjectedMass extends Cell {
     constructor(server, owner, position, size) {
         super(server, owner, position, size);
-        this.cellType = 3;
+        this.type = 3;
     }
     // Main Functions
     onAdd(server) {

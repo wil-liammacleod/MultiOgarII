@@ -4,7 +4,7 @@ var Packet = require('../packet');
 class PlayerCell extends Cell {
     constructor(server, owner, position, size) {
         super(server, owner, position, size);
-        this.cellType = 0;
+        this.type = 0;
         this._canRemerge = false;
     }
     // Main Functions

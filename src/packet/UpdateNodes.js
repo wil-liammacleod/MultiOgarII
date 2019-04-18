@@ -49,7 +49,7 @@ class UpdateNodes {
                 flags |= 0x01; // isVirus
             if (node.isAgitated)
                 flags |= 0x10; // isAgitated
-            if (node.cellType == 3)
+            if (node.type == 3)
                 flags |= 0x20; // isEjected
             writer.writeUInt8(flags >>> 0); // Flags
             writer.writeUInt16(0); // Name
@@ -78,7 +78,7 @@ class UpdateNodes {
                 flags |= 0x01; // isVirus
             if (node.isAgitated)
                 flags |= 0x10; // isAgitated
-            if (node.cellType == 3)
+            if (node.type == 3)
                 flags |= 0x20; // isEjected
             writer.writeUInt8(flags >>> 0); // Flags
             if (cellName != null)
@@ -113,7 +113,7 @@ class UpdateNodes {
                 flags |= 0x01; // isVirus
             if (node.isAgitated)
                 flags |= 0x10; // isAgitated
-            if (node.cellType == 3)
+            if (node.type == 3)
                 flags |= 0x20; // isEjected
             writer.writeUInt8(flags >>> 0); // Flags
             writer.writeUInt16(0); // Cell Name
@@ -146,7 +146,7 @@ class UpdateNodes {
                 flags |= 0x04; // isSkinPresent
             if (node.isAgitated)
                 flags |= 0x10; // isAgitated
-            if (node.cellType == 3)
+            if (node.type == 3)
                 flags |= 0x20; // isEjected
             writer.writeUInt8(flags >>> 0); // Flags
             if (flags & 0x04)
@@ -177,11 +177,11 @@ class UpdateNodes {
             var flags = 0;
             if (node.isSpiked)
                 flags |= 0x01; // isVirus
-            if (node.cellType == 0)
+            if (node.type == 0)
                 flags |= 0x02; // isColorPresent (for players only)
             if (node.isAgitated)
                 flags |= 0x10; // isAgitated
-            if (node.cellType == 3)
+            if (node.type == 3)
                 flags |= 0x20; // isEjected
             writer.writeUInt8(flags >>> 0); // Flags
             if (flags & 0x02) {
@@ -219,7 +219,7 @@ class UpdateNodes {
                 flags |= 0x08; // isNamePresent
             if (node.isAgitated)
                 flags |= 0x10; // isAgitated
-            if (node.cellType == 3)
+            if (node.type == 3)
                 flags |= 0x20; // isEjected
             writer.writeUInt8(flags >>> 0); // Flags
             if (flags & 0x02) {
@@ -254,13 +254,13 @@ class UpdateNodes {
             var flags = 0;
             if (node.isSpiked)
                 flags |= 0x01; // isVirus
-            if (node.cellType == 0)
+            if (node.type == 0)
                 flags |= 0x02; // isColorPresent (for players only)
             if (node.isAgitated)
                 flags |= 0x10; // isAgitated
-            if (node.cellType == 3)
+            if (node.type == 3)
                 flags |= 0x20; // isEjected
-            if (node.cellType == 1)
+            if (node.type == 1)
                 flags |= 0x80; // isFood
             writer.writeUInt8(flags >>> 0); // Flags
             if (flags & 0x80)
@@ -300,9 +300,9 @@ class UpdateNodes {
                 flags |= 0x08; // isNamePresent
             if (node.isAgitated)
                 flags |= 0x10; // isAgitated
-            if (node.cellType == 3)
+            if (node.type == 3)
                 flags |= 0x20; // isEjected
-            if (node.cellType == 1)
+            if (node.type == 1)
                 flags |= 0x80; // isFood
             writer.writeUInt8(flags >>> 0); // Flags
             if (flags & 0x80)

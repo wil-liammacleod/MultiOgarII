@@ -5,7 +5,7 @@ var Virus = require('./Virus');
 class MotherCell extends Virus{
     constructor(server, owner, position, size) {
         super(server, owner, position, size);
-        this.cellType = 2;
+        this.type = 2;
         this.isSpiked = true;
         this.isMotherCell = true; // Not to confuse bots
         this.color = { r: 0xce, g: 0x63, b: 0x63 };
@@ -19,9 +19,9 @@ class MotherCell extends Virus{
         var maxMass = this.server.config.motherCellMaxMass;
         if (maxMass && this._mass >= maxMass)
             return false;
-        return cell.cellType == 0 || // can eat player cell
-            cell.cellType == 2 || // can eat virus
-            cell.cellType == 3; // can eat ejected mass
+        return cell.type == 0 || // can eat player cell
+            cell.type == 2 || // can eat virus
+            cell.type == 3; // can eat ejected mass
     }
     onUpdate() {
         if (this._size == this.motherCellMinSize) {

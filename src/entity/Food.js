@@ -3,7 +3,7 @@ var Cell = require('./Cell');
 class Food extends Cell {
     constructor(server, owner, position, size) {
         super(server, owner, position, size);
-        this.cellType = 1;
+        this.type = 1;
         this.overrideReuse = false;
     }
     // Main Functions
