@@ -125,7 +125,7 @@ Commands.list = {
             "Total nodes:" + fillChar(gameServer.nodes.length, " ", 8, true) + "\n" +
             "- Client cells: " + fillChar(clientCells, " ", 4, true) + " / " + (gameServer.clients.length * gameServer.config.playerMaxCells) + "\n" +
             "- Ejected cells:" + fillChar(gameServer.nodesEjected.length, " ", 4, true) + "\n" +
-            "- Food:        " + fillChar(gameServer.nodesFood.length, " ", 4, true) + " / " + gameServer.config.foodMaxAmount + "\n" +
+            "- Food:        " + fillChar(gameServer.nodesFood.length, " ", 4, true) + " / " + gameServer.config.foodAmount + "\n" +
             "- Viruses:      " + fillChar(gameServer.nodesVirus.length, " ", 4, true) + " / " + gameServer.config.virusMaxAmount + "\n" +
             "Moving nodes:   " + fillChar(gameServer.movingNodes.length, " ", 4, true) + "\n" +
             "Quad nodes:     " + fillChar(scanNodeCount(gameServer.quadTree), " ", 4, true) + "\n" +

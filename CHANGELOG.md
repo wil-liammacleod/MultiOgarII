@@ -1,4 +1,8 @@
 # Changelog
+#### 1.6.2
+* Optimised food and virus cell spawning and removal model (no longer use a spawning interval).
+* Removed unused gamemodes.
+
 #### 1.6.1:
 * Cleaned a bit of CommandList, thanks to @AlexHGaming;
 * Added botnames and removed unrealistic ones, thanks to @AlexHGaming;
@@ -13,8 +17,8 @@
 * Fixed cells switching order on doublesplit, thanks to @Luka967;
 * Added reading arguments on startup, thanks to @F0RIS
 * Fixed skins on Cigar client, thanks to @Tyler3D;
-* Improved console UI, thanks to @FantasyIsBae and @Tyler3D;
-* Tweaked the readme, thanks to @FantasyIsBae and @MastaCoder;
+* Improved console UI, thanks to @B0RYS and @Tyler3D;
+* Tweaked the readme, thanks to @B0RYS and @MastaCoder;
 * Fixed mothercell spawning issue;
 * Edited the Wiki, thanks to @AlexHGaming, @Steve7914, @Tyler3D, @ItzLevvie, and @MastaCoder;
 * Created the MultiOgar-Edited Wiki, thanks to @AlexHGaming;

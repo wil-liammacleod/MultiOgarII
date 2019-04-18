@@ -13,7 +13,7 @@ function GameServer() {
 
     // Startup
     this.run = true;
-    this.version = '1.6.1';
+    this.version = '1.6.2';
     this.httpServer = null;
     this.lastNodeId = 1;
     this.lastPlayerId = 1;
@@ -94,19 +94,16 @@ function GameServer() {
         /** FOOD **/
         foodMinSize: 10, // Minimum food size (vanilla 10)
         foodMaxSize: 20, // Maximum food size (vanilla 20)
-        foodMinAmount: 1000, // Minimum food cells on the map
-        foodMaxAmount: 2000, // Maximum food cells on the map
-        foodSpawnAmount: 30, // The number of food to spawn per interval
+        foodAmount: 30, // The number of food to spawn
         foodMassGrow: 1, // Enable food mass grow ?
-        spawnInterval: 20, // The interval between each food cell spawn in ticks (1 tick = 40 ms)
 
         /** VIRUSES **/
         virusMinSize: 100, // Minimum virus size. (vanilla: mass = val*val/100 = 100 mass)
         virusMaxSize: 141.421356237, // Maximum virus size (vanilla: mass = val*val/100 = 200 mass)
         virusMaxPoppedSize: 60, // Maximum size a popped cell can have
         virusEqualPopSize: 0, // Whether popped cells have equal size or not (1 to enable)
-        virusMinAmount: 50, // Minimum number of viruses on the map.
-        virusMaxAmount: 100, // Maximum number of viruses on the map. If this number is reached, then ejected cells will pass through viruses.
+        virusAmount: 50, // Amount of viruses to spawn
+        virusMaxAmount: 100,
         motherCellMaxMass: 0, // Maximum amount of mass a mothercell is allowed to have (0 for no limit)
         virusVelocity: 780, // Velocity of moving viruses (speed and distance)
         virusMaxCells: 16, // Maximum cells a player can have from viruses.
@@ -216,6 +213,8 @@ GameServer.prototype.onHttpServerOpen = function () {
             this.bots.addBot();
         Logger.info("Added " + this.config.serverBots + " player bots");
     }
+
+    this.spawnCells(this.config.virusAmount, this.config.foodAmount);
 };
 
 GameServer.prototype.addNode = function (node) {
@@ -650,10 +649,7 @@ GameServer.prototype.mainLoop = function () {
         eatCollisions.forEach((m) => {
             this.resolveCollision(m);
         });
-        if ((this.tickCounter % this.config.spawnInterval) === 0) {
-            // Spawn food & viruses
-            this.spawnCells();
-        }
+        
         this.gameMode.onTick(this);
         this.tickCounter++;
     }
@@ -863,24 +859,29 @@ GameServer.prototype.randomPos = function () {
     );
 };
 
-GameServer.prototype.spawnCells = function () {
-    // spawn food at random size
-    var maxCount = this.config.foodMinAmount - this.nodesFood.length;
-    var spawnCount = Math.min(maxCount, this.config.foodSpawnAmount);
-    for (var i = 0; i < spawnCount; i++) {
-        var cell = new Entity.Food(this, null, this.randomPos(), this.config.foodMinSize);
-        if (this.config.foodMassGrow) {
-            var maxGrow = this.config.foodMaxSize - cell._size;
-            cell.setSize(cell._size += maxGrow * Math.random());
-        }
-        cell.color = this.getRandomColor();
-        this.addNode(cell);
+GameServer.prototype.spawnFood = function () {
+    var cell = new Entity.Food(this, null, this.randomPos(), this.config.foodMinSize);
+    if (this.config.foodMassGrow) {
+        var maxGrow = this.config.foodMaxSize - cell._size;
+        cell.setSize(cell._size += maxGrow * Math.random());
     }
 
-    // spawn viruses (safely)
-    if (this.nodesVirus.length < this.config.virusMinAmount) {
-        var virus = new Entity.Virus(this, null, this.randomPos(), this.config.virusMinSize);
-        if (!this.willCollide(virus)) this.addNode(virus);
+    cell.color = this.getRandomColor();
+    this.addNode(cell);
+}
+
+GameServer.prototype.spawnVirus = function() {
+    var virus = new Entity.Virus(this, null, this.randomPos(), this.config.virusMinSize);
+    if (!this.willCollide(virus)) this.addNode(virus);
+};
+
+GameServer.prototype.spawnCells = function (virusCount, foodCount) {
+    for (var i = 0; i < foodCount; i++) {
+        this.spawnFood();
+    }
+
+    for(var ii = 0; ii < virusCount; ii++) {
+        this.spawnVirus();
     }
 };
 

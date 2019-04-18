@@ -9,7 +9,7 @@ Since August of 2016, [Barbosik](https://github.com/Barbosik) has stopped workin
 >---
 
 # Information
-Current version : **1.6.1**
+Current version : **1.6.2**
 
 ![Language](https://img.shields.io/badge/language-node.js-yellow.svg)
 [![License](https://img.shields.io/badge/license-APACHE2-blue.svg)](https://github.com/Barbosik/OgarMulti/blob/master/LICENSE.md)

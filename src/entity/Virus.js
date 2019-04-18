@@ -91,4 +91,7 @@ Virus.prototype.onRemove = function(gameServer) {
     var index = gameServer.nodesVirus.indexOf(this);
     if (index != -1)
         gameServer.nodesVirus.splice(index, 1);
+
+    // Respawn
+    gameServer.spawnVirus();
 };

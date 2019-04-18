@@ -4,6 +4,7 @@ function Food() {
     Cell.apply(this, Array.prototype.slice.call(arguments));
 
     this.cellType = 1;
+    this.overrideReuse = false;
 }
 
 module.exports = Food;
@@ -20,5 +21,8 @@ Food.prototype.onRemove = function (gameServer) {
     var index = gameServer.nodesFood.indexOf(this);
     if (index != -1) {
         gameServer.nodesFood.splice(index, 1);
-    }
+    };
+    
+    // Respawn
+    if(!this.overrideReuse)gameServer.spawnFood();
 };

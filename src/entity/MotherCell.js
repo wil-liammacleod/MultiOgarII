@@ -32,14 +32,13 @@ MotherCell.prototype.canEat = function (cell) {
 };
 
 MotherCell.prototype.onUpdate = function () {
-    var maxFood = this.gameServer.config.foodMaxAmount;
-    if (this.gameServer.nodesFood.length >= maxFood) {
+    if (this._size == this.motherCellMinSize) {
         return;
     }
     var size1 = this._size;
     var size2 = this.gameServer.config.foodMinSize;
     for (var i = 0; i < this.motherCellSpawnAmount; i++) {
-        size1 = Math.sqrt(size1 * size1 - size2 * size2);
+        size1 = Math.sqrt(size1 * size1 - (size2 * size2) * 2);
         size1 = Math.max(size1, this.motherCellMinSize);
         this.setSize(size1);
 
@@ -53,14 +52,11 @@ MotherCell.prototype.onUpdate = function () {
         // Spawn food
         var food = new Food(this.gameServer, null, pos, size2);
         food.color = this.gameServer.getRandomColor();
+        food.overrideReuse = true;
         this.gameServer.addNode(food);
 
         // Eject to random distance
         food.setBoost(32 + 42 * Math.random(), angle);
-
-        if (this.gameServer.nodesFood.length >= maxFood || size1 <= this.motherCellMinSize) {
-            break;
-        }
     }
     this.gameServer.updateNodeQuad(this);
 };
