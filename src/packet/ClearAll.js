@@ -1,11 +1,11 @@
 var BinaryWriter = require("./BinaryWriter");
 
-function ClearAll() { }
+class ClearAll {
+    build() {
+        var writer = new BinaryWriter();
+        writer.writeUInt8(0x12);
+        return writer.toBuffer();
+    }
+}
 
 module.exports = ClearAll;
-
-ClearAll.prototype.build = function (protocol) {
-    var writer = new BinaryWriter();
-    writer.writeUInt8(0x12);
-    return writer.toBuffer();
-};
