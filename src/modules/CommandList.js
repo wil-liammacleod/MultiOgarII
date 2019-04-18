@@ -178,7 +178,7 @@ class CommandsList {
         }
     };
 
-    addBot(gameServer, split) {
+    addbot(gameServer, split) {
         var add = parseInt(split[1]);
         if (isNaN(add)) {
             add = 1; // Adds 1 bot if user doesnt specify a number
