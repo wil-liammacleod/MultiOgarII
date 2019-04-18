@@ -42,7 +42,7 @@ class BinaryWriter {
             size = Buffer.poolSize / 2;
         };
 
-        this._buffer = Buffer(size);
+        this._buffer = Buffer.alloc(size);
         this._length = 0;
     };
 
