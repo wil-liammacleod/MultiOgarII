@@ -6,14 +6,7 @@ var GameMode = require('../gamemodes');
 var Logger = require('./Logger');
 var Entity = require('../entity');
 
-function Commands() {
-    this.list = {}; // Empty
-}
-
-module.exports = Commands;
-
-// Utils
-var fillChar = function (data, char, fieldLength, rTL) {
+function fillChar (data, char, fieldLength, rTL) {
     var result = data.toString();
     if (rTL === true) {
         for (var i = result.length; i < fieldLength; i++)
@@ -25,9 +18,8 @@ var fillChar = function (data, char, fieldLength, rTL) {
     return result;
 };
 
-// Commands
-Commands.list = {
-    help: function (gameServer, split) {
+class CommandsList {
+    help(gameServer, split) {
         Logger.print("                       ┌────────────────────────────┐                       \n" +
             "                       │ LIST OF AVAILABLE COMMANDS │                       \n" +
             "┌──────────────────────┴────────────────────────────┴──────────────────────┐\n" +
@@ -86,35 +78,38 @@ Commands.list = {
             "├──────────────────────────────────────────────────────────────────────────┤\n" +
             '│         Psst! Do "shortcuts" for a list of command shortcuts!            │\n' +
             "└──────────────────────────────────────────────────────────────────────────┘");
-    },
-    shortcuts: function (gameServer, split) {
+    };
+
+    shortcuts(gameServer, split) {
         Logger.print("                       ┌────────────────────────────┐                       \n" +
-            "                       │ LIST OF COMMAND SHORTCUTS  │                       \n" +
-            "┌──────────────────────┴──────┬─────────────────────┴──────────────────────┐\n" +
-            "│ st                          │ Alias for status of server                 │\n" +
-            "│ pl                          │ Alias for playerlist                       │\n" +
-            "│ m                           │ Alias for mass                             │\n" +
-            "│ sm                          │ Alias for spawnmass                        │\n" +
-            "│ ka                          │ Alias for killall                          │\n" +
-            "│ k                           │ Alias for kill                             │\n" +
-            "│ mg                          │ Alias for merge                            │\n" +
-            "│ s                           │ Alias for speed                            │\n" +
-            "│ mn                          │ Alias for minion                           │\n" +
-            "│ f                           │ Alias for freeze                           │\n" +
-            "│ ab                          │ Alias for addbot                           │\n" +
-            "│ kb                          │ Alias for kickbot                          │\n" +
-            "│ c                           │ Alias for change                           │\n" +
-            "│ n                           │ Alias for name                             │\n" +
-            "│ rep                         │ Alias for replace                          │\n" +
-            "| e                           | Alias for explode                          |\n" +
-            "└─────────────────────────────┴────────────────────────────────────────────┘");
-    },
-    chat: function (gameServer, split) {
+        "                       │ LIST OF COMMAND SHORTCUTS  │                       \n" +
+        "┌──────────────────────┴──────┬─────────────────────┴──────────────────────┐\n" +
+        "│ st                          │ Alias for status of server                 │\n" +
+        "│ pl                          │ Alias for playerlist                       │\n" +
+        "│ m                           │ Alias for mass                             │\n" +
+        "│ sm                          │ Alias for spawnmass                        │\n" +
+        "│ ka                          │ Alias for killall                          │\n" +
+        "│ k                           │ Alias for kill                             │\n" +
+        "│ mg                          │ Alias for merge                            │\n" +
+        "│ s                           │ Alias for speed                            │\n" +
+        "│ mn                          │ Alias for minion                           │\n" +
+        "│ f                           │ Alias for freeze                           │\n" +
+        "│ ab                          │ Alias for addbot                           │\n" +
+        "│ kb                          │ Alias for kickbot                          │\n" +
+        "│ c                           │ Alias for change                           │\n" +
+        "│ n                           │ Alias for name                             │\n" +
+        "│ rep                         │ Alias for replace                          │\n" +
+        "| e                           | Alias for explode                          |\n" +
+        "└─────────────────────────────┴────────────────────────────────────────────┘");
+    };
+
+    chat(gameServer, split) {
         for (var i = 0; i < gameServer.clients.length; i++) {
             gameServer.sendChatMessage(null, i, String(split.slice(1, split.length).join(" ")));
-        }
-    },
-    debug: function (gameServer, split) {
+        };
+    };
+
+    debug(gameServer, split) {
         // Count client cells
         var clientCells = 0;
         for (var i in gameServer.clients) {
@@ -130,27 +125,17 @@ Commands.list = {
             "Moving nodes:   " + fillChar(gameServer.movingNodes.length, " ", 4, true) + "\n" +
             "Quad nodes:     " + fillChar(scanNodeCount(gameServer.quadTree), " ", 4, true) + "\n" +
             "Quad items:     " + fillChar(scanItemCount(gameServer.quadTree), " ", 4, true));
-    },
-    reset: function (gameServer, split) {
-        var ent = split[1];
-        if (ent != "ejected" && ent != "food" && ent != "virus") {
-            Logger.warn("Removed " + gameServer.nodes.length + " nodes");
-            for (; gameServer.nodes.length;) gameServer.removeNode(gameServer.nodes[0]);
-        }
-        if (ent == "ejected") {
-            Logger.print("Removed " + gameServer.nodesEjected.length + " ejected nodes");
-            for (; gameServer.nodesEjected.length;) gameServer.removeNode(gameServer.nodesEjected[0]);
-        }
-        if (ent == "food") {
-            Logger.print("Removed " + gameServer.nodesFood.length + " food nodes");
-            for (; gameServer.nodesFood.length;) gameServer.removeNode(gameServer.nodesFood[0]);
-        }
-        if (ent == "virus") {
-            Logger.print("Removed " + gameServer.nodesVirus.length + " virus nodes");
-            for (; gameServer.nodesVirus.length;) gameServer.removeNode(gameServer.nodesVirus[0]);
-        }
-    },
-    minion: function (gameServer, split) {
+    };
+
+    reset(gameServer, split) {
+        for (var i = 0; i < gameServer.nodes.length; i++) {
+            gameServer.removeNode(gameServer.nodes[0]);
+        };
+
+        gameServer.spawnCells(this.config.virusAmount, this.config.foodAmount);
+    };
+    
+    minion(gameServer, split) {
         var id = parseInt(split[1]);
         var add = parseInt(split[2]);
         var name = split.slice(3, split.length).join(' ');
@@ -191,8 +176,9 @@ Commands.list = {
                 break;
             }
         }
-    },
-    addbot: function (gameServer, split) {
+    };
+
+    addBot(gameServer, split) {
         var add = parseInt(split[1]);
         if (isNaN(add)) {
             add = 1; // Adds 1 bot if user doesnt specify a number
@@ -202,8 +188,9 @@ Commands.list = {
             gameServer.bots.addBot();
         }
         Logger.print("Added " + add + " player bots");
-    },
-    ban: function (gameServer, split) {
+    };
+
+    ban(gameServer, split) {
         // Error message
         var logInvalid = "Please specify a valid player ID or IP address!";
 
@@ -252,8 +239,9 @@ Commands.list = {
         }
         if (ip) ban(gameServer, split, ip);
         else Logger.warn("Player ID " + id + " not found!");
-    },
-    banlist: function (gameServer, split) {
+    };
+    
+    banlist(gameServer, split) {
         Logger.print("Showing " + gameServer.ipBanList.length + " banned IPs: ");
         Logger.print(" IP              | IP ");
         Logger.print("───────────────────────────────────");
@@ -263,8 +251,9 @@ Commands.list = {
                 (gameServer.ipBanList.length === i + 1 ? "" : gameServer.ipBanList[i + 1])
             );
         }
-    },
-    kickbot: function (gameServer, split) {
+    };
+
+    kickbot(gameServer, split) {
         var toRemove = parseInt(split[1]);
         if (isNaN(toRemove)) {
             // Kick all bots if user doesnt specify a number
@@ -285,8 +274,9 @@ Commands.list = {
             Logger.warn("Kicked " + removed + " bots");
         else
             Logger.warn("Only " + removed + " bots were kicked");
-    },
-    board: function (gameServer, split) {
+    };
+
+    board(gameServer, split) {
         var newLB = [];
         var reset = split[1];
 
@@ -313,9 +303,10 @@ Commands.list = {
             gameServer.gameMode.packetLB = gm.packetLB;
             gameServer.gameMode.updateLB = gm.updateLB;
             Logger.print("Successfully reset leaderboard");
-        }
-    },
-    change: function (gameServer, split) {
+        };
+    };
+
+    change(gameServer, split) {
         if (split.length < 3) {
             Logger.warn("Invalid command arguments");
             return;
@@ -345,8 +336,9 @@ Commands.list = {
         Logger.setVerbosity(gameServer.config.logVerbosity);
         Logger.setFileVerbosity(gameServer.config.logFileVerbosity);
         Logger.print("Set " + key + " = " + gameServer.config[key]);
-    },
-    clear: function (gameServer) {
+    };
+
+    clear(gameServer, splitc) {
         process.stdout.write("\u001b[2J\u001b[0;0H");
 
         figlet(('MultiOgar-Edited  ' + gameServer.version), function(err, data) {
@@ -361,8 +353,9 @@ Commands.list = {
         Logger.info("\u001B[1m\u001B[32mMultiOgar-Edited " + gameServer.version + "\u001B[37m - An open source multi-protocol ogar server\u001B[0m");
         Logger.info("Listening on port " + gameServer.config.serverPort);
         Logger.info("Current game mode is " + gameServer.gameMode.name + "\n");
-    },
-    color: function (gameServer, split) {
+    };
+
+    color(gameServer, split) {
         // Validation checks
         var id = parseInt(split[1]);
         if (isNaN(id)) {
@@ -393,13 +386,15 @@ Commands.list = {
         }
         if (client == null) return void Logger.warn("That player ID is non-existant!");
         Logger.print("Changed " + getName(client._name) + "'s color to: " + color.r + ", " + color.g + ", " + color.b);
-    },
-    exit: function (gameServer, split) {
+    };
+
+    exit() {
         Logger.warn("Closing server...");
         gameServer.wsServer.close();
         process.exit(1);
-    },
-    restart: function (gameServer) {
+    };
+
+    restart() {
         var QuadNode = require('./QuadNode.js');
         Logger.warn("Restarting server...");
         gameServer.httpServer = null;
@@ -425,8 +420,10 @@ Commands.list = {
         gameServer.setBorder(gameServer.config.borderWidth, gameServer.config.borderHeight);
         gameServer.quadTree = new QuadNode(gameServer.border, 64, 32);
 
-    },
-    kick: function (gameServer, split) {
+        gameServer.spawnCells(gameServer.virusAmount, gameServer.foodAmount);
+    };
+
+    kick(gameServer, split) {
         var id = parseInt(split[1]);
         if (isNaN(id)) {
             Logger.warn("Please specify a valid player ID!");
@@ -451,8 +448,9 @@ Commands.list = {
         if (count) return;
         if (!id) Logger.warn("No players to kick!");
         else Logger.warn("That player ID (" + id + ") is non-existant!");
-    },
-    mute: function (gameServer, args) {
+    };
+
+    mute() {
         if (!args || args.length < 2) {
             Logger.warn("Please specify a valid player ID!");
             return;
@@ -473,8 +471,9 @@ Commands.list = {
         }
         Logger.print("Player \"" + getName(player._name) + "\" was muted");
         player.isMuted = true;
-    },
-    unmute: function (gameServer, args) {
+    };
+
+    unmute() {
         if (!args || args.length < 2) {
             Logger.warn("Please specify a valid player ID!");
             return;
@@ -495,8 +494,9 @@ Commands.list = {
         }
         Logger.print("Player \"" + getName(player._name) + "\" was unmuted");
         player.isMuted = false;
-    },
-    kickall: function (gameServer, split) {
+    };
+
+    kickall(gameServer, split) {
         this.id = 0; //kick ALL players
         // kick player
         var count = 0;
@@ -518,31 +518,33 @@ Commands.list = {
         if (count) return;
         if (!this.id) Logger.warn("No players to kick!");
         else Logger.warn("That player ID (" + this.id + ") is non-existant!");
-    },
-    kill: function (gameServer, split) {
-        var id = parseInt(split[1]);
-        if (isNaN(id)) {
-            Logger.warn("Please specify a valid player ID!");
-            return;
-        }
+    };
 
+    kill(gameServer, split) {
+        this.id = 0; //kick ALL players
+        // kick player
         var count = 0;
-        for (var i in gameServer.clients) {
-            if (gameServer.clients[i].playerTracker.pID == id) {
-                var client = gameServer.clients[i].playerTracker;
-                var len = client.cells.length;
-                for (var j = 0; j < len; j++) {
-                    gameServer.removeNode(client.cells[0]);
-                    count++;
-                }
+        gameServer.clients.forEach(function (socket) {
+            if (socket.isConnected === false)
+                return;
+            if (this.id != 0 && socket.playerTracker.pID != this.id)
+                return;
+            // remove player cells
+            Commands.list.killall(gameServer, split);
+            // disconnect
+            socket.close(1000, "Kicked from server.");
+            var name = getName(socket.playerTracker._name);
+            Logger.print("Kicked \"" + name + "\"");
+            gameServer.sendChatMessage(null, null, "Kicked \"" + name + "\""); // notify to don't confuse with server bug
+            count++;
+        }, this);
 
-                Logger.print("Killed " + getName(client._name) + " and removed " + count + " cells");
-                break;
-            }
-        }
-        if (client == null) return void Logger.warn("That player ID is non-existant!");
-    },
-    killall: function (gameServer, split) {
+        if (count) return;
+        if (!this.id) Logger.warn("No players to kick!");
+        else Logger.warn("That player ID (" + this.id + ") is non-existant!");
+    };
+
+    killall(gameServer, split) {
         var count = 0;
         for (var i = 0; i < gameServer.clients.length; i++) {
             var playerTracker = gameServer.clients[i].playerTracker;
@@ -551,9 +553,10 @@ Commands.list = {
                 count++;
             }
         }
-        if (this.id) Logger.print("Removed " + count + " cells");
-    },
-    mass: function (gameServer, split) {
+        if (this.id) Logger.print("Removed " + count + " cells");    
+    };
+
+    mass(gameServer, split) {
         // Validation checks
         var id = parseInt(split[1]);
         if (isNaN(id)) {
@@ -580,8 +583,9 @@ Commands.list = {
             }
         }
         if (client == null) return void Logger.warn("That player ID is non-existant!");
-    },
-    spawnmass: function (gameServer, split) {
+    };
+
+    spawnmass(gameServer, split) {
         var id = parseInt(split[1]);
         if (isNaN(id)) {
             Logger.warn("Please specify a valid player ID!");
@@ -604,8 +608,9 @@ Commands.list = {
             }
         }
         if (client == null) return void Logger.warn("That player ID is non-existant!");
-    },
-    speed: function (gameServer, split) {
+    };
+
+    speed(gameServer, split) {
         var id = parseInt(split[1]);
         var speed = parseInt(split[2]);
         if (isNaN(id)) {
@@ -634,8 +639,9 @@ Commands.list = {
         }
         if (client == null) return void Logger.warn("That player ID is non-existant!");
         Logger.print("Set base speed of " + getName(client._name) + " to " + speed);
-    },
-    merge: function (gameServer, split) {
+    };
+
+    merge(gameServer, split) {
         // Validation checks
         var id = parseInt(split[1]);
         if (isNaN(id)) {
@@ -656,8 +662,9 @@ Commands.list = {
             }
         }
         if (client == null) return void Logger.warn("That player ID is non-existant!");
-    },
-    rec: function (gameServer, split) {
+    };
+
+    rec(gameServer, split) {
         var id = parseInt(split[1]);
         if (isNaN(id)) {
             Logger.warn("Please specify a valid player ID!");
@@ -673,9 +680,10 @@ Commands.list = {
                 else Logger.print(getName(client._name) + " is no longer in rec mode");
             }
         }
-        if (client == null) return void Logger.warn("That player ID is non-existant!");
-    },
-    split: function (gameServer, split) {
+        if (client == null) return void Logger.warn("That player ID is non-existant!");  
+    };
+
+    split(gameServer, split) {
         var id = parseInt(split[1]);
         var count = parseInt(split[2]);
         if (isNaN(id)) {
@@ -702,8 +710,9 @@ Commands.list = {
             }
         }
         if (client == null) return void Logger.warn("That player ID is non-existant!");
-    },
-    name: function (gameServer, split) {
+    };
+
+    name(gameServer, split) {
         // Validation checks
         var id = parseInt(split[1]);
         if (isNaN(id)) {
@@ -730,8 +739,9 @@ Commands.list = {
 
         // Error
         Logger.warn("That player ID (" + id + ") is non-existant!");
-    },
-    skin: function (gameServer, args) {
+    };
+
+    skin(gameServer, split) {
         if (!args || args.length < 3) {
             Logger.warn("Please specify a valid player ID and skin name!");
             return;
@@ -755,8 +765,9 @@ Commands.list = {
         }
         Logger.print("Player \"" + getName(player._name) + "\"'s skin is changed to " + skin);
         player.setSkin(skin);
-    },
-    unban: function (gameServer, split) {
+    };
+
+    unban(gameServer, split) {
         if (split.length < 2 || !split[1] || split[1].trim().length < 1) {
             Logger.warn("Please specify a valid IP!");
             return;
@@ -770,8 +781,9 @@ Commands.list = {
         gameServer.ipBanList.splice(index, 1);
         saveIpBanList(gameServer);
         Logger.print("Unbanned IP: " + ip);
-    },
-    playerlist: function (gameServer, split) {
+    };
+
+    playerlist(gameServer, split) {
         if (!gameServer.clients.length) return Logger.warn("No bots or players are currently connected to the server!");
         Logger.print("\nCurrent players: " + gameServer.clients.length);
         Logger.print('Do "playerlist m" or "pl m" to list minions\n');
@@ -836,13 +848,15 @@ Commands.list = {
                 Logger.print(" " + id + " | " + ip + " | " + protocol + " | " + data);
             }
         }
-    },
-    pause: function (gameServer, split) {
+    };
+
+    pause(gameServer, split) {
         gameServer.run = !gameServer.run; // Switches the pause state
         var s = gameServer.run ? "Unpaused" : "Paused";
         Logger.print(s + " the game.");
-    },
-    freeze: function (gameServer, split) {
+    };
+
+    freeze(gameServer, split) {
         var id = parseInt(split[1]);
         if (isNaN(id)) {
             Logger.print("Please specify a valid player ID!");
@@ -860,12 +874,14 @@ Commands.list = {
             }
         }
         if (client == null) return void Logger.warn("That player ID is non-existant!");
-    },
-    reload: function (gameServer, split) {
+    };
+
+    reload(gameServer, split) {
         gameServer.loadFiles();
         Logger.print("Reloaded files successfully");
-    },
-    status: function (gameServer, split) {
+    };
+
+    status(gameServer, split) {
         var ini = require('./ini.js');
         // Get amount of humans/bots
         var humans = 0,
@@ -892,8 +908,9 @@ Commands.list = {
         Logger.print("Current memory usage: " + Math.round(process.memoryUsage().heapUsed / 1048576 * 10) / 10 + "/" + Math.round(process.memoryUsage().heapTotal / 1048576 * 10) / 10 + " mb");
         Logger.print("Current game mode: " + gameServer.gameMode.name);
         Logger.print("Current update time: " + gameServer.updateTimeAvg.toFixed(3) + " [ms]  (" + ini.getLagMessage(gameServer.updateTimeAvg) + ")");
-    },
-    tp: function (gameServer, split) {
+    };
+
+    tp(gameServer, split) {
         var id = parseInt(split[1]);
         if (isNaN(id)) {
             Logger.warn("Please specify a valid player ID!");
@@ -925,8 +942,9 @@ Commands.list = {
             }
         }
         if (client == null) return void Logger.warn("That player ID is non-existant!");
-    },
-    spawn: function (gameServer, split) {
+    };
+
+    spawn(gameServer, split) {
         var ent = split[1];
         if (ent != "virus" && ent != "food" && ent != "mothercell") {
             Logger.warn("Please specify either virus, food, or mothercell");
@@ -973,8 +991,9 @@ Commands.list = {
             gameServer.addNode(mother);
             Logger.print("Spawned 1 mothercell at (" + pos.x + " , " + pos.y + ")");
         }
-    },
-    replace: function (gameServer, split) {
+    };
+
+    replace(gameServer, split) {
         var id = parseInt(split[1]);
         if (isNaN(id)) {
             Logger.warn("Please specify a valid player ID!");
@@ -1015,8 +1034,9 @@ Commands.list = {
             Logger.print("Replaced " + getName(client._name) + " with a mothercell");
         }
         if (client == null) return void Logger.warn("That player ID is non-existant!");
-    },
-    pop: function (gameServer, split) {
+    };
+
+    pop(gameServer, split) {
         var id = parseInt(split[1]);
         if (isNaN(id)) {
             Logger.warn("Please specify a valid player ID!");
@@ -1032,8 +1052,9 @@ Commands.list = {
             }
         }
         if (client == null) return void Logger.warn("That player ID is non-existant!");
-    },
-    explode: function (gameServer, split) {
+    };
+
+    explode(gameServer, split) {
         var id = parseInt(split[1]);
         if (isNaN(id)) {
             Logger.warn("Please specify a valid player ID!");
@@ -1067,77 +1088,13 @@ Commands.list = {
             }
         }
         if (client == null) return void Logger.warn("That player ID is non-existant!");
-    },
-    lms: function (gameServer, split) {
+    };
+
+    lms(gameServer, split) {
         gameServer.disableSpawn = !gameServer.disableSpawn;
         var s = gameServer.disableSpawn ? "Started" : "Ended";
         Logger.print(s + " last man standing");
-    },
-    calc: function (gameServer, split) {
-        var num = parseInt(split[1]);
-        if (isNaN(num)) {
-            Logger.warn("Please specify a valid number!");
-            return;
-        }
-        var to = split[2];
-        if (to != "toMass" && to != "toSize") {
-            Logger.warn('Please specify either "toMass" or "toSize"');
-            return;
-        }
-        if (to == "toMass") Logger.print("The specified size is " + num * num / 100 + " in mass");
-        else Logger.print("The specified mass is " + (Math.sqrt(num * 100)).toFixed(2) + " in size");
-    },
-
-    // Aliases for commands
-
-    st: function (gameServer, split) { // Status
-        Commands.list.status(gameServer, split);
-    },
-    pl: function (gameServer, split) { // Playerlist
-        Commands.list.playerlist(gameServer, split);
-    },
-    m: function (gameServer, split) { // Mass
-        Commands.list.mass(gameServer, split);
-    },
-    mn: function (gameServer, split) { // Minion
-        Commands.list.minion(gameServer, split);
-    },
-    sm: function (gameServer, split) { // Spawnmass
-        Commands.list.spawnmass(gameServer, split);
-    },
-    ka: function (gameServer, split) { // Killall
-        Commands.list.killall(gameServer, split);
-    },
-    k: function (gameServer, split) { // Kill
-        Commands.list.kill(gameServer, split);
-    },
-    mg: function (gameServer, split) { // Merge
-        Commands.list.merge(gameServer, split);
-    },
-    s: function (gameServer, split) { // Speed
-        Commands.list.speed(gameServer, split);
-    },
-    f: function (gameServer, split) { // Freeze
-        Commands.list.freeze(gameServer, split);
-    },
-    ab: function (gameServer, split) { // Addbot
-        Commands.list.addbot(gameServer, split);
-    },
-    kb: function (gameServer, split) { // Kickbot
-        Commands.list.kickbot(gameServer, split);
-    },
-    c: function (gameServer, split) { // Change
-        Commands.list.change(gameServer, split);
-    },
-    n: function (gameServer, split) { // Name
-        Commands.list.name(gameServer, split);
-    },
-    rep: function (gameServer, split) {
-        Commands.list.replace(gameServer, split);
-    },
-    e: function (gameServer, split) {
-        Commands.list.explode(gameServer, split);
-    }
+    };
 };
 
 // functions from GameServer
@@ -1240,3 +1197,5 @@ function scanItemCount(quad) {
     }
     return quad.items.length + count;
 };
+
+module.exports = CommandsList;

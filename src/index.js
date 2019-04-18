@@ -1,6 +1,7 @@
 // Imports
 var Logger = require('./modules/Logger');
-var Commands = require('./modules/CommandList');
+var CommandsList = require('./modules/CommandList');
+var Commands = new CommandsList;
 var GameServer = require('./GameServer');
 var figlet = require('figlet');
 
@@ -162,7 +163,7 @@ function parseCommands(str) {
     var first = split[0].toLowerCase();
 
     // Get command function
-    var execute = Commands.list[first];
+    var execute = Commands[first];
     if (typeof execute != 'undefined') {
         execute(gameServer, split);
     } else {
