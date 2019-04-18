@@ -1,65 +1,56 @@
+// Library imports
+const fs = require("fs");
+
 // Project imports
-var FakeSocket = require('./FakeSocket');
-var PacketHandler = require('../PacketHandler');
+const FakeSocket = require('./FakeSocket');
+const PacketHandler = require('../PacketHandler');
+const BotPlayer = require('./BotPlayer');
+const MinionPlayer = require('./MinionPlayer');
 
 class BotLoader {
-    constructor(gameServer) {
-        this.gameServer = gameServer;
-        this.loadNames();
-    }
-    getName() {
-        var name = "";
-        // Picks a random name for the bot
-        if (this.randomNames.length > 0) {
-            var index = (this.randomNames.length * Math.random()) >>> 0;
-            name = this.randomNames[index];
-        }
-        else {
-            name = "bot" + ++this.nameIndex;
-        }
-        return name;
-    }
-    loadNames() {
-        this.randomNames = [];
-        var fs = require("fs");
-        if (fs.existsSync("../src/ai/BotNames.txt")) {
-            // Read and parse the names - filter out whitespace-only names
-            this.randomNames = fs.readFileSync("../src/ai/BotNames.txt", "utf8").split(/[\r\n]+/).filter(function (x) {
-                return x != ''; // filter empty names
-            });
-        }
+    constructor(server) {
+        this.server = server;
+        this.randomNames = fs.readFileSync("../src/ai/BotNames.txt", "utf-8").split("\n");
         this.nameIndex = 0;
-    }
+    };
+
+    getName() {
+        // Query a random index and return name. If none is found, return bot + its index.
+        return this.randomNames[Math.floor(Math.random() * this.randomNames.length)] || `bot ${this.nameIndex++}`;
+    };
+
     addBot() {
-        var BotPlayer = require('./BotPlayer');
-        var s = new FakeSocket(this.gameServer);
-        s.playerTracker = new BotPlayer(this.gameServer, s);
-        s.packetHandler = new PacketHandler(this.gameServer, s);
-        // Add to client list
-        this.gameServer.clients.push(s);
-        // Add to world
-        s.packetHandler.setNickname(this.getName());
-    }
+        // Create a FakeSocket instance and assign it's properties.
+        const socket = new FakeSocket(this.server);
+        socket.playerTracker = new BotPlayer(this.server, socket);
+        socket.packetHandler = new PacketHandler(this.server, socket);
+
+        // Add to client list and spawn.
+        this.server.clients.push(socket);
+        socket.packetHandler.setNickname(this.getName());
+    };
+
     addMinion(owner, name) {
-        var MinionPlayer = require('./MinionPlayer');
-        var s = new FakeSocket(this.gameServer);
-        s.playerTracker = new MinionPlayer(this.gameServer, s, owner);
-        s.packetHandler = new PacketHandler(this.gameServer, s);
-        s.playerTracker.owner = owner;
-        // Spawn minions at special size
-        var size = this.gameServer.config.minionStartSize;
-        if (this.gameServer.config.minionMaxStartSize > size)
-            size = Math.random() * (this.gameServer.config.minionMaxStartSize - size) + size;
-        s.playerTracker.spawnmass = size;
+        // Aliases
+        const maxSize = this.server.config.minionMaxStartSize;
+        const defaultSize = this.server.config.minionStartSize;
+
+        // Create a FakeSocket instance and assign it's properties.
+        const socket = new FakeSocket(this.server);
+        socket.playerTracker = new MinionPlayer(this.server, socket, owner);
+        socket.packetHandler = new PacketHandler(this.server, socket);
+        socket.playerTracker.owner = owner;
+
+        // Set minion spawn size
+        socket.playerTracker.spawnmass = maxSize > defaultSize ? Math.floor(Math.random() * (maxSize - defaultSize) + defaultSize) : defaultSize;
+
         // Add to client list
-        this.gameServer.clients.push(s);
-        // Add to world & set name
-        if (typeof name == "undefined" || name == "") {
-            name = this.gameServer.config.defaultName;
-        }
-        s.packetHandler.setNickname(name);
-    }
-}
+        this.server.clients.push(socket);
+
+        // Add to world 
+        socket.packetHandler.setNickname(name == "" || !name ? this.server.config.defaultName : name);
+    };
+};
 
 module.exports = BotLoader;
 
