@@ -1,28 +1,26 @@
 var Cell = require('./Cell');
 
-function Food() {
-    Cell.apply(this, Array.prototype.slice.call(arguments));
-
-    this.cellType = 1;
-    this.overrideReuse = false;
+class Food extends Cell {
+    constructor(gameServer, owner, position, size) {
+        super(gameServer, owner, position, size);
+        this.cellType = 1;
+        this.overrideReuse = false;
+    }
+    // Main Functions
+    onAdd(gameServer) {
+        gameServer.nodesFood.push(this);
+    }
+    onRemove(gameServer) {
+        // Remove from list of foods
+        var index = gameServer.nodesFood.indexOf(this);
+        if (index != -1) {
+            gameServer.nodesFood.splice(index, 1);
+        }
+        ;
+        // Respawn
+        if (!this.overrideReuse)
+            gameServer.spawnFood();
+    }
 }
 
 module.exports = Food;
-Food.prototype = new Cell();
-
-// Main Functions
-
-Food.prototype.onAdd = function (gameServer) {
-    gameServer.nodesFood.push(this);
-};
-
-Food.prototype.onRemove = function (gameServer) {
-    // Remove from list of foods
-    var index = gameServer.nodesFood.indexOf(this);
-    if (index != -1) {
-        gameServer.nodesFood.splice(index, 1);
-    };
-    
-    // Respawn
-    if(!this.overrideReuse)gameServer.spawnFood();
-};
