@@ -10,13 +10,7 @@ const MinionPlayer = require('./MinionPlayer');
 class BotLoader {
     constructor(server) {
         this.server = server;
-        this.randomNames = fs.readFileSync("../src/ai/BotNames.txt", "utf-8").split("\n");
-        this.nameIndex = 0;
-    };
-
-    getName() {
-        // Query a random index and return name. If none is found, return bot + its index.
-        return this.randomNames[Math.floor(Math.random() * this.randomNames.length)] || `bot ${this.nameIndex++}`;
+        this.botCount = 0;
     };
 
     addBot() {
@@ -27,7 +21,7 @@ class BotLoader {
 
         // Add to client list and spawn.
         this.server.clients.push(socket);
-        socket.packetHandler.setNickname(this.getName());
+        socket.packetHandler.setNickname(`Bot | ${this.botCount++}`);
     };
 
     addMinion(owner, name) {
