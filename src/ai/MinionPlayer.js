@@ -1,21 +1,21 @@
 var PlayerTracker = require('../PlayerTracker');
 
 class MinionPlayer extends PlayerTracker {
-    constructor(gameServer, socket) {
-        super(gameServer, socket);
+    constructor(server, socket) {
+        super(server, socket);
         this.isMi = true; // Marks as minion
         this.socket.isConnected = true;
     }
     checkConnection() {
         if (this.socket.isCloseRequest) {
             while (this.cells.length) {
-                this.gameServer.removeNode(this.cells[0]);
+                this.server.removeNode(this.cells[0]);
             }
             this.isRemoved = true;
             return;
         }
         if (!this.cells.length) {
-            this.gameServer.gameMode.onPlayerSpawn(this.gameServer, this);
+            this.server.gameMode.onPlayerSpawn(this.server, this);
             if (!this.cells.length)
                 this.socket.close();
         }
@@ -40,7 +40,7 @@ class MinionPlayer extends PlayerTracker {
             this.viewNodes = [];
             var self = this;
             this.viewBox = this.owner.viewBox;
-            this.gameServer.quadTree.find(this.viewBox, function (check) {
+            this.server.quadTree.find(this.viewBox, function (check) {
                 if (check.cellType == 1)
                     self.viewNodes.push(check);
             });

@@ -3,13 +3,13 @@ class ServerStat {
         this.playerTracker = playerTracker;
     }
     build(protocol) {
-        var gameServer = this.playerTracker.gameServer;
+        var server = this.playerTracker.server;
         // Get server statistics
         var totalPlayers = 0;
         var alivePlayers = 0;
         var spectPlayers = 0;
-        for (var i = 0; i < gameServer.clients.length; i++) {
-            var socket = gameServer.clients[i];
+        for (var i = 0; i < server.clients.length; i++) {
+            var socket = server.clients[i];
             if (socket == null || !socket.isConnected)
                 continue;
             totalPlayers++;
@@ -19,14 +19,14 @@ class ServerStat {
                 spectPlayers++;
         }
         var obj = {
-            'name': gameServer.config.serverName,
-            'mode': gameServer.gameMode.name,
-            'uptime': Math.round((gameServer.stepDateTime - gameServer.startTime) / 1000),
-            'update': gameServer.updateTimeAvg.toFixed(3),
+            'name': server.config.serverName,
+            'mode': server.gameMode.name,
+            'uptime': Math.round((server.stepDateTime - server.startTime) / 1000),
+            'update': server.updateTimeAvg.toFixed(3),
             'playersTotal': totalPlayers,
             'playersAlive': alivePlayers,
             'playersSpect': spectPlayers,
-            'playersLimit': gameServer.config.serverMaxConnections
+            'playersLimit': server.config.serverMaxConnections
         };
         var json = JSON.stringify(obj);
         // Serialize

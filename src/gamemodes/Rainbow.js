@@ -39,18 +39,18 @@ class Rainbow extends FFA{
         ];
     }
     // Gamemode Specific Functions
-    changeColor(node, gameServer) {
+    changeColor(node, server) {
         node.color = this.colors[Math.floor(Math.random() * this.colors.length)];
     }
     // Override
     onServerInit() { }
-    onTick(gameServer) {
+    onTick(server) {
         // Change color
-        for (var i in gameServer.nodes) {
-            var node = gameServer.nodes[i];
+        for (var i in server.nodes) {
+            var node = server.nodes[i];
             if (!node)
                 continue;
-            this.changeColor(node, gameServer);
+            this.changeColor(node, server);
         }
         ;
     }

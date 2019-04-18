@@ -2,13 +2,13 @@ var Logger = require('./Logger');
 var UserRoleEnum = require("../enum/UserRoleEnum");
 
 class PlayerCommand {
-    constructor(gameServer, playerTracker) {
-        this.gameServer = gameServer;
+    constructor(server, playerTracker) {
+        this.server = server;
         this.playerTracker = playerTracker;
     }
 
     writeLine(text) {
-        this.gameServer.sendChatMessage(null, this.playerTracker, text);
+        this.server.sendChatMessage(null, this.playerTracker, text);
     }
 
     help(args) {
@@ -75,12 +75,12 @@ class PlayerCommand {
         }
         while (this.playerTracker.cells.length) {
             var cell = this.playerTracker.cells[0];
-            this.gameServer.removeNode(cell);
+            this.server.removeNode(cell);
             // replace with food
             var food = require('../entity/Food');
-            food = new food(this.gameServer, null, cell.position, cell._size);
+            food = new food(this.server, null, cell.position, cell._size);
             food.color = cell.color;
-            this.gameServer.addNode(food);
+            this.server.addNode(food);
         }
         this.writeLine("You killed yourself");
     };
@@ -92,10 +92,10 @@ class PlayerCommand {
         }
         var count = 0;
         var cell = this.playerTracker.cells[0];
-        for (var i = 0; i < this.gameServer.clients.length; i++) {
-            var playerTracker = this.gameServer.clients[i].playerTracker;
+        for (var i = 0; i < this.server.clients.length; i++) {
+            var playerTracker = this.server.clients[i].playerTracker;
             while (playerTracker.cells.length > 0) {
-                this.gameServer.removeNode(playerTracker.cells[0]);
+                this.server.removeNode(playerTracker.cells[0]);
                 count++;
             }
         }
@@ -123,15 +123,15 @@ class PlayerCommand {
             }
             this.writeLine("Set mass of " + this.playerTracker._name + " to " + size * size / 100);
         } else {
-            for (var i in this.gameServer.clients) {
-                var client = this.gameServer.clients[i].playerTracker;
+            for (var i in this.server.clients) {
+                var client = this.server.clients[i].playerTracker;
                 if (client.pID == id) {
                     for (var j in client.cells) {
                         client.cells[j].setSize(size);
                     }
                     this.writeLine("Set mass of " + client._name + " to " + size * size / 100);
                     var text = this.playerTracker._name + " changed your mass to " + size * size / 100;
-                    this.gameServer.sendChatMessage(null, client, text);
+                    this.server.sendChatMessage(null, client, text);
                     break;
                 }
             }
@@ -157,13 +157,13 @@ class PlayerCommand {
             this.writeLine("Warn: missing ID arguments. This will change your spawnmass.");
             this.writeLine("Set spawnmass of " + this.playerTracker._name + " to " + size * size / 100);
         } else {
-            for (var i in this.gameServer.clients) {
-                var client = this.gameServer.clients[i].playerTracker;
+            for (var i in this.server.clients) {
+                var client = this.server.clients[i].playerTracker;
                 if (client.pID == id) {
                     client.spawnmass = size;
                     this.writeLine("Set spawnmass of " + client._name + " to " + size * size / 100);
                     var text = this.playerTracker._name + " changed your spawn mass to " + size * size / 100;
-                    this.gameServer.sendChatMessage(null, client, text);
+                    this.server.sendChatMessage(null, client, text);
                 }
             }
         };
@@ -191,7 +191,7 @@ class PlayerCommand {
             this.writeLine("Warn: missing ID arguments. This will give you minions.");
             // Add checks if the first argument is the same as Mass, this add prevention from Amount of Bots with same Mass
             if (parseInt(add) === mass) {
-                mass = this.gameServer.config.minionMaxStartSize * this.gameServer.config.minionMaxStartSize / 100;
+                mass = this.server.config.minionMaxStartSize * this.server.config.minionMaxStartSize / 100;
             }
             // Remove minions
             if (player.minionControl == true && add == "remove") {
@@ -204,7 +204,7 @@ class PlayerCommand {
                 // Add minions for self
                 if (isNaN(parseInt(add))) add = 1;
                 for (var i = 0; i < add; i++) {
-                    this.gameServer.bots.addMinion(player, name, mass);
+                    this.server.bots.addMinion(player, name, mass);
                 }
                 this.writeLine("Added " + add + " minions for " + player._name);
             }
@@ -216,8 +216,8 @@ class PlayerCommand {
             } else {
                 name = args.slice(3, -1).join(' ');
             }
-            for (var i in this.gameServer.clients) {
-                var client = this.gameServer.clients[i].playerTracker;
+            for (var i in this.server.clients) {
+                var client = this.server.clients[i].playerTracker;
                 if (client.pID == id) {
 
                     // Prevent the user from giving minions, to minions
@@ -227,7 +227,7 @@ class PlayerCommand {
                     };
                     // Add checks if the second argument is the same as Mass, this add prevention from Player ID with same Mass
                     if (id === mass) {
-                        mass = this.gameServer.config.minionMaxStartSize * this.gameServer.config.minionMaxStartSize / 100;
+                        mass = this.server.config.minionMaxStartSize * this.server.config.minionMaxStartSize / 100;
                     }
                     // Remove minions
                     if (client.minionControl == true && add == "remove") {
@@ -235,18 +235,18 @@ class PlayerCommand {
                         client.miQ = 0;
                         this.writeLine("Succesfully removed minions for " + client._name);
                         var text = this.playerTracker._name + " removed all off your minions.";
-                        this.gameServer.sendChatMessage(null, client, text);
+                        this.server.sendChatMessage(null, client, text);
                         // Add minions
                     } else {
                         client.minionControl = true;
                         // Add minions for client
                         if (isNaN(add)) add = 1;
                         for (var i = 0; i < add; i++) {
-                            this.gameServer.bots.addMinion(client, name, mass);
+                            this.server.bots.addMinion(client, name, mass);
                         }
                         this.writeLine("Added " + add + " minions for " + client._name);
                         var text = this.playerTracker._name + " gave you " + add + " minions.";
-                        this.gameServer.sendChatMessage(null, client, text);
+                        this.server.sendChatMessage(null, client, text);
                     }
                 }
             }
@@ -260,7 +260,7 @@ class PlayerCommand {
             return;
         }
         for (var i = 0; i < add; i++) {
-            this.gameServer.bots.addBot();
+            this.server.bots.addBot();
         }
         Logger.warn(this.playerTracker.socket.remoteAddress + "ADDED " + add + " BOTS");
         this.writeLine("Added " + add + " Bots");
@@ -274,8 +274,8 @@ class PlayerCommand {
         // Get amount of humans/bots
         var humans = 0,
             bots = 0;
-        for (var i = 0; i < this.gameServer.clients.length; i++) {
-            if ('_socket' in this.gameServer.clients[i]) {
+        for (var i = 0; i < this.server.clients.length; i++) {
+            if ('_socket' in this.server.clients[i]) {
                 humans++;
             } else {
                 bots++;
@@ -283,12 +283,12 @@ class PlayerCommand {
         }
         var ini = require('./ini.js');
         this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-        this.writeLine("Connected players: " + this.gameServer.clients.length + "/" + this.gameServer.config.serverMaxConnections);
+        this.writeLine("Connected players: " + this.server.clients.length + "/" + this.server.config.serverMaxConnections);
         this.writeLine("Players: " + humans + " - Bots: " + bots);
         this.writeLine("Server has been running for " + Math.floor(process.uptime() / 60) + " minutes");
         this.writeLine("Current memory usage: " + Math.round(process.memoryUsage().heapUsed / 1048576 * 10) / 10 + "/" + Math.round(process.memoryUsage().heapTotal / 1048576 * 10) / 10 + " mb");
-        this.writeLine("Current game mode: " + this.gameServer.gameMode.name);
-        this.writeLine("Current update time: " + this.gameServer.updateTimeAvg.toFixed(3) + " [ms]  (" + ini.getLagMessage(this.gameServer.updateTimeAvg) + ")");
+        this.writeLine("Current game mode: " + this.server.gameMode.name);
+        this.writeLine("Current update time: " + this.server.updateTimeAvg.toFixed(3) + " [ms]  (" + ini.getLagMessage(this.server.updateTimeAvg) + ")");
         this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     };
 
@@ -305,8 +305,8 @@ class PlayerCommand {
         password = password.trim();
         if (!password)
             user = null;
-        for (var i = 0; i < this.gameServer.userList.length; i++) {
-            user = this.gameServer.userList[i];
+        for (var i = 0; i < this.server.userList.length; i++) {
+            user = this.server.userList[i];
             if (user.password != password)
                 continue;
             if (user.ip && user.ip != ip && user.ip != "*") // * - means any IP

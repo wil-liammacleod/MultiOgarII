@@ -2,8 +2,8 @@ var Packet = require('./packet');
 var BinaryReader = require('./packet/BinaryReader');
 
 class PacketHandler {
-    constructor(gameServer, socket) {
-        this.gameServer = gameServer;
+    constructor(server, socket) {
+        this.server = server;
         this.socket = socket;
         this.protocol = 0;
         this.handshakeProtocol = null;
@@ -25,7 +25,7 @@ class PacketHandler {
         if (!this.handler.hasOwnProperty(message[0]))
             return;
         this.handler[message[0]](message);
-        this.socket.lastAliveTime = this.gameServer.stepDateTime;
+        this.socket.lastAliveTime = this.server.stepDateTime;
     }
     handshake_onProtocol(message) {
         if (message.length !== 5)
@@ -67,20 +67,20 @@ class PacketHandler {
         this.protocol = protocol;
         // Send handshake response
         this.sendPacket(new Packet.ClearAll());
-        this.sendPacket(new Packet.SetBorder(this.socket.playerTracker, this.gameServer.border, this.gameServer.config.serverGamemode, "MultiOgar-Edited " + this.gameServer.version));
+        this.sendPacket(new Packet.SetBorder(this.socket.playerTracker, this.server.border, this.server.config.serverGamemode, "MultiOgar-Edited " + this.server.version));
         // Send welcome message
-        this.gameServer.sendChatMessage(null, this.socket.playerTracker, "MultiOgar-Edited " + this.gameServer.version);
-        if (this.gameServer.config.serverWelcome1)
-            this.gameServer.sendChatMessage(null, this.socket.playerTracker, this.gameServer.config.serverWelcome1);
-        if (this.gameServer.config.serverWelcome2)
-            this.gameServer.sendChatMessage(null, this.socket.playerTracker, this.gameServer.config.serverWelcome2);
-        if (this.gameServer.config.serverChat == 0)
-            this.gameServer.sendChatMessage(null, this.socket.playerTracker, "This server's chat is disabled.");
+        this.server.sendChatMessage(null, this.socket.playerTracker, "MultiOgar-Edited " + this.server.version);
+        if (this.server.config.serverWelcome1)
+            this.server.sendChatMessage(null, this.socket.playerTracker, this.server.config.serverWelcome1);
+        if (this.server.config.serverWelcome2)
+            this.server.sendChatMessage(null, this.socket.playerTracker, this.server.config.serverWelcome2);
+        if (this.server.config.serverChat == 0)
+            this.server.sendChatMessage(null, this.socket.playerTracker, "This server's chat is disabled.");
         if (this.protocol < 4)
-            this.gameServer.sendChatMessage(null, this.socket.playerTracker, "WARNING: Protocol " + this.protocol + " assumed as 4!");
+            this.server.sendChatMessage(null, this.socket.playerTracker, "WARNING: Protocol " + this.protocol + " assumed as 4!");
     }
     message_onJoin(message) {
-        var tick = this.gameServer.tickCounter;
+        var tick = this.server.tickCounter;
         var dt = tick - this.lastJoinTick;
         this.lastJoinTick = tick;
         if (dt < 25 || this.socket.playerTracker.cells.length !== 0) {
@@ -118,13 +118,13 @@ class PacketHandler {
     message_onKeyQ(message) {
         if (message.length !== 1)
             return;
-        var tick = this.gameServer.tickCoutner;
+        var tick = this.server.tickCoutner;
         var dt = tick - this.lastQTick;
-        if (dt < this.gameServer.config.ejectCooldown) {
+        if (dt < this.server.config.ejectCooldown) {
             return;
         }
         this.lastQTick = tick;
-        if (this.socket.playerTracker.minionControl && !this.gameServer.config.disableQ) {
+        if (this.socket.playerTracker.minionControl && !this.server.config.disableQ) {
             this.socket.playerTracker.miQ = !this.socket.playerTracker.miQ;
         }
         else {
@@ -142,31 +142,31 @@ class PacketHandler {
         }
     }
     message_onKeyE(message) {
-        if (this.gameServer.config.disableERTP)
+        if (this.server.config.disableERTP)
             return;
         this.socket.playerTracker.minionSplit = true;
     }
     message_onKeyR(message) {
-        if (this.gameServer.config.disableERTP)
+        if (this.server.config.disableERTP)
             return;
         this.socket.playerTracker.minionEject = true;
     }
     message_onKeyT(message) {
-        if (this.gameServer.config.disableERTP)
+        if (this.server.config.disableERTP)
             return;
         this.socket.playerTracker.minionFrozen = !this.socket.playerTracker.minionFrozen;
     }
     message_onKeyP(message) {
-        if (this.gameServer.config.disableERTP)
+        if (this.server.config.disableERTP)
             return;
-        if (this.gameServer.config.collectPellets) {
+        if (this.server.config.collectPellets) {
             this.socket.playerTracker.collectPellets = !this.socket.playerTracker.collectPellets;
         }
     }
     message_onChat(message) {
         if (message.length < 3)
             return;
-        var tick = this.gameServer.tickCounter;
+        var tick = this.server.tickCounter;
         var dt = tick - this.lastChatTick;
         this.lastChatTick = tick;
         if (dt < 25 * 2) {
@@ -183,12 +183,12 @@ class PacketHandler {
             text = reader.readStringZeroUnicode();
         else
             text = reader.readStringZeroUtf8();
-        this.gameServer.onChatMessage(this.socket.playerTracker, null, text);
+        this.server.onChatMessage(this.socket.playerTracker, null, text);
     }
     message_onStat(message) {
         if (message.length !== 1)
             return;
-        var tick = this.gameServer.tickCounter;
+        var tick = this.server.tickCounter;
         var dt = tick - this.lastStatTick;
         this.lastStatTick = tick;
         if (dt < 25) {
@@ -271,9 +271,9 @@ class PacketHandler {
             skin = skinName;
             name = userName;
         }
-        if (name.length > this.gameServer.config.playerMaxNickLength)
-            name = name.substring(0, this.gameServer.config.playerMaxNickLength);
-        if (this.gameServer.checkBadWord(name)) {
+        if (name.length > this.server.config.playerMaxNickLength)
+            name = name.substring(0, this.server.config.playerMaxNickLength);
+        if (this.server.checkBadWord(name)) {
             skin = null;
             name = "Hi there!";
         }
@@ -283,13 +283,13 @@ class PacketHandler {
         var socket = this.socket;
         if (!packet || socket.isConnected == null || socket.playerTracker.isMi)
             return;
-        if (socket.readyState == this.gameServer.WebSocket.OPEN) {
+        if (socket.readyState == this.server.WebSocket.OPEN) {
             var buffer = packet.build(this.protocol);
             if (buffer)
                 socket.send(buffer, { binary: true });
         }
         else {
-            socket.readyState = this.gameServer.WebSocket.CLOSED;
+            socket.readyState = this.server.WebSocket.CLOSED;
             socket.emit('close');
         }
     }

@@ -9,20 +9,20 @@ class Mode {
         this.IsTournament = false;
     }
     // Override these
-    onServerInit(gameServer) {
+    onServerInit(server) {
         // Called when the server starts
-        gameServer.run = true;
+        server.run = true;
     }
-    onTick(gameServer) {
+    onTick(server) {
         // Called on every game tick
     }
     onPlayerInit(player) {
         // Called after a player object is constructed
     }
-    onPlayerSpawn(gameServer, player) {
+    onPlayerSpawn(server, player) {
         // Called when a player is spawned
-        player.color = gameServer.getRandomColor(); // Random color
-        gameServer.spawnPlayer(player, gameServer.randomPos());
+        player.color = server.getRandomColor(); // Random color
+        server.spawnPlayer(player, server.randomPos());
     }
     onCellAdd(cell) {
         // Called when a player cell is added
@@ -30,12 +30,12 @@ class Mode {
     onCellRemove(cell) {
         // Called when a player cell is removed
     }
-    onCellMove(cell, gameServer) {
+    onCellMove(cell, server) {
         // Called when a player cell is moved
     }
-    updateLB(gameServer) {
+    updateLB(server) {
         // Called when the leaderboard update function is called
-        gameServer.leaderboardType = this.packetLB;
+        server.leaderboardType = this.packetLB;
     }
 }
 

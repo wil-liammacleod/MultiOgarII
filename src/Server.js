@@ -6,8 +6,8 @@ var Entity = require('./entity');
 var Vec2 = require('./modules/Vec2');
 var Logger = require('./modules/Logger');
 
-// GameServer implementation
-class GameServer {
+// Server implementation
+class Server {
     constructor() {
         // Location of source files - For renaming or moving source files!
         this.srcFiles = "../src";
@@ -1174,4 +1174,4 @@ function trackerRequest(options, type, body) {
     req.write(body);
     req.end();
 }
-module.exports = GameServer;
+module.exports = Server;

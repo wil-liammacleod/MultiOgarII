@@ -2,7 +2,7 @@
 var Logger = require('./modules/Logger');
 var CommandsList = require('./modules/CommandList');
 var Commands = new CommandsList;
-var GameServer = require('./GameServer');
+var Server = require('./Server');
 var figlet = require('figlet');
 
 // Init variables
@@ -23,8 +23,8 @@ process.on('uncaughtException', function (err) {
 });
 
 // Run MultiOgar-Edited
-var gameServer = new GameServer();
-Logger.info("\u001B[1m\u001B[32mMultiOgar-Edited " + gameServer.version + "\u001B[37m - An open source multi-protocol ogar server\u001B[0m");
+var server = new Server();
+Logger.info("\u001B[1m\u001B[32mMultiOgar-Edited " + server.version + "\u001B[37m - An open source multi-protocol ogar server\u001B[0m");
 
 // Handle arguments
 process.argv.forEach(function (item) {
@@ -102,20 +102,20 @@ function getValue(param){
 }
 
 function setParam(paramName, val){
-    if (!gameServer.config.hasOwnProperty(paramName)){
+    if (!server.config.hasOwnProperty(paramName)){
         Logger.error("Wrong parameter");
     }
     if (val || val === 0) {
         if (typeof val === 'string'){
             val = "'" + val + "'";
         }
-        eval("gameServer.config." + paramName + "=" + val);
+        eval("server.config." + paramName + "=" + val);
     }
 }
 
 
-gameServer.start();
-figlet(('MultiOgar-Edited  ' + gameServer.version), function(err, data) {
+server.start();
+figlet(('MultiOgar-Edited  ' + server.version), function(err, data) {
     if (err) {
         console.log('Something went wrong...');
         console.dir(err);
@@ -165,10 +165,10 @@ function parseCommands(str) {
     // Get command function
     var execute = Commands[first];
     if (typeof execute != 'undefined') {
-        execute(gameServer, split);
+        execute(server, split);
     } else {
         Logger.warn("Invalid Command!");
     }
 };
 
-exports.gameServer = gameServer;
+exports.server = server;

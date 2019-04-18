@@ -86,4 +86,4 @@ app.use(function (req, resp) {
 });
 
 http.listen(server_port, server_bind);
-console.log("Started VK gameServer");
+console.log("Started VK server");

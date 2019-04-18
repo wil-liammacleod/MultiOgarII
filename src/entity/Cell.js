@@ -1,8 +1,8 @@
 var Vec2 = require('../modules/Vec2');
 
 class Cell {
-    constructor(gameServer, owner, position, size) {
-        this.gameServer = gameServer;
+    constructor(server, owner, position, size) {
+        this.server = server;
         this.owner = owner; // playerTracker that owns this cell
         this.color = { r: 0, g: 0, b: 0 };
         this.radius = 0;
@@ -15,9 +15,9 @@ class Cell {
         this.isMoving = false; // Indicate that cell is in boosted mode
         this.boostDistance = 0;
         this.boostDirection = new Vec2(1, 0);
-        if (this.gameServer) {
-            this.tickOfBirth = this.gameServer.tickCounter;
-            this.nodeId = this.gameServer.lastNodeId++ >> 0;
+        if (this.server) {
+            this.tickOfBirth = this.server.tickCounter;
+            this.nodeId = this.server.lastNodeId++ >> 0;
             if (size)
                 this.setSize(size);
             if (position)
@@ -36,11 +36,11 @@ class Cell {
     }
     // Returns cell age in ticks for specified game tick
     getAge() {
-        return this.gameServer.tickCounter - this.tickOfBirth;
+        return this.server.tickCounter - this.tickOfBirth;
     }
     // Called to eat prey cell
     onEat(prey) {
-        if (!this.gameServer.config.playerBotGrow) {
+        if (!this.server.config.playerBotGrow) {
             if (this._size >= 250 && prey._size <= 41 && prey.cellType == 0)
                 prey.radius = 0; // Can't grow from players under 17 mass
         }
@@ -51,9 +51,9 @@ class Cell {
         this.boostDirection = new Vec2(Math.sin(angle), Math.cos(angle));
         this.isMoving = true;
         if (!this.owner) {
-            var index = this.gameServer.movingNodes.indexOf(this);
+            var index = this.server.movingNodes.indexOf(this);
             if (index < 0)
-                this.gameServer.movingNodes.push(this);
+                this.server.movingNodes.push(this);
         }
     }
     checkBorder(b) {
@@ -70,8 +70,8 @@ class Cell {
         }
     }
     onEaten(hunter) { }
-    onAdd(gameServer) { }
-    onRemove(gameServer) { }
+    onAdd(server) { }
+    onRemove(server) { }
 }
 
 module.exports = Cell;

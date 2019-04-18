@@ -40,20 +40,20 @@ class Teams extends Mode{
         };
     }
     // Override
-    onPlayerSpawn(gameServer, player) {
+    onPlayerSpawn(server, player) {
         // Random color based on team
         player.color = this.getTeamColor(player.team);
         // Spawn player
-        gameServer.spawnPlayer(player, gameServer.randomPos());
+        server.spawnPlayer(player, server.randomPos());
     }
-    onServerInit(gameServer) {
+    onServerInit(server) {
         // Set up teams
         for (var i = 0; i < this.teamAmount; i++) {
             this.nodes[i] = [];
         }
         // migrate current players to team mode
-        for (var i = 0; i < gameServer.clients.length; i++) {
-            var client = gameServer.clients[i].playerTracker;
+        for (var i = 0; i < server.clients.length; i++) {
+            var client = server.clients[i].playerTracker;
             this.onPlayerInit(client);
             client.color = this.getTeamColor(client.team);
             for (var j = 0; j < client.cells.length; j++) {
@@ -78,7 +78,7 @@ class Teams extends Mode{
             this.nodes[cell.owner.team].splice(index, 1);
         }
     }
-    onCellMove(cell, gameServer) {
+    onCellMove(cell, server) {
         // Find team
         for (var i = 0; i < cell.owner.visibleNodes.length; i++) {
             // Only collide with player cells
@@ -89,7 +89,7 @@ class Teams extends Mode{
             // Collision with teammates
             var team = cell.owner.team;
             if (check.owner.team == team) {
-                var manifold = gameServer.checkCellCollision(cell, check); // Calculation info
+                var manifold = server.checkCellCollision(cell, check); // Calculation info
                 if (manifold != null) { // Collided
                     // Cant eat team members
                     !manifold.check.canEat(manifold.cell);
@@ -97,8 +97,8 @@ class Teams extends Mode{
             }
         }
     }
-    updateLB(gameServer) {
-        gameServer.leaderboardType = this.packetLB;
+    updateLB(server) {
+        server.leaderboardType = this.packetLB;
         var total = 0;
         var teamMass = [];
         // Get mass
@@ -117,13 +117,13 @@ class Teams extends Mode{
         // No players
         if (total <= 0) {
             for (var i = 0; i < this.teamAmount; i++) {
-                gameServer.leaderboard[i] = 0;
+                server.leaderboard[i] = 0;
             }
             return;
         }
         // Calc percentage
         for (var i = 0; i < this.teamAmount; i++) {
-            gameServer.leaderboard[i] = teamMass[i] / total;
+            server.leaderboard[i] = teamMass[i] / total;
         }
     }
 }

@@ -1,20 +1,20 @@
 var Cell = require('./Cell');
 
 class EjectedMass extends Cell {
-    constructor(gameServer, owner, position, size) {
-        super(gameServer, owner, position, size);
+    constructor(server, owner, position, size) {
+        super(server, owner, position, size);
         this.cellType = 3;
     }
     // Main Functions
-    onAdd(gameServer) {
+    onAdd(server) {
         // Add to list of ejected mass
-        gameServer.nodesEjected.push(this);
+        server.nodesEjected.push(this);
     }
-    onRemove(gameServer) {
+    onRemove(server) {
         // Remove from list of ejected mass
-        var index = gameServer.nodesEjected.indexOf(this);
+        var index = server.nodesEjected.indexOf(this);
         if (index != -1) {
-            gameServer.nodesEjected.splice(index, 1);
+            server.nodesEjected.splice(index, 1);
         }
     }
 }

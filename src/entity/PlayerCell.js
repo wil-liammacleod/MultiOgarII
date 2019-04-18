@@ -2,8 +2,8 @@ var Cell = require('./Cell');
 var Packet = require('../packet');
 
 class PlayerCell extends Cell {
-    constructor(gameServer, owner, position, size) {
-        super(gameServer, owner, position, size);
+    constructor(server, owner, position, size) {
+        super(server, owner, position, size);
         this.cellType = 0;
         this._canRemerge = false;
     }
@@ -13,28 +13,28 @@ class PlayerCell extends Cell {
     }
     getSpeed(dist) {
         var speed = 2.2 * Math.pow(this._size, -0.439);
-        speed *= 40 * this.gameServer.config.playerSpeed;
+        speed *= 40 * this.server.config.playerSpeed;
         return Math.min(dist, speed) / dist;
     }
-    onAdd(gameServer) {
+    onAdd(server) {
         // Add to player nodes list
         this.color = this.owner.color;
         this.owner.cells.push(this);
         this.owner.socket.packetHandler.sendPacket(new Packet.AddNode(this.owner, this));
-        this.gameServer.nodesPlayer.unshift(this);
+        this.server.nodesPlayer.unshift(this);
         // Gamemode actions
-        gameServer.gameMode.onCellAdd(this);
+        server.gameMode.onCellAdd(this);
     }
-    onRemove(gameServer) {
+    onRemove(server) {
         // Remove from player cell list
         var index = this.owner.cells.indexOf(this);
         if (index != -1)
             this.owner.cells.splice(index, 1);
-        index = this.gameServer.nodesPlayer.indexOf(this);
+        index = this.server.nodesPlayer.indexOf(this);
         if (index != -1)
-            this.gameServer.nodesPlayer.splice(index, 1);
+            this.server.nodesPlayer.splice(index, 1);
         // Gamemode actions
-        gameServer.gameMode.onCellRemove(this);
+        server.gameMode.onCellRemove(this);
     }
 }
 

@@ -2,8 +2,8 @@ var PlayerTracker = require('../PlayerTracker');
 var Vec2 = require('../modules/Vec2');
 
 class BotPlayer extends PlayerTracker {
-    constructor(gameServer, socket) {
-        super(gameServer, socket);
+    constructor(server, socket) {
+        super(server, socket);
         this.splitCooldown = 0;
     }
     largest(list) {
@@ -17,14 +17,14 @@ class BotPlayer extends PlayerTracker {
     checkConnection() {
         if (this.socket.isCloseRequest) {
             while (this.cells.length) {
-                this.gameServer.removeNode(this.cells[0]);
+                this.server.removeNode(this.cells[0]);
             }
             this.isRemoved = true;
             return;
         }
         // Respawn if bot is dead
         if (!this.cells.length)
-            this.gameServer.gameMode.onPlayerSpawn(this.gameServer, this);
+            this.server.gameMode.onPlayerSpawn(this.server, this);
     }
     sendUpdate() {
         if (this.splitCooldown)
@@ -44,7 +44,7 @@ class BotPlayer extends PlayerTracker {
             var influence = 0;
             if (check.cellType == 0) {
                 // Player cell
-                if (this.gameServer.gameMode.haveTeams && cell.owner.team == check.owner.team) {
+                if (this.server.gameMode.haveTeams && cell.owner.team == check.owner.team) {
                     // Same team cell
                     influence = 0;
                 }
@@ -68,7 +68,7 @@ class BotPlayer extends PlayerTracker {
                 // Virus/Mothercell
                 if (cell._size > check._size * 1.15) {
                     // Can eat it
-                    if (this.cells.length == this.gameServer.config.playerMaxCells) {
+                    if (this.cells.length == this.server.config.playerMaxCells) {
                         // Won't explode
                         influence = check._size * 2.5;
                     }

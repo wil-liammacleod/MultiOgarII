@@ -3,8 +3,8 @@ var Food = require('./Food');
 var Virus = require('./Virus');
 
 class MotherCell extends Virus{
-    constructor(gameServer, owner, position, size) {
-        super(gameServer, owner, position, size);
+    constructor(server, owner, position, size) {
+        super(server, owner, position, size);
         this.cellType = 2;
         this.isSpiked = true;
         this.isMotherCell = true; // Not to confuse bots
@@ -16,7 +16,7 @@ class MotherCell extends Virus{
         }
     }
     canEat(cell) {
-        var maxMass = this.gameServer.config.motherCellMaxMass;
+        var maxMass = this.server.config.motherCellMaxMass;
         if (maxMass && this._mass >= maxMass)
             return false;
         return cell.cellType == 0 || // can eat player cell
@@ -28,7 +28,7 @@ class MotherCell extends Virus{
             return;
         }
         var size1 = this._size;
-        var size2 = this.gameServer.config.foodMinSize;
+        var size2 = this.server.config.foodMinSize;
         for (var i = 0; i < this.motherCellSpawnAmount; i++) {
             size1 = Math.sqrt(size1 * size1 - (size2 * size2) * 2);
             size1 = Math.max(size1, this.motherCellMinSize);
@@ -40,14 +40,14 @@ class MotherCell extends Virus{
                 y: this.position.y + size1 * Math.cos(angle)
             };
             // Spawn food
-            var food = new Food(this.gameServer, null, pos, size2);
-            food.color = this.gameServer.getRandomColor();
+            var food = new Food(this.server, null, pos, size2);
+            food.color = this.server.getRandomColor();
             food.overrideReuse = true;
-            this.gameServer.addNode(food);
+            this.server.addNode(food);
             // Eject to random distance
             food.setBoost(32 + 42 * Math.random(), angle);
         }
-        this.gameServer.updateNodeQuad(this);
+        this.server.updateNodeQuad(this);
     }
 }
 
