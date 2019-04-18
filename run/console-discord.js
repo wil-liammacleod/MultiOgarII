@@ -17,7 +17,7 @@ class Bot {
     };
     onMessage(message) {
         const args = message.content.split(/\s+/g);
-        var execute = Commands.list[args[0]];
+        var execute = Commands[args[0]];
         if (typeof execute != 'undefined' && message.member.roles.some(r => [config.role].includes(r.name))) {
             execute(index.gameServer, args);
             message.delete();

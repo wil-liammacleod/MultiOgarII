@@ -1,54 +1,17 @@
 var Logger = require('./Logger');
 var UserRoleEnum = require("../enum/UserRoleEnum");
 
-function PlayerCommand(gameServer, playerTracker) {
-    this.gameServer = gameServer;
-    this.playerTracker = playerTracker;
-}
-
-module.exports = PlayerCommand;
-
-PlayerCommand.prototype.writeLine = function(text) {
-    this.gameServer.sendChatMessage(null, this.playerTracker, text);
-};
-
-
-PlayerCommand.prototype.executeCommandLine = function(commandLine) {
-    if (!commandLine) return;
-
-    // Splits the string
-    var args = commandLine.split(" ");
-
-    // Process the first string value
-    var first = args[0].toLowerCase();
-
-    // Get command function
-    var execute = playerCommands[first];
-    if (typeof execute != 'undefined') {
-        execute.bind(this)(args);
-    } else {
-        this.writeLine("ERROR: Unknown command, type /help for command list");
+class PlayerCommand {
+    constructor(gameServer, playerTracker) {
+        this.gameServer = gameServer;
+        this.playerTracker = playerTracker;
     }
-};
 
-
-PlayerCommand.prototype.userLogin = function(ip, password) {
-    if (!password) return null;
-    password = password.trim();
-    if (!password) return null;
-    for (var i = 0; i < this.gameServer.userList.length; i++) {
-        var user = this.gameServer.userList[i];
-        if (user.password != password)
-            continue;
-        if (user.ip && user.ip != ip && user.ip != "*") // * - means any IP
-            continue;
-        return user;
+    writeLine(text) {
+        this.gameServer.sendChatMessage(null, this.playerTracker, text);
     }
-    return null;
-};
 
-var playerCommands = {
-    help: function(args) {
+    help(args) {
         if (this.playerTracker.userRole == UserRoleEnum.MODER) {
             this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             this.writeLine("/skin %shark - change skin");
@@ -84,14 +47,14 @@ var playerCommands = {
             this.writeLine("/help - this command list");
             this.writeLine("/id - Gets your playerID");
             this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-        }
-    },
+        };
+    };
 
-
-    id: function(args) {
+    id(args) {
         this.writeLine("Your PlayerID is " + this.playerTracker.pID);
-    },
-    skin: function(args) {
+    };
+
+    skin(args) {
         if (this.playerTracker.cells.length) {
             this.writeLine("ERROR: Cannot change skin while player in game!");
             return;
@@ -103,8 +66,9 @@ var playerCommands = {
             this.writeLine("Your skin was removed");
         else
             this.writeLine("Your skin set to " + skinName);
-    },
-    kill: function(args) {
+    };
+
+    kill(args) {
         if (!this.playerTracker.cells.length) {
             this.writeLine("You cannot kill yourself, because you're still not joined to the game!");
             return;
@@ -119,9 +83,9 @@ var playerCommands = {
             this.gameServer.addNode(food);
         }
         this.writeLine("You killed yourself");
-    },
+    };
 
-    killall: function(args) {
+    killall(args) {
         if (this.playerTracker.userRole != UserRoleEnum.ADMIN && this.playerTracker.userRole != UserRoleEnum.MODER) {
             this.writeLine("ERROR: access denied!");
             return;
@@ -136,9 +100,9 @@ var playerCommands = {
             }
         }
         this.writeLine("You killed everyone. (" + count + (" cells.)"));
-    },
+    };
 
-    mass: function(args) {
+    mass(args) {
         if (this.playerTracker.userRole != UserRoleEnum.ADMIN && this.playerTracker.userRole != UserRoleEnum.MODER) {
             this.writeLine("ERROR: access denied!");
             return;
@@ -172,9 +136,9 @@ var playerCommands = {
                 }
             }
         }
+    };
 
-    },
-    spawnmass: function(args) {
+    spawnmass(args) {
         if (this.playerTracker.userRole != UserRoleEnum.ADMIN) {
             this.writeLine("ERROR: access denied!");
             return;
@@ -202,9 +166,10 @@ var playerCommands = {
                     this.gameServer.sendChatMessage(null, client, text);
                 }
             }
-        }
-    },
-    minion: function(args) {
+        };
+    };
+
+    mass(args) {
         if (this.playerTracker.userRole != UserRoleEnum.ADMIN && this.playerTracker.userRole != UserRoleEnum.MODER) {
             this.writeLine("ERROR: access denied!");
             return;
@@ -286,8 +251,9 @@ var playerCommands = {
                 }
             }
         }
-    },
-    addbot: function(args) {
+    };
+
+    addbot(args) {
         var add = parseInt(args[1]);
         if (this.playerTracker.userRole != UserRoleEnum.ADMIN) {
             this.writeLine("ERROR: access denied!");
@@ -298,8 +264,9 @@ var playerCommands = {
         }
         Logger.warn(this.playerTracker.socket.remoteAddress + "ADDED " + add + " BOTS");
         this.writeLine("Added " + add + " Bots");
-    },
-    status: function(args) {
+    };
+
+    status(args) {
         if (this.playerTracker.userRole != UserRoleEnum.ADMIN && this.playerTracker.userRole != UserRoleEnum.MODER) {
             this.writeLine("ERROR: access denied!");
             return;
@@ -323,14 +290,29 @@ var playerCommands = {
         this.writeLine("Current game mode: " + this.gameServer.gameMode.name);
         this.writeLine("Current update time: " + this.gameServer.updateTimeAvg.toFixed(3) + " [ms]  (" + ini.getLagMessage(this.gameServer.updateTimeAvg) + ")");
         this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-    },
-    login: function(args) {
+    };
+
+    login(args) {
         var password = args[1] + "";
         if (password.length < 1) {
             this.writeLine("ERROR: missing password argument!");
             return;
         }
-        var user = this.userLogin(this.playerTracker.socket.remoteAddress, password);
+
+        let user = null;
+        if (!password)
+            user = null;
+        password = password.trim();
+        if (!password)
+            user = null;
+        for (var i = 0; i < this.gameServer.userList.length; i++) {
+            user = this.gameServer.userList[i];
+            if (user.password != password)
+                continue;
+            if (user.ip && user.ip != ip && user.ip != "*") // * - means any IP
+                continue;
+        }
+
         if (!user) {
             this.writeLine("ERROR: login failed!");
             return;
@@ -340,8 +322,9 @@ var playerCommands = {
         this.playerTracker.userAuth = user.name;
         this.writeLine("Login done as \"" + user.name + "\"");
         return;
-    },
-    logout: function(args) {
+    };
+
+    logout(args) {
         if (this.playerTracker.userRole == UserRoleEnum.GUEST) {
             this.writeLine("ERROR: not logged in");
             return;
@@ -350,21 +333,25 @@ var playerCommands = {
         this.playerTracker.userRole = UserRoleEnum.GUEST;
         this.playerTracker.userAuth = null;
         this.writeLine("Logout done");
-    },
-    shutdown: function(args) {
+    };
+
+    shutdown(args) {
         if (this.playerTracker.userRole != UserRoleEnum.ADMIN) {
             this.writeLine("ERROR: access denied!");
             return;
         }
         Logger.warn("SHUTDOWN REQUEST FROM " + this.playerTracker.socket.remoteAddress + " as " + this.playerTracker.userAuth);
         process.exit(0);
-    },
-    restart: function(args) {
+    };
+
+    restart(args) {
         if (this.playerTracker.userRole != UserRoleEnum.ADMIN) {
             this.writeLine("ERROR: access denied!");
             return;
         }
         Logger.warn("RESTART REQUEST FROM " + this.playerTracker.socket.remoteAddress + " as " + this.playerTracker.userAuth);
         process.exit(3);
-    }
+    };
 };
+
+module.exports = PlayerCommand;
