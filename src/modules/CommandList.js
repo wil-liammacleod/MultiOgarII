@@ -497,13 +497,13 @@ class CommandsList {
     };
 
     kickall(server, split) {
-        this.id = 0; //kick ALL players
+        let id = 0; //kick ALL players
         // kick player
         var count = 0;
         server.clients.forEach(function (socket) {
             if (socket.isConnected === false)
                 return;
-            if (this.id != 0 && socket.playerTracker.pID != this.id)
+            if (id != 0 && socket.playerTracker.pID != id)
                 return;
             // remove player cells
             Commands.list.killall(server, split);
@@ -516,18 +516,18 @@ class CommandsList {
         }, this);
 
         if (count) return;
-        if (!this.id) Logger.warn("No players to kick!");
-        else Logger.warn("That player ID (" + this.id + ") is non-existant!");
+        if (!id) Logger.warn("No players to kick!");
+        else Logger.warn("That player ID (" + id + ") is non-existant!");
     };
 
     kill(server, split) {
-        this.id = 0; //kick ALL players
+        let id = split[0]; //kick ALL players
         // kick player
         var count = 0;
         server.clients.forEach(function (socket) {
             if (socket.isConnected === false)
                 return;
-            if (this.id != 0 && socket.playerTracker.pID != this.id)
+            if (id != 0 && socket.playerTracker.pID != id)
                 return;
             // remove player cells
             Commands.list.killall(server, split);
@@ -540,8 +540,8 @@ class CommandsList {
         }, this);
 
         if (count) return;
-        if (!this.id) Logger.warn("No players to kick!");
-        else Logger.warn("That player ID (" + this.id + ") is non-existant!");
+        if (!id) Logger.warn("No players to kick!");
+        else Logger.warn("That player ID (" + id + ") is non-existant!");
     };
 
     killall(server, split) {
@@ -552,8 +552,13 @@ class CommandsList {
                 server.removeNode(playerTracker.cells[0]);
                 count++;
             }
+        };
+
+        if(count > 0) {
+            Logger.print("Removed " + count + " cells");
+        } else {
+            Logger.warn("There are currently no players in-game.")
         }
-        if (this.id) Logger.print("Removed " + count + " cells");    
     };
 
     mass(server, split) {
