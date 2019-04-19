@@ -4,7 +4,7 @@ class Virus extends Cell {
     constructor(server, owner, position, size) {
         super(server, owner, position, size);
         this.type = 2;
-        this.isSpiked = true;
+        this.isVirus = true;
         this.isMotherCell = false; // Not to confuse bots
         this.color = {
             r: 0x33,
