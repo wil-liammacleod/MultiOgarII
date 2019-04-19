@@ -1,10 +1,11 @@
-var Cell = require('./Cell');
-var Food = require('./Food');
-var Virus = require('./Virus');
+const Cell = require('./Cell');
+const Food = require('./Food');
+const Virus = require('./Virus');
 
 class MotherCell extends Virus {
     constructor(server, owner, position, size) {
         super(server, owner, position, size);
+        this.onEat = Cell.prototype.onEat;
         
         this.type = 2;
         this.isVirus = true;
@@ -31,7 +32,7 @@ class MotherCell extends Virus {
             cell.type == 2 || // can eat virus
             cell.type == 3; // can eat ejected mass
     };
-
+        
     onUpdate() {
         if (this._size == this.motherCellMinSize) {
             return;
