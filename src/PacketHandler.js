@@ -60,7 +60,6 @@ class PacketHandler {
             22: this.message_onKeyE.bind(this),
             23: this.message_onKeyR.bind(this),
             24: this.message_onKeyT.bind(this),
-            25: this.message_onKeyP.bind(this),
             99: this.message_onChat.bind(this),
             254: this.message_onStat.bind(this),
         };
