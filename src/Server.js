@@ -125,7 +125,6 @@ class Server {
             disableERTP: 1,
             disableQ: 0,
             serverMinions: 0,
-            collectPellets: 0,
             defaultName: "minion",
             minionsOnLeaderboard: 0,
             /** TOURNAMENT **/
@@ -326,7 +325,6 @@ class Server {
         if (this.config.serverMinions && !ws.playerTracker.isMinion) {
             for (var i = 0; i < this.config.serverMinions; i++) {
                 this.bots.addMinion(ws.playerTracker);
-                ws.playerTracker.minionControl = true;
             }
         }
     }

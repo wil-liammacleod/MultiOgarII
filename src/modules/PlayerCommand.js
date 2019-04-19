@@ -194,13 +194,11 @@ class PlayerCommand {
                 mass = this.server.config.minionMaxStartSize * this.server.config.minionMaxStartSize / 100;
             }
             // Remove minions
-            if (player.minionControl == true && add == "remove") {
-                player.minionControl = false;
-                player.miQ = 0;
+            if (add == "remove") {
+                player.miQ = false;
                 this.writeLine("Succesfully removed minions for " + player._name);
                 // Add minions
             } else {
-                player.minionControl = true;
                 // Add minions for self
                 if (isNaN(parseInt(add))) add = 1;
                 for (var i = 0; i < add; i++) {
@@ -230,15 +228,13 @@ class PlayerCommand {
                         mass = this.server.config.minionMaxStartSize * this.server.config.minionMaxStartSize / 100;
                     }
                     // Remove minions
-                    if (client.minionControl == true && add == "remove") {
-                        client.minionControl = false;
-                        client.miQ = 0;
+                    if (add == "remove") {
+                        client.miQ = false;
                         this.writeLine("Succesfully removed minions for " + client._name);
                         var text = this.playerTracker._name + " removed all off your minions.";
                         this.server.sendChatMessage(null, client, text);
                         // Add minions
                     } else {
-                        client.minionControl = true;
                         // Add minions for client
                         if (isNaN(add)) add = 1;
                         for (var i = 0; i < add; i++) {

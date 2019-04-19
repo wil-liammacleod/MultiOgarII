@@ -124,7 +124,7 @@ class PacketHandler {
             return;
         }
         this.lastQTick = tick;
-        if (this.socket.playerTracker.minionControl && !this.server.config.disableQ) {
+        if (!this.server.config.disableQ) {
             this.socket.playerTracker.miQ = !this.socket.playerTracker.miQ;
         }
         else {
@@ -155,13 +155,6 @@ class PacketHandler {
         if (this.server.config.disableERTP)
             return;
         this.socket.playerTracker.minionFrozen = !this.socket.playerTracker.minionFrozen;
-    }
-    message_onKeyP(message) {
-        if (this.server.config.disableERTP)
-            return;
-        if (this.server.config.collectPellets) {
-            this.socket.playerTracker.collectPellets = !this.socket.playerTracker.collectPellets;
-        }
     }
     message_onChat(message) {
         if (message.length < 3)

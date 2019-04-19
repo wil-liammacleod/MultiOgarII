@@ -159,13 +159,11 @@ class CommandsList {
                 };
 
                 // Remove minions
-                if (client.minionControl === true && isNaN(add)) {
-                    client.minionControl = false;
-                    client.miQ = 0;
+                if (isNaN(add)) {
+                    client.miQ = false;
                     Logger.print("Successfully removed minions for " + getName(client._name));
                     // Add minions
                 } else {
-                    client.minionControl = true;
                     // Add minions for client
                     if (isNaN(add)) add = 1;
                     for (var i = 0; i < add; i++) {

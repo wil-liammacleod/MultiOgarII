@@ -51,13 +51,11 @@ class PlayerTracker {
         this.customspeed = 0;
         this.rec = false;
         // Minions
-        this.miQ = 0;
+        this.miQ = false;
         this.isMi = false;
         this.minionSplit = false;
         this.minionEject = false;
         this.minionFrozen = false;
-        this.minionControl = false;
-        this.collectPellets = false;
         // Gamemode function
         if (server) {
             // Player id
