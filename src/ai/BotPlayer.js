@@ -4,128 +4,136 @@ var Vec2 = require('../modules/Vec2');
 class BotPlayer extends PlayerTracker {
     constructor(server, socket) {
         super(server, socket);
-        this.splitCooldown = 0;
-    }
+        this.influence = 0;
+    };
+
     largest(list) {
-        // Sort the cells by Array.sort() function to avoid errors
-        var sorted = list.valueOf();
-        sorted.sort(function (a, b) {
-            return b._size - a._size;
-        });
-        return sorted[0];
-    }
+        return list.sort((a, b) => {
+            return b._size - a._size
+        })[0];
+    };
+
     checkConnection() {
-        if (this.socket.isCloseRequest) {
-            while (this.cells.length) {
-                this.server.removeNode(this.cells[0]);
-            }
-            this.isRemoved = true;
-            return;
-        }
         // Respawn if bot is dead
         if (!this.cells.length)
             this.server.gameMode.onPlayerSpawn(this.server, this);
-    }
+    };
+
     sendUpdate() {
-        if (this.splitCooldown)
-            this.splitCooldown--;
-        this.decide(this.largest(this.cells)); // Action
-    }
-    // Custom
+        this.decide(this.largest(this.cells));
+    };
+
     decide(cell) {
         if (!cell)
-            return; // Cell was eaten, check in the next tick (I'm too lazy)
-        var result = new Vec2(0, 0); // For splitting
-        for (var i = 0; i < this.viewNodes.length; i++) {
-            var check = this.viewNodes[i];
-            if (check.owner == this)
+            return;
+
+        const result = new Vec2(0, 0);
+
+        for (let i = 0; i < this.viewNodes.length; i++) {
+            const node = this.viewNodes[i];
+            if (node.owner == this)
                 continue;
-            // Get attraction of the cells - avoid larger cells, viruses and same team cells
-            var influence = 0;
-            if (check.cellType == 0) {
-                // Player cell
-                if (this.server.gameMode.haveTeams && cell.owner.team == check.owner.team) {
-                    // Same team cell
-                    influence = 0;
-                }
-                else if (cell._size > check._size * 1.15) {
-                    // Can eat it
-                    influence = check._size * 2.5;
-                }
-                else if (check._size > cell._size * 1.15) {
-                    // Can eat me
-                    influence = -check._size;
-                }
-                else {
-                    influence = -(check._size / cell._size) / 3;
-                }
+
+            // Make decisions
+            switch (node.type) {
+                case 0:
+                    // Player cells
+                    this.decidePlayer(node, cell);
+                    break;
+                case 1:
+                    // Food cells
+                    this.decideFood();
+                    break;
+                case 2:
+                    // Virus cells and its derivatives
+                    this.decideVirus(node, cell);
+                    break;
+                case 3:
+                    // Ejected cells
+                    this.decideEjected(node, cell);
+                    break
             }
-            else if (check.cellType == 1) {
-                // Food
-                influence = 1;
-            }
-            else if (check.cellType == 2) {
-                // Virus/Mothercell
-                if (cell._size > check._size * 1.15) {
-                    // Can eat it
-                    if (this.cells.length == this.server.config.playerMaxCells) {
-                        // Won't explode
-                        influence = check._size * 2.5;
-                    }
-                    else {
-                        // Can explode
-                        influence = -1;
-                    }
-                }
-                else if (check.isMotherCell && check._size > cell._size * 1.15) {
-                    // can eat me
-                    influence = -1;
-                }
-            }
-            else if (check.cellType == 3) {
-                // Ejected mass
-                if (cell._size > check._size * 1.15)
-                    // can eat
-                    influence = check._size;
-            }
-            // Apply influence if it isn't 0
-            if (influence == 0)
+
+            // Conclude decisions
+            // Apply this.influence if it isn't 0
+            if (this.influence == 0)
                 continue;
-            // Calculate separation between cell and check
-            var displacement = new Vec2(check.position.x - cell.position.x, check.position.y - cell.position.y);
+
+            // Calculate separation between cell and node
+            const displacement = new Vec2(node.position.x - cell.position.x, node.position.y - cell.position.y);
+
             // Figure out distance between cells
-            var distance = displacement.sqDist();
-            if (influence < 0) {
+            let distance = displacement.sqDist();
+
+            if (this.influence < 0) {
                 // Get edge distance
-                distance -= cell._size + check._size;
-            }
-            // The farther they are the smaller influnce it is
+                distance -= cell._size + node._size;
+            };
+
+            // The farther they are the smaller influence it is
             if (distance < 1)
-                distance = 1; // Avoid NaN and positive influence with negative distance & attraction
-            influence /= distance;
+                distance = 1;
+
+            this.influence /= distance;
+
             // Splitting conditions
-            if (check.cellType == 0 && cell._size > check._size * 1.15
-                && !this.splitCooldown && this.cells.length < 8 &&
-                820 - cell._size / 2 - check._size >= distance) {
+            if (node.type != 1 && cell._size > node._size * 1.5 &&
+                !this.splitCooldown && this.cells.length < 8 &&
+                (300 + Math.floor(Math.random() * 200 - 100)) - cell._size / 2 - node._size >= distance) {
                 // Splitkill the target
                 this.splitCooldown = 15;
-                this.mouse = check.position.clone();
+                this.mouse = node.position.clone();
                 this.socket.packetHandler.pressSpace = true;
                 return;
-            }
-            else
+            } else {
                 // Produce force vector exerted by this entity on the cell
-                result.add(displacement.normalize(), influence);
-        }
+                result.add(displacement.normalize(), this.influence);
+            };
+        };
+
         // Set bot's mouse position
-        this.mouse = new Vec2(cell.position.x + result.x * 800, cell.position.y + result.y * 800);
-    }
-}
+        this.mouse = new Vec2(cell.position.x + result.x * 900, cell.position.y + result.y * 900);
+    };
+
+    decidePlayer(node, cell) {
+        // Same team, don't eat
+        if (this.server.gameMode.haveTeams && cell.owner.team == node.owner.team) {
+            this.influence = 0;
+        } else if (cell._size > node._size * 1.15) {
+            // Eadible
+            this.influence = node._size * 2.5;
+        } else if (node._size > cell._size * 1.15) {
+            // Bigger, avoid
+            this.influence = -node._size;
+        } else {
+            this.influence = -(node._size / cell._size) / 3;
+        }
+    };
+
+    decideFood() {
+        // Always eadible
+        this.influence = 1;
+    };
+
+    decideEjected(node, cell) {
+        if (cell._size > node._size * 1.15)
+            this.influence = node._size;
+    };
+
+    decideVirus(node, cell) {
+        if (cell._size > node._size * 1.15) {
+            // Eadible
+            if (this.cells.length == this.server.config.playerMaxCells) {
+                // Reached cell limit, won't explode
+                this.influence = node._size * 2.5;
+            } else {
+                // Will explode, avoid
+                this.influence = -1;
+            }
+        } else if (node.isMotherCell && node._size > cell._size * 1.15) {
+            // Avoid mother cell if bigger than player
+            this.influence = -1;
+        }
+    };
+};
 module.exports = BotPlayer;
-BotPlayer.prototype = new PlayerTracker();
-
-
-
-
-
-
