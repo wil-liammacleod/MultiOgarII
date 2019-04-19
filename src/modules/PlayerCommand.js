@@ -287,7 +287,7 @@ class PlayerCommand {
         this.writeLine("Players: " + humans + " - Bots: " + bots);
         this.writeLine("Server has been running for " + Math.floor(process.uptime() / 60) + " minutes");
         this.writeLine("Current memory usage: " + Math.round(process.memoryUsage().heapUsed / 1048576 * 10) / 10 + "/" + Math.round(process.memoryUsage().heapTotal / 1048576 * 10) / 10 + " mb");
-        this.writeLine("Current game mode: " + this.server.gameMode.name);
+        this.writeLine("Current game mode: " + this.server.mode.name);
         this.writeLine("Current update time: " + this.server.updateTimeAvg.toFixed(3) + " [ms]  (" + ini.getLagMessage(this.server.updateTimeAvg) + ")");
         this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     };

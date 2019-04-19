@@ -63,7 +63,7 @@ class PlayerTracker {
             // Player id
             this.pID = server.lastPlayerId++ >> 0;
             // Gamemode function
-            server.gameMode.onPlayerInit(this);
+            server.mode.onPlayerInit(this);
             // Only scramble if enabled in config
             this.scramble();
         }
@@ -160,7 +160,7 @@ class PlayerTracker {
                 packetHandler.sendPacket(new Packet.SetBorder(this, border));
             }
         }
-        this.server.gameMode.onPlayerSpawn(this.server, this);
+        this.server.mode.onPlayerSpawn(this.server, this);
     }
     checkConnection() {
         // Handle disconnection

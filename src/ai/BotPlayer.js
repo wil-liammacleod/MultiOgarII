@@ -16,7 +16,7 @@ class BotPlayer extends PlayerTracker {
     checkConnection() {
         // Respawn if bot is dead
         if (!this.cells.length)
-            this.server.gameMode.onPlayerSpawn(this.server, this);
+            this.server.mode.onPlayerSpawn(this.server, this);
     };
 
     sendUpdate() {
@@ -97,7 +97,7 @@ class BotPlayer extends PlayerTracker {
 
     decidePlayer(node, cell) {
         // Same team, don't eat
-        if (this.server.gameMode.haveTeams && cell.owner.team == node.owner.team) {
+        if (this.server.mode.haveTeams && cell.owner.team == node.owner.team) {
             this.influence = 0;
         } else if (cell._size > node._size * 1.15) {
             // Eadible

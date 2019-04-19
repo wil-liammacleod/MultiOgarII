@@ -286,9 +286,9 @@ class CommandsList {
         }
 
         // Clears the update leaderboard function and replaces it with our own
-        server.gameMode.packetLB = 48;
-        server.gameMode.specByLeaderboard = false;
-        server.gameMode.updateLB = function (server) {
+        server.mode.packetLB = 48;
+        server.mode.specByLeaderboard = false;
+        server.mode.updateLB = function (server) {
             server.leaderboard = newLB;
             server.leaderboardType = 48;
         };
@@ -297,11 +297,11 @@ class CommandsList {
             Logger.print('Do "board reset" to reset leaderboard');
         } else {
             // Gets the current gamemode
-            var gm = GameMode.get(server.gameMode.ID);
+            var gm = GameMode.get(server.mode.ID);
 
             // Replace functions
-            server.gameMode.packetLB = gm.packetLB;
-            server.gameMode.updateLB = gm.updateLB;
+            server.mode.packetLB = gm.packetLB;
+            server.mode.updateLB = gm.updateLB;
             Logger.print("Successfully reset leaderboard");
         };
     };
@@ -352,7 +352,7 @@ class CommandsList {
 
         Logger.info("\u001B[1m\u001B[32mMultiOgar-Edited " + server.version + "\u001B[37m - An open source multi-protocol ogar server\u001B[0m");
         Logger.info("Listening on port " + server.config.serverPort);
-        Logger.info("Current game mode is " + server.gameMode.name + "\n");
+        Logger.info("Current game mode is " + server.mode.name + "\n");
     };
 
     color(server, split) {
@@ -911,7 +911,7 @@ class CommandsList {
         }) / scores.length).toFixed(2));
         Logger.print("Server has been running for a total of" + Math.floor(process.uptime() / 60) + " minutes");
         Logger.print("Current memory usage: " + Math.round(process.memoryUsage().heapUsed / 1048576 * 10) / 10 + "/" + Math.round(process.memoryUsage().heapTotal / 1048576 * 10) / 10 + " mb");
-        Logger.print("Current game mode: " + server.gameMode.name);
+        Logger.print("Current game mode: " + server.mode.name);
         Logger.print("Current update time: " + server.updateTimeAvg.toFixed(3) + " [ms]  (" + ini.getLagMessage(server.updateTimeAvg) + ")");
     };
 

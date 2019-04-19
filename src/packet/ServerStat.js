@@ -20,7 +20,7 @@ class ServerStat {
         }
         var obj = {
             'name': server.config.serverName,
-            'mode': server.gameMode.name,
+            'mode': server.mode.name,
             'uptime': Math.round((server.stepDateTime - server.startTime) / 1000),
             'update': server.updateTimeAvg.toFixed(3),
             'playersTotal': totalPlayers,

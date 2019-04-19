@@ -152,8 +152,8 @@ class Server {
         this.mainLoopBind = this.mainLoop.bind(this);
         // Set up gamemode(s)
         var Gamemode = require('./gamemodes');
-        this.gameMode = Gamemode.get(this.config.serverGamemode);
-        this.gameMode.onServerInit(this);
+        this.mode = Gamemode.get(this.config.serverGamemode);
+        this.mode.onServerInit(this);
         // Client Binding
         var bind = this.config.clientBind + "";
         this.clientBind = bind.split(' - ');
@@ -180,7 +180,7 @@ class Server {
         setTimeout(this.timerLoopBind, 1);
         // Done
         Logger.info("Listening on port " + this.config.serverPort);
-        Logger.info("Current game mode is " + this.gameMode.name);
+        Logger.info("Current game mode is " + this.mode.name);
         // Player bots (Experimental)
         if (this.config.serverBots) {
             for (var i = 0; i < this.config.serverBots; i++)
@@ -435,8 +435,8 @@ class Server {
         // Update leaderboard with the gamemode's method
         this.leaderboard = [];
         this.leaderboardType = -1;
-        this.gameMode.updateLB(this, this.leaderboard);
-        if (!this.gameMode.specByLeaderboard) {
+        this.mode.updateLB(this, this.leaderboard);
+        if (!this.mode.specByLeaderboard) {
             // Get client with largest score if gamemode doesn't have a leaderboard
             var clients = this.clients.valueOf();
             // Use sort function
@@ -448,7 +448,7 @@ class Server {
                 this.largestClient = clients[0].playerTracker;
         }
         else {
-            this.largestClient = this.gameMode.rankOne;
+            this.largestClient = this.mode.rankOne;
         }
     }
     onChatMessage(from, to, message) {
@@ -504,7 +504,7 @@ class Server {
                 continue;
             if (!to || to == this.clients[i].playerTracker) {
                 var Packet = require('./packet');
-                if (this.config.separateChatForTeams && this.gameMode.haveTeams) {
+                if (this.config.separateChatForTeams && this.mode.haveTeams) {
                     //  from equals null if message from server
                     if (from == null || from.team === this.clients[i].playerTracker.team) {
                         this.clients[i].packetHandler.sendPacket(new Packet.ChatMessage(from, message));
@@ -614,10 +614,10 @@ class Server {
             eatCollisions.forEach((m) => {
                 this.resolveCollision(m);
             });
-            this.gameMode.onTick(this);
+            this.mode.onTick(this);
             this.tickCounter++;
         }
-        if (!this.run && this.gameMode.IsTournament)
+        if (!this.run && this.mode.IsTournament)
             this.tickCounter++;
         this.updateClients();
         // update leaderboard
@@ -658,7 +658,7 @@ class Server {
         // remove size from cell at decay rate
         if (cap && cell._mass > cap)
             rate *= 10;
-        var decay = 1 - rate * this.gameMode.decayMod;
+        var decay = 1 - rate * this.mode.decayMod;
         cell.setSize(Math.sqrt(cell.radius * decay));
     }
     boostCell(cell) {
@@ -721,12 +721,12 @@ class Server {
             return false;
         if (m.cell.owner != m.check.owner) {
             // Minions don't collide with their team when the config value is 0
-            if (this.gameMode.haveTeams && m.check.owner.isMi || m.cell.owner.isMi && this.config.minionCollideTeam === 0) {
+            if (this.mode.haveTeams && m.check.owner.isMi || m.cell.owner.isMi && this.config.minionCollideTeam === 0) {
                 return false;
             }
             else {
                 // Different owners => same team
-                return this.gameMode.haveTeams &&
+                return this.mode.haveTeams &&
                     m.cell.owner.team == m.check.owner.team;
             }
         }
@@ -1095,7 +1095,7 @@ class Server {
             'server_chat': this.config.serverChat ? "true" : "false",
             'border_width': this.border.width,
             'border_height': this.border.height,
-            'gamemode': this.gameMode.name,
+            'gamemode': this.mode.name,
             'max_players': this.config.serverMaxConnections,
             'current_players': totalPlayers,
             'alive': alivePlayers,
@@ -1136,7 +1136,7 @@ class Server {
             '&spectators=' + spectatePlayers +
             '&max_players=' + this.config.serverMaxConnections +
             '&sport=' + this.config.serverPort +
-            '&gamemode=[**] ' + this.gameMode.name + // we add [**] to indicate that this is MultiOgar-Edited server
+            '&gamemode=[**] ' + this.mode.name + // we add [**] to indicate that this is MultiOgar-Edited server
             '&agario=true' + // protocol version
             '&name=Unnamed Server' + // we cannot use it, because other value will be used as dns name
             '&opp=' + os.platform() + ' ' + os.arch() + // "win32 x64"

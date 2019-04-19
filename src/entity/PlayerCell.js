@@ -23,7 +23,7 @@ class PlayerCell extends Cell {
         this.owner.socket.packetHandler.sendPacket(new Packet.AddNode(this.owner, this));
         this.server.nodesPlayer.unshift(this);
         // Gamemode actions
-        server.gameMode.onCellAdd(this);
+        server.mode.onCellAdd(this);
     }
     onRemove(server) {
         // Remove from player cell list
@@ -34,7 +34,7 @@ class PlayerCell extends Cell {
         if (index != -1)
             this.server.nodesPlayer.splice(index, 1);
         // Gamemode actions
-        server.gameMode.onCellRemove(this);
+        server.mode.onCellRemove(this);
     }
 }
 
