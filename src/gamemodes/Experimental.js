@@ -45,7 +45,7 @@ class Experimental extends FFA {
     }
     onTick(server) {
         // Mother Cell Spawning
-        if ((server.tickCounter % this.motherSpawnInterval) === 0) {
+        if ((server.ticks % this.motherSpawnInterval) === 0) {
             this.spawnMotherCell(server);
         }
         var updateInterval;
@@ -55,7 +55,7 @@ class Experimental extends FFA {
                 updateInterval = Math.random() * (50 - 25) + 25;
             else
                 updateInterval = 2;
-            if ((server.tickCounter % ~~updateInterval) === 0) {
+            if ((server.ticks % ~~updateInterval) === 0) {
                 motherCell.onUpdate();
             }
         }

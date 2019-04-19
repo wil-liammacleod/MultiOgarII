@@ -38,7 +38,7 @@ class Server {
         this.updateTimeAvg = 0;
         this.timerLoopBind = null;
         this.mainLoopBind = null;
-        this.tickCounter = 0;
+        this.ticks = 0;
         this.disableSpawn = false;
         // Config
         this.config = {
@@ -535,7 +535,7 @@ class Server {
         var tStart = process.hrtime();
         var self = this;
         // Restart
-        if (this.tickCounter > this.config.serverRestart) {
+        if (this.ticks > this.config.serverRestart) {
             var QuadNode = require('./modules/QuadNode.js');
             this.httpServer = null;
             this.wsServer = null;
@@ -560,7 +560,7 @@ class Server {
             }
             ;
             this.commands;
-            this.tickCounter = 0;
+            this.ticks = 0;
             this.startTime = Date.now();
             this.setBorder(this.config.borderWidth, this.config.borderHeight);
             this.quadTree = new QuadNode(this.border, 64, 32);
@@ -601,7 +601,7 @@ class Server {
                 this.boostCell(cell);
                 this.autoSplit(cell, cell.owner);
                 // Decay player cells once per second
-                if (((this.tickCounter + 3) % 25) === 0)
+                if (((this.ticks + 3) % 25) === 0)
                     this.updateSizeDecay(cell);
                 // Remove external minions if necessary
                 if (cell.owner.isMinion) {
@@ -613,16 +613,16 @@ class Server {
                 this.resolveCollision(m);
             });
             this.mode.onTick(this);
-            this.tickCounter++;
+            this.ticks++;
         }
         if (!this.run && this.mode.IsTournament)
-            this.tickCounter++;
+            this.ticks++;
         this.updateClients();
         // update leaderboard
-        if (((this.tickCounter + 7) % 25) === 0)
+        if (((this.ticks + 7) % 25) === 0)
             this.updateLeaderboard(); // once per second
         // ping server tracker
-        if (this.config.serverTracker && (this.tickCounter % 750) === 0)
+        if (this.config.serverTracker && (this.ticks % 750) === 0)
             this.pingServerTracker(); // once per 30 seconds
         // update-update time
         var tEnd = process.hrtime(tStart);
@@ -773,7 +773,7 @@ class Server {
         // Consume effect
         check.onEat(cell);
         cell.onEaten(check);
-        cell.killedBy = check;
+        cell.killer = check;
         // Remove cell
         this.removeNode(cell);
     }
@@ -886,15 +886,15 @@ class Server {
     canEjectMass(client) {
         if (client.lastEject === null) {
             // first eject
-            client.lastEject = this.tickCounter;
+            client.lastEject = this.ticks;
             return true;
         }
-        var dt = this.tickCounter - client.lastEject;
+        var dt = this.ticks - client.lastEject;
         if (dt < this.config.ejectCooldown) {
             // reject (cooldown)
             return false;
         }
-        client.lastEject = this.tickCounter;
+        client.lastEject = this.ticks;
         return true;
     }
     ejectMass(client) {

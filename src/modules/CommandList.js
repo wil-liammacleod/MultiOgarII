@@ -413,7 +413,7 @@ class CommandsList {
         server.nodesPlayer = [];
         server.movingNodes = [];
         server.commands;
-        server.tickCounter = 0;
+        server.ticks = 0;
         server.startTime = Date.now();
         server.setBorder(server.config.borderWidth, server.config.borderHeight);
         server.quadTree = new QuadNode(server.border, 64, 32);

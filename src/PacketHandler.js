@@ -79,7 +79,7 @@ class PacketHandler {
             this.server.sendChatMessage(null, this.socket.playerTracker, "WARNING: Protocol " + this.protocol + " assumed as 4!");
     }
     message_onJoin(message) {
-        var tick = this.server.tickCounter;
+        var tick = this.server.ticks;
         var dt = tick - this.lastJoinTick;
         this.lastJoinTick = tick;
         if (dt < 25 || this.socket.playerTracker.cells.length !== 0) {
@@ -158,7 +158,7 @@ class PacketHandler {
     message_onChat(message) {
         if (message.length < 3)
             return;
-        var tick = this.server.tickCounter;
+        var tick = this.server.ticks;
         var dt = tick - this.lastChatTick;
         this.lastChatTick = tick;
         if (dt < 25 * 2) {
@@ -180,7 +180,7 @@ class PacketHandler {
     message_onStat(message) {
         if (message.length !== 1)
             return;
-        var tick = this.server.tickCounter;
+        var tick = this.server.ticks;
         var dt = tick - this.lastStatTick;
         this.lastStatTick = tick;
         if (dt < 25) {

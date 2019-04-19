@@ -1,5 +1,5 @@
-var PlayerTracker = require('../PlayerTracker');
-var Vec2 = require('../modules/Vec2');
+const PlayerTracker = require('../PlayerTracker');
+const Vec2 = require('../modules/Vec2');
 
 class BotPlayer extends PlayerTracker {
     constructor(server, socket) {

@@ -45,7 +45,7 @@ class UpdateNodes {
             writer.writeUInt8(color.g >>> 0); // Color G
             writer.writeUInt8(color.b >>> 0); // Color B
             var flags = 0;
-            if (node.isSpiked)
+            if (node.isVirus)
                 flags |= 0x01; // isVirus
             if (node.isAgitated)
                 flags |= 0x10; // isAgitated
@@ -74,7 +74,7 @@ class UpdateNodes {
             writer.writeUInt8(color.g >>> 0); // Color G
             writer.writeUInt8(color.b >>> 0); // Color B
             var flags = 0;
-            if (node.isSpiked)
+            if (node.isVirus)
                 flags |= 0x01; // isVirus
             if (node.isAgitated)
                 flags |= 0x10; // isAgitated
@@ -109,7 +109,7 @@ class UpdateNodes {
             writer.writeUInt8(color.g >>> 0); // Color G
             writer.writeUInt8(color.b >>> 0); // Color B
             var flags = 0;
-            if (node.isSpiked)
+            if (node.isVirus)
                 flags |= 0x01; // isVirus
             if (node.isAgitated)
                 flags |= 0x10; // isAgitated
@@ -140,7 +140,7 @@ class UpdateNodes {
             writer.writeUInt8(color.g >>> 0); // Color G
             writer.writeUInt8(color.b >>> 0); // Color B
             var flags = 0;
-            if (node.isSpiked)
+            if (node.isVirus)
                 flags |= 0x01; // isVirus
             if (skinName != null)
                 flags |= 0x04; // isSkinPresent
@@ -175,7 +175,7 @@ class UpdateNodes {
             writer.writeUInt32(cellY >> 0); // Coordinate Y
             writer.writeUInt16(node._size >>> 0); // Cell Size (not to be confused with mass, because mass = size*size/100)
             var flags = 0;
-            if (node.isSpiked)
+            if (node.isVirus)
                 flags |= 0x01; // isVirus
             if (node.type == 0)
                 flags |= 0x02; // isColorPresent (for players only)
@@ -209,7 +209,7 @@ class UpdateNodes {
             writer.writeUInt32(cellY >> 0); // Coordinate Y
             writer.writeUInt16(node._size >>> 0); // Cell Size (not to be confused with mass, because mass = size*size/100)
             var flags = 0;
-            if (node.isSpiked)
+            if (node.isVirus)
                 flags |= 0x01; // isVirus
             if (true)
                 flags |= 0x02; // isColorPresent (always for added)
@@ -252,7 +252,7 @@ class UpdateNodes {
             writer.writeUInt32(cellY >> 0); // Coordinate Y
             writer.writeUInt16(node._size >>> 0); // Cell Size (not to be confused with mass, because mass = size*size/100)
             var flags = 0;
-            if (node.isSpiked)
+            if (node.isVirus)
                 flags |= 0x01; // isVirus
             if (node.type == 0)
                 flags |= 0x02; // isColorPresent (for players only)
@@ -290,7 +290,7 @@ class UpdateNodes {
             writer.writeUInt32(cellY >> 0); // Coordinate Y
             writer.writeUInt16(node._size >>> 0); // Cell Size (not to be confused with mass, because mass = size*size/100)
             var flags = 0;
-            if (node.isSpiked)
+            if (node.isVirus)
                 flags |= 0x01; // isVirus
             if (true)
                 flags |= 0x02; // isColorPresent (always for added)
@@ -326,8 +326,8 @@ class UpdateNodes {
         for (var i = 0; i < this.eatNodes.length; i++) {
             var node = this.eatNodes[i];
             var hunterId = 0;
-            if (node.killedBy) {
-                hunterId = node.killedBy.nodeId;
+            if (node.killer) {
+                hunterId = node.killer.nodeId;
             }
             writer.writeUInt32((hunterId ^ scrambleId) >>> 0); // Hunter ID
             writer.writeUInt32((node.nodeId ^ scrambleId) >>> 0); // Prey ID
