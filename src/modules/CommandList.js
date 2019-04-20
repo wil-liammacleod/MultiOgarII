@@ -306,7 +306,7 @@ class CommandsList {
 
         // update/validate
         server.config.playerMinSize = Math.max(32, server.config.playerMinSize);
-        Logger.setVerbosity(server.config.logVerbosity);
+      //Logger.setVerbosity(server.config.logVerbosity);
         Logger.setFileVerbosity(server.config.logFileVerbosity);
         Logger.print("Set " + key + " = " + server.config[key]);
     };

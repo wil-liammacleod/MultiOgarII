@@ -962,8 +962,8 @@ class Server {
             Logger.error(err.stack);
             Logger.error("Failed to load " + fileNameConfig + ": " + err.message);
         }
-        Logger.setVerbosity(this.config.logVerbosity);
-        Logger.setFileVerbosity(this.config.logFileVerbosity);
+        //Logger.setVerbosity(this.config.logVerbosity);
+        //Logger.setFileVerbosity(this.config.logFileVerbosity);
         // Load bad words
         var fileNameBadWords = this.srcFiles + '/badwords.txt';
         try {

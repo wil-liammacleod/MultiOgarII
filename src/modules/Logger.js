@@ -1,13 +1,44 @@
-'use strict';
-/*
- * Simple logger.
- *
- * Copyright (c) 2016 Barbosik https://github.com/Barbosik
- * License: Apache License, Version 2.0
- *
- */
+class Logger {
+    debug() {
 
-var fs = require("fs");
+    };
+
+    info(text) {
+        console.log(`[\x1b[34mInfo\x1b[0m] ${text}`);
+    };
+
+    warn(text) {
+        console.log(`[\x1b[33mWarning\x1b[0m] ${text}`);
+    };
+
+    error(text) {
+        console.log(`[\x1b[31mError\x1b[0m] ${text}`);
+    };
+
+    fatal(text) {
+        console.log("Process stopped as a result of an error:");
+        console.log(`${text}`);
+    };
+
+    print(text) {
+        console.log(`${text}`);
+    };
+
+    // TODO: error writing
+    write(text) {
+    };
+
+    start(text) {
+
+    };
+
+    shutdown(text) {
+
+    };
+};
+
+module.exports = new Logger;
+/*var fs = require("fs");
 var util = require('util');
 var EOL = require('os').EOL;
 var LogLevelEnum = require('../enum/LogLevelEnum');
@@ -288,4 +319,4 @@ var dark_background_colorscheme = {
     print: colorWhite
 };
 
-var colorscheme = dark_background_colorscheme;
+var colorscheme = dark_background_colorscheme;*/
