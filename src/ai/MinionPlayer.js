@@ -15,8 +15,10 @@ class MinionPlayer extends PlayerTracker {
             return this.isRemoved = true;
         };
 
-        if(!this.cells.length) {
+        if(!this.cells.length && this.owner.hasMinions) {
             return this.server.mode.onPlayerSpawn(this.server, this);
+        } else if (!this.owner.hasMinions){
+            this.socket.isCloseRequest = true;
         };
 
         if(!this.owner.socket.isConnected) {
