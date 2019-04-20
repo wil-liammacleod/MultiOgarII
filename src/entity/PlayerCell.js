@@ -24,7 +24,7 @@ class PlayerCell extends Cell {
         server.mode.onCellAdd(this);
     }
     onRemove(server) {
-        const index = this.owner.cells.indexOf(this);
+        let index = this.owner.cells.indexOf(this);
         if (index != -1)
             this.owner.cells.splice(index, 1);
         index = this.server.nodesPlayer.indexOf(this);
