@@ -68,12 +68,12 @@ class Cell {
     checkBorder(b) {
         const r = this._size / 2;
         if (this.position.x < b.minx + r || this.position.x > b.maxx - r) {
-            this.boostDirection.scale(-1, 1); // reflect left-right
+            this.boostDirection.scale(-1, 1); // Reflect left-right
             this.position.x = Math.max(this.position.x, b.minx + r);
             this.position.x = Math.min(this.position.x, b.maxx - r);
         }
         if (this.position.y < b.miny + r || this.position.y > b.maxy - r) {
-            this.boostDirection.scale(1, -1); // reflect up-down
+            this.boostDirection.scale(1, -1); // Reflect off of top and bottom, borders
             this.position.y = Math.max(this.position.y, b.miny + r);
             this.position.y = Math.min(this.position.y, b.maxy - r);
         }
