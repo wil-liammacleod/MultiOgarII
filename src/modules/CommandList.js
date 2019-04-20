@@ -73,34 +73,8 @@ class CommandsList {
             "│ status                       │ Get server status                         │\n" +
             "│ debug                        │ Get/check node lengths                    │\n" +
             "│ exit                         │ Stops the server                          │\n" +
-            "│ calc                         │ Get size/mass from a specified value      │\n" +
             "│                                                                          │\n" +
-            "├──────────────────────────────────────────────────────────────────────────┤\n" +
-            '│         Psst! Do "shortcuts" for a list of command shortcuts!            │\n' +
-            "└──────────────────────────────────────────────────────────────────────────┘");
-    };
-
-    shortcuts(server, split) {
-        Logger.print("                       ┌────────────────────────────┐                       \n" +
-        "                       │ LIST OF COMMAND SHORTCUTS  │                       \n" +
-        "┌──────────────────────┴──────┬─────────────────────┴──────────────────────┐\n" +
-        "│ st                          │ Alias for status of server                 │\n" +
-        "│ pl                          │ Alias for playerlist                       │\n" +
-        "│ m                           │ Alias for mass                             │\n" +
-        "│ sm                          │ Alias for spawnmass                        │\n" +
-        "│ ka                          │ Alias for killall                          │\n" +
-        "│ k                           │ Alias for kill                             │\n" +
-        "│ mg                          │ Alias for merge                            │\n" +
-        "│ s                           │ Alias for speed                            │\n" +
-        "│ mn                          │ Alias for minion                           │\n" +
-        "│ f                           │ Alias for freeze                           │\n" +
-        "│ ab                          │ Alias for addbot                           │\n" +
-        "│ kb                          │ Alias for kickbot                          │\n" +
-        "│ c                           │ Alias for change                           │\n" +
-        "│ n                           │ Alias for name                             │\n" +
-        "│ rep                         │ Alias for replace                          │\n" +
-        "| e                           | Alias for explode                          |\n" +
-        "└─────────────────────────────┴────────────────────────────────────────────┘");
+            "├──────────────────────────────────────────────────────────────────────────┤\n");
     };
 
     chat(server, split) {
@@ -160,15 +134,16 @@ class CommandsList {
 
                 // Remove minions
                 if (isNaN(add)) {
-                    client.miQ = false;
                     Logger.print("Successfully removed minions for " + getName(client._name));
-                    // Add minions
+                    client.hasMinions = false
                 } else {
                     // Add minions for client
                     if (isNaN(add)) add = 1;
                     for (var i = 0; i < add; i++) {
                         server.bots.addMinion(client, name);
                     }
+
+                    client.hasMinions = true;
                     Logger.print("Added " + add + " minions for " + getName(client._name));
                 }
                 break;
