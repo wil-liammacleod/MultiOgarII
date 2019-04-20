@@ -77,9 +77,9 @@ class BotPlayer extends PlayerTracker {
             this.influence /= distance;
 
             // Splitting conditions
-            if (node.type != 1 && cell._size > node._size * 1.5 &&
+            if (node.type != 1 && cell._size > node._size * 1.15 &&
                 !this.splitCooldown && this.cells.length < 8 &&
-                (300 + Math.floor(Math.random() * 200 - 100)) - cell._size / 2 - node._size >= distance) {
+                400 - cell._size / 2 - node._size >= distance) {
                 // Splitkill the target
                 this.splitCooldown = 15;
                 this.mouse = node.position.clone();
