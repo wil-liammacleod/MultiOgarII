@@ -39,7 +39,7 @@ class BotLoader {
     // Add to world
     s.packetHandler.setNickname(this.getName());
   }
-  addMinion(owner, name) {
+  addMinion(owner, name, mass) {
     var MinionPlayer = require('./MinionPlayer');
     var s = new FakeSocket(this.gameServer);
     s.playerTracker = new MinionPlayer(this.gameServer, s, owner);
