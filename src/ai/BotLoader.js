@@ -13,6 +13,15 @@ class BotLoader {
         this.botCount = 0;
     };
 
+    checkConnection() {
+        if(this.socket.isCloseRequest) {
+            while(this.cells.length)
+                this.server.removeNode(this.cells[0]);
+            
+            return this.isRemoved = true;
+        };
+    };
+    
     addBot() {
         // Create a FakeSocket instance and assign it's properties.
         const socket = new FakeSocket(this.server);
