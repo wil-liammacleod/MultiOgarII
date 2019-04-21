@@ -178,7 +178,7 @@ class Server {
         // Start Main Loop
         setTimeout(this.timerLoopBind, 1);
         // Done
-        Logger.info("Listening on port " + this.config.serverPort);
+        Logger.info("Game server started, on port " + this.config.serverPort);
         Logger.info("Current game mode is " + this.mode.name);
         // Player bots (Experimental)
         if (this.config.serverBots) {
@@ -399,7 +399,7 @@ class Server {
                 continue;
             }
             this.clients[i].playerTracker.checkConnection();
-            if (this.clients[i].playerTracker.isRemoved)
+            if (this.clients[i].playerTracker.isRemoved || this.clients[i].isCloseRequest)
                 // remove dead client
                 this.clients.splice(i, 1);
             else
@@ -1064,7 +1064,7 @@ class Server {
             res.end(this.stats);
         }.bind(this));
         this.httpServer.on('error', function (err) {
-            Logger.error("Stats Server: " + err.message);
+            Logger.error("Failed to start stats server: " + err.message);
         });
         var getStatsBind = this.getStats.bind(this);
         this.httpServer.listen(port, function () {
