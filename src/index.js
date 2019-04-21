@@ -127,15 +127,15 @@ function parseCommands(str) {
         return;
 
     // Splits the string
-    var split = str.split(" ");
+    var args = str.split(" ");
 
     // Process the first string value
-    var first = split[0].toLowerCase();
+    var first = args[0].toLowerCase();
 
     // Get command function
     var execute = Commands[first];
     if (typeof execute != 'undefined') {
-        execute(server, split);
+        execute(server, args);
     } else {
         Logger.warn("Invalid Command!");
     }
