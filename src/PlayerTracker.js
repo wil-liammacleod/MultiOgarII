@@ -10,7 +10,7 @@ class PlayerTracker {
         this.userAuth = null;
         this.isRemoved = false;
         this.isCloseRequested = false;
-        this._name = "";
+        this._name = "An unnamed cell";
         this._skin = "";
         this._nameUtf8 = null;
         this._skinUtf8protocol11 = null;
