@@ -24,7 +24,7 @@ class BotLoader {
         socket.packetHandler.setNickname(`Bot | ${this.botCount++}`);
     };
 
-    addMinion(owner, name) {
+    addMinion(owner, name, mass) {
         // Aliases
         const maxSize = this.server.config.minionMaxStartSize;
         const defaultSize = this.server.config.minionStartSize;
@@ -36,7 +36,7 @@ class BotLoader {
         socket.playerTracker.owner = owner;
 
         // Set minion spawn size
-        socket.playerTracker.spawnmass = maxSize > defaultSize ? Math.floor(Math.random() * (maxSize - defaultSize) + defaultSize) : defaultSize;
+        socket.playerTracker.spawnmass = mass || maxSize > defaultSize ? Math.floor(Math.random() * (maxSize - defaultSize) + defaultSize) : defaultSize;
 
         // Add to client list
         this.server.clients.push(socket);
@@ -47,4 +47,3 @@ class BotLoader {
 };
 
 module.exports = BotLoader;
-
