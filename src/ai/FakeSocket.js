@@ -8,7 +8,7 @@ class FakeSocket {
         return;
     };
 
-    close(error) {
+    close() {
         this.isCloseRequest = true;
     };
 };
