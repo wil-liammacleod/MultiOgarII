@@ -1,10 +1,10 @@
 var Cell = require('./Cell');
 
 class Virus extends Cell {
-    constructor(gameServer, owner, position, size) {
-        super(gameServer, owner, position, size);
-        this.cellType = 2;
-        this.isSpiked = true;
+    constructor(server, owner, position, size) {
+        super(server, owner, position, size);
+        this.type = 2;
+        this.isVirus = true;
         this.isMotherCell = false; // Not to confuse bots
         this.color = {
             r: 0x33,
@@ -15,21 +15,21 @@ class Virus extends Cell {
     // Main Functions
     canEat(cell) {
         // cannot eat if virusMaxAmount is reached
-        if (this.gameServer.nodesVirus.length < this.gameServer.config.virusMaxAmount)
-            return cell.cellType == 3; // virus can eat ejected mass only
+        if (this.server.nodesVirus.length < this.server.config.virusMaxAmount)
+            return cell.type == 3; // virus can eat ejected mass only
     }
     onEat(prey) {
         // Called to eat prey cell
         this.setSize(Math.sqrt(this.radius + prey.radius));
-        if (this._size >= this.gameServer.config.virusMaxSize) {
-            this.setSize(this.gameServer.config.virusMinSize); // Reset mass
-            this.gameServer.shootVirus(this, prey.boostDirection.angle());
+        if (this._size >= this.server.config.virusMaxSize) {
+            this.setSize(this.server.config.virusMinSize); // Reset mass
+            this.server.shootVirus(this, prey.boostDirection.angle());
         }
     }
     onEaten(cell) {
         if (!cell.owner)
             return;
-        var config = this.gameServer.config;
+        var config = this.server.config;
         var cellsLeft = (config.virusMaxCells || config.playerMaxCells) - cell.owner.cells.length;
         if (cellsLeft <= 0)
             return;
@@ -72,17 +72,17 @@ class Virus extends Cell {
     }
     explodeCell(cell, splits) {
         for (var i = 0; i < splits.length; i++)
-            this.gameServer.splitPlayerCell(cell.owner, cell, 2 * Math.PI * Math.random(), splits[i]);
+            this.server.splitPlayerCell(cell.owner, cell, 2 * Math.PI * Math.random(), splits[i]);
     }
-    onAdd(gameServer) {
-        gameServer.nodesVirus.push(this);
+    onAdd(server) {
+        server.nodesVirus.push(this);
     }
-    onRemove(gameServer) {
-        var index = gameServer.nodesVirus.indexOf(this);
+    onRemove(server) {
+        var index = server.nodesVirus.indexOf(this);
         if (index != -1)
-            gameServer.nodesVirus.splice(index, 1);
+            server.nodesVirus.splice(index, 1);
         // Respawn
-        gameServer.spawnVirus();
+        server.spawnVirus();
     }
 }
 

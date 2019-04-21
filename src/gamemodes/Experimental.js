@@ -14,20 +14,20 @@ class Experimental extends FFA {
         this.motherMinAmount = 10;
     }
     // Gamemode Specific Functions
-    spawnMotherCell(gameServer) {
+    spawnMotherCell(server) {
         // Checks if there are enough mother cells on the map
         if (this.nodesMother.length >= this.motherMinAmount) {
             return;
         }
         // Spawn if no cells are colliding
-        var mother = new Entity.MotherCell(gameServer, null, gameServer.randomPos(), 149);
-        if (!gameServer.willCollide(mother))
-            gameServer.addNode(mother);
+        var mother = new Entity.MotherCell(server, null, server.randomPos(), 149);
+        if (!server.willCollide(mother))
+            server.addNode(mother);
     }
     // Override
-    onServerInit(gameServer) {
+    onServerInit(server) {
         // Called when the server starts
-        gameServer.run = true;
+        server.run = true;
         // Ovveride functions for special virus mechanics
         var self = this;
         Entity.Virus.prototype.onEat = function (prey) {
@@ -43,10 +43,10 @@ class Experimental extends FFA {
                 self.nodesMother.splice(index, 1);
         };
     }
-    onTick(gameServer) {
+    onTick(server) {
         // Mother Cell Spawning
-        if ((gameServer.tickCounter % this.motherSpawnInterval) === 0) {
-            this.spawnMotherCell(gameServer);
+        if ((server.ticks % this.motherSpawnInterval) === 0) {
+            this.spawnMotherCell(server);
         }
         var updateInterval;
         for (var i = 0; i < this.nodesMother.length; ++i) {
@@ -55,7 +55,7 @@ class Experimental extends FFA {
                 updateInterval = Math.random() * (50 - 25) + 25;
             else
                 updateInterval = 2;
-            if ((gameServer.tickCounter % ~~updateInterval) === 0) {
+            if ((server.ticks % ~~updateInterval) === 0) {
                 motherCell.onUpdate();
             }
         }

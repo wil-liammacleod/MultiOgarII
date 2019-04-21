@@ -3,8 +3,8 @@ var Vec2 = require('./modules/Vec2');
 var BinaryWriter = require("./packet/BinaryWriter");
 
 class PlayerTracker {
-    constructor(gameServer, socket) {
-        this.gameServer = gameServer;
+    constructor(server, socket) {
+        this.server = server;
         this.socket = socket;
         this.pID = -1;
         this.userAuth = null;
@@ -51,19 +51,18 @@ class PlayerTracker {
         this.customspeed = 0;
         this.rec = false;
         // Minions
-        this.miQ = 0;
+        this.miQ = false;
         this.isMi = false;
         this.minionSplit = false;
         this.minionEject = false;
         this.minionFrozen = false;
-        this.minionControl = false;
-        this.collectPellets = false;
+        this.hasMinions = false;
         // Gamemode function
-        if (gameServer) {
+        if (server) {
             // Player id
-            this.pID = gameServer.lastPlayerId++ >> 0;
+            this.pID = server.lastPlayerId++ >> 0;
             // Gamemode function
-            gameServer.gameMode.onPlayerInit(this);
+            server.mode.onPlayerInit(this);
             // Only scramble if enabled in config
             this.scramble();
         }
@@ -72,7 +71,7 @@ class PlayerTracker {
     }
     // Setters/Getters
     scramble() {
-        if (!this.gameServer.config.serverScrambleLevel) {
+        if (!this.server.config.serverScrambleLevel) {
             this.scrambleId = 0;
             this.scrambleX = 0;
             this.scrambleY = 0;
@@ -80,8 +79,8 @@ class PlayerTracker {
         else {
             this.scrambleId = (Math.random() * 0xFFFFFFFF) >>> 0;
             // avoid mouse packet limitations
-            var maxx = Math.max(0, 31767 - this.gameServer.border.width);
-            var maxy = Math.max(0, 31767 - this.gameServer.border.height);
+            var maxx = Math.max(0, 31767 - this.server.border.width);
+            var maxy = Math.max(0, 31767 - this.server.border.height);
             var x = maxx * Math.random();
             var y = maxy * Math.random();
             if (Math.random() >= 0.5)
@@ -144,34 +143,34 @@ class PlayerTracker {
             packetHandler.sendPacket(new Packet.ClearAll());
             this.clientNodes = [];
             this.scramble();
-            if (this.gameServer.config.serverScrambleLevel < 2) {
+            if (this.server.config.serverScrambleLevel < 2) {
                 // no scramble / lightweight scramble
-                packetHandler.sendPacket(new Packet.SetBorder(this, this.gameServer.border));
+                packetHandler.sendPacket(new Packet.SetBorder(this, this.server.border));
             }
-            else if (this.gameServer.config.serverScrambleLevel == 3) {
+            else if (this.server.config.serverScrambleLevel == 3) {
                 var ran = 10065536 * Math.random();
                 // Ruins most known minimaps (no border)
                 var border = {
-                    minx: this.gameServer.border.minx - ran,
-                    miny: this.gameServer.border.miny - ran,
-                    maxx: this.gameServer.border.maxx + ran,
-                    maxy: this.gameServer.border.maxy + ran
+                    minx: this.server.border.minx - ran,
+                    miny: this.server.border.miny - ran,
+                    maxx: this.server.border.maxx + ran,
+                    maxy: this.server.border.maxy + ran
                 };
                 packetHandler.sendPacket(new Packet.SetBorder(this, border));
             }
         }
-        this.gameServer.gameMode.onPlayerSpawn(this.gameServer, this);
+        this.server.mode.onPlayerSpawn(this.server, this);
     }
     checkConnection() {
         // Handle disconnection
         if (!this.socket.isConnected) {
             // Wait for playerDisconnectTime
-            var pt = this.gameServer.config.playerDisconnectTime;
-            var dt = (this.gameServer.stepDateTime - this.socket.closeTime) / 1e3;
+            var pt = this.server.config.playerDisconnectTime;
+            var dt = (this.server.stepDateTime - this.socket.closeTime) / 1e3;
             if (pt && (!this.cells.length || dt >= pt)) {
                 // Remove all client cells
                 while (this.cells.length)
-                    this.gameServer.removeNode(this.cells[0]);
+                    this.server.removeNode(this.cells[0]);
             }
             this.cells = [];
             this.isRemoved = true;
@@ -182,9 +181,9 @@ class PlayerTracker {
             return;
         }
         // Check timeout
-        if (!this.isCloseRequested && this.gameServer.config.serverTimeout) {
-            dt = (this.gameServer.stepDateTime - this.socket.lastAliveTime) / 1000;
-            if (dt >= this.gameServer.config.serverTimeout) {
+        if (!this.isCloseRequested && this.server.config.serverTimeout) {
+            dt = (this.server.stepDateTime - this.socket.lastAliveTime) / 1000;
+            if (dt >= this.server.config.serverTimeout) {
                 this.socket.close(1000, "Connection timeout");
                 this.isCloseRequested = true;
             }
@@ -198,9 +197,9 @@ class PlayerTracker {
             return;
         // update viewbox
         this.updateSpecView(this.cells.length);
-        var scale = Math.max(this.getScale(), this.gameServer.config.serverMinScale);
-        var halfWidth = (this.gameServer.config.serverViewBaseX + 100) / scale / 2;
-        var halfHeight = (this.gameServer.config.serverViewBaseY + 100) / scale / 2;
+        var scale = Math.max(this.getScale(), this.server.config.serverMinScale);
+        var halfWidth = (this.server.config.serverViewBaseX + 100) / scale / 2;
+        var halfHeight = (this.server.config.serverViewBaseY + 100) / scale / 2;
         this.viewBox = {
             minx: this.centerPos.x - halfWidth,
             miny: this.centerPos.y - halfHeight,
@@ -210,7 +209,7 @@ class PlayerTracker {
         // update visible nodes
         this.viewNodes = [];
         var self = this;
-        this.gameServer.quadTree.find(this.viewBox, function (check) {
+        this.server.quadTree.find(this.viewBox, function (check) {
             self.viewNodes.push(check);
         });
         this.viewNodes.sort(function (a, b) { return a.nodeId - b.nodeId; });
@@ -225,10 +224,10 @@ class PlayerTracker {
             return;
         }
         var packetHandler = this.socket.packetHandler;
-        if (this.gameServer.config.serverScrambleLevel == 2) {
+        if (this.server.config.serverScrambleLevel == 2) {
             // scramble (moving border)
             if (!this.borderCounter) {
-                var b = this.gameServer.border, v = this.viewBox;
+                var b = this.server.border, v = this.viewBox;
                 var bound = {
                     minx: Math.max(b.minx, v.minx - v.halfWidth),
                     miny: Math.max(b.miny, v.miny - v.halfHeight),
@@ -267,7 +266,7 @@ class PlayerTracker {
             if (node.isRemoved)
                 continue;
             // only send update for moving or player nodes
-            if (node.isMoving || node.cellType == 0 || node.cellType == 2 || this.gameServer.config.serverGamemode == 3 && node.cellType == 1)
+            if (node.isMoving || node.type == 0 || node.type == 2 || this.server.config.serverGamemode == 3 && node.type == 1)
                 updNodes.push(node);
             newIndex++;
             oldIndex++;
@@ -289,8 +288,8 @@ class PlayerTracker {
         if (++this.tickLeaderboard > 25) {
             // 1 / 0.040 = 25 (once per second)
             this.tickLeaderboard = 0;
-            if (this.gameServer.leaderboardType >= 0)
-                packetHandler.sendPacket(new Packet.UpdateLeaderboard(this, this.gameServer.leaderboard, this.gameServer.leaderboardType));
+            if (this.server.leaderboardType >= 0)
+                packetHandler.sendPacket(new Packet.UpdateLeaderboard(this, this.server.leaderboard, this.server.leaderboardType));
         }
     }
     updateSpecView(len) {
@@ -307,7 +306,7 @@ class PlayerTracker {
             if (this.freeRoam || this.getSpecTarget() == null) {
                 // free roam
                 var d = this.mouse.clone().sub(this.centerPos);
-                var scale = this.gameServer.config.serverSpectatorScale;
+                var scale = this.server.config.serverSpectatorScale;
                 this.setCenterPos(this.centerPos.add(d, 32 / d.sqDist()));
             }
             else {
@@ -328,34 +327,34 @@ class PlayerTracker {
     pressSpace() {
         if (this.spectate) {
             // Check for spam first (to prevent too many add/del updates)
-            if (this.gameServer.tickCounter - this.lastKeypressTick < 40)
+            if (this.server.ticks - this.lastKeypressTick < 40)
                 return;
-            this.lastKeypressTick = this.gameServer.tickCounter;
+            this.lastKeypressTick = this.server.ticks;
             // Space doesn't work for freeRoam mode
-            if (this.freeRoam || this.gameServer.largestClient == null)
+            if (this.freeRoam || this.server.largestClient == null)
                 return;
         }
-        else if (this.gameServer.run) {
+        else if (this.server.run) {
             // Disable mergeOverride on the last merging cell
             if (this.cells.length <= 2)
                 this.mergeOverride = false;
             // Cant split if merging or frozen
             if (this.mergeOverride || this.frozen)
                 return;
-            this.gameServer.splitCells(this);
+            this.server.splitCells(this);
         }
     }
     pressW() {
-        if (this.spectate || !this.gameServer.run)
+        if (this.spectate || !this.server.run)
             return;
-        this.gameServer.ejectMass(this);
+        this.server.ejectMass(this);
     }
     pressQ() {
         if (this.spectate) {
             // Check for spam first (to prevent too many add/del updates)
-            if (this.gameServer.tickCounter - this.lastKeypressTick < 40)
+            if (this.server.ticks - this.lastKeypressTick < 40)
                 return;
-            this.lastKeypressTick = this.gameServer.tickCounter;
+            this.lastKeypressTick = this.server.ticks;
             if (this.spectateTarget == null)
                 this.freeRoam = !this.freeRoam;
             this.spectateTarget = null;
@@ -364,15 +363,15 @@ class PlayerTracker {
     getSpecTarget() {
         if (this.spectateTarget == null || this.spectateTarget.isRemoved) {
             this.spectateTarget = null;
-            return this.gameServer.largestClient;
+            return this.server.largestClient;
         }
         return this.spectateTarget;
     }
     setCenterPos(p) {
-        p.x = Math.max(p.x, this.gameServer.border.minx);
-        p.y = Math.max(p.y, this.gameServer.border.miny);
-        p.x = Math.min(p.x, this.gameServer.border.maxx);
-        p.y = Math.min(p.y, this.gameServer.border.maxy);
+        p.x = Math.max(p.x, this.server.border.minx);
+        p.y = Math.max(p.y, this.server.border.miny);
+        p.x = Math.min(p.x, this.server.border.maxx);
+        p.y = Math.min(p.y, this.server.border.maxy);
         this.centerPos = p;
     }
 }

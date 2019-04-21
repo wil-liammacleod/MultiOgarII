@@ -6,8 +6,8 @@ var Entity = require('./entity');
 var Vec2 = require('./modules/Vec2');
 var Logger = require('./modules/Logger');
 
-// GameServer implementation
-class GameServer {
+// Server implementation
+class Server {
     constructor() {
         // Location of source files - For renaming or moving source files!
         this.srcFiles = "../src";
@@ -38,7 +38,7 @@ class GameServer {
         this.updateTimeAvg = 0;
         this.timerLoopBind = null;
         this.mainLoopBind = null;
-        this.tickCounter = 0;
+        this.ticks = 0;
         this.disableSpawn = false;
         // Config
         this.config = {
@@ -125,7 +125,6 @@ class GameServer {
             disableERTP: 1,
             disableQ: 0,
             serverMinions: 0,
-            collectPellets: 0,
             defaultName: "minion",
             minionsOnLeaderboard: 0,
             /** TOURNAMENT **/
@@ -152,8 +151,8 @@ class GameServer {
         this.mainLoopBind = this.mainLoop.bind(this);
         // Set up gamemode(s)
         var Gamemode = require('./gamemodes');
-        this.gameMode = Gamemode.get(this.config.serverGamemode);
-        this.gameMode.onServerInit(this);
+        this.mode = Gamemode.get(this.config.serverGamemode);
+        this.mode.onServerInit(this);
         // Client Binding
         var bind = this.config.clientBind + "";
         this.clientBind = bind.split(' - ');
@@ -180,7 +179,7 @@ class GameServer {
         setTimeout(this.timerLoopBind, 1);
         // Done
         Logger.info("Listening on port " + this.config.serverPort);
-        Logger.info("Current game mode is " + this.gameMode.name);
+        Logger.info("Current game mode is " + this.mode.name);
         // Player bots (Experimental)
         if (this.config.serverBots) {
             for (var i = 0; i < this.config.serverBots; i++)
@@ -326,7 +325,6 @@ class GameServer {
         if (this.config.serverMinions && !ws.playerTracker.isMinion) {
             for (var i = 0; i < this.config.serverMinions; i++) {
                 this.bots.addMinion(ws.playerTracker);
-                ws.playerTracker.minionControl = true;
             }
         }
     }
@@ -435,8 +433,8 @@ class GameServer {
         // Update leaderboard with the gamemode's method
         this.leaderboard = [];
         this.leaderboardType = -1;
-        this.gameMode.updateLB(this, this.leaderboard);
-        if (!this.gameMode.specByLeaderboard) {
+        this.mode.updateLB(this, this.leaderboard);
+        if (!this.mode.specByLeaderboard) {
             // Get client with largest score if gamemode doesn't have a leaderboard
             var clients = this.clients.valueOf();
             // Use sort function
@@ -448,7 +446,7 @@ class GameServer {
                 this.largestClient = clients[0].playerTracker;
         }
         else {
-            this.largestClient = this.gameMode.rankOne;
+            this.largestClient = this.mode.rankOne;
         }
     }
     onChatMessage(from, to, message) {
@@ -504,7 +502,7 @@ class GameServer {
                 continue;
             if (!to || to == this.clients[i].playerTracker) {
                 var Packet = require('./packet');
-                if (this.config.separateChatForTeams && this.gameMode.haveTeams) {
+                if (this.config.separateChatForTeams && this.mode.haveTeams) {
                     //  from equals null if message from server
                     if (from == null || from.team === this.clients[i].playerTracker.team) {
                         this.clients[i].packetHandler.sendPacket(new Packet.ChatMessage(from, message));
@@ -537,7 +535,7 @@ class GameServer {
         var tStart = process.hrtime();
         var self = this;
         // Restart
-        if (this.tickCounter > this.config.serverRestart) {
+        if (this.ticks > this.config.serverRestart) {
             var QuadNode = require('./modules/QuadNode.js');
             this.httpServer = null;
             this.wsServer = null;
@@ -562,7 +560,7 @@ class GameServer {
             }
             ;
             this.commands;
-            this.tickCounter = 0;
+            this.ticks = 0;
             this.startTime = Date.now();
             this.setBorder(this.config.borderWidth, this.config.borderHeight);
             this.quadTree = new QuadNode(this.border, 64, 32);
@@ -578,7 +576,7 @@ class GameServer {
                 this.boostCell(cell);
                 this.quadTree.find(cell.quadItem.bound, function (check) {
                     var m = self.checkCellCollision(cell, check);
-                    if (cell.cellType == 3 && check.cellType == 3 && !self.config.mobilePhysics)
+                    if (cell.type == 3 && check.type == 3 && !self.config.mobilePhysics)
                         self.resolveRigidCollision(m);
                     else
                         self.resolveCollision(m);
@@ -603,7 +601,7 @@ class GameServer {
                 this.boostCell(cell);
                 this.autoSplit(cell, cell.owner);
                 // Decay player cells once per second
-                if (((this.tickCounter + 3) % 25) === 0)
+                if (((this.ticks + 3) % 25) === 0)
                     this.updateSizeDecay(cell);
                 // Remove external minions if necessary
                 if (cell.owner.isMinion) {
@@ -614,17 +612,17 @@ class GameServer {
             eatCollisions.forEach((m) => {
                 this.resolveCollision(m);
             });
-            this.gameMode.onTick(this);
-            this.tickCounter++;
+            this.mode.onTick(this);
+            this.ticks++;
         }
-        if (!this.run && this.gameMode.IsTournament)
-            this.tickCounter++;
+        if (!this.run && this.mode.IsTournament)
+            this.ticks++;
         this.updateClients();
         // update leaderboard
-        if (((this.tickCounter + 7) % 25) === 0)
+        if (((this.ticks + 7) % 25) === 0)
             this.updateLeaderboard(); // once per second
         // ping server tracker
-        if (this.config.serverTracker && (this.tickCounter % 750) === 0)
+        if (this.config.serverTracker && (this.ticks % 750) === 0)
             this.pingServerTracker(); // once per 30 seconds
         // update-update time
         var tEnd = process.hrtime(tStart);
@@ -658,7 +656,7 @@ class GameServer {
         // remove size from cell at decay rate
         if (cap && cell._mass > cap)
             rate *= 10;
-        var decay = 1 - rate * this.gameMode.decayMod;
+        var decay = 1 - rate * this.mode.decayMod;
         cell.setSize(Math.sqrt(cell.radius * decay));
     }
     boostCell(cell) {
@@ -721,12 +719,12 @@ class GameServer {
             return false;
         if (m.cell.owner != m.check.owner) {
             // Minions don't collide with their team when the config value is 0
-            if (this.gameMode.haveTeams && m.check.owner.isMi || m.cell.owner.isMi && this.config.minionCollideTeam === 0) {
+            if (this.mode.haveTeams && m.check.owner.isMi || m.cell.owner.isMi && this.config.minionCollideTeam === 0) {
                 return false;
             }
             else {
                 // Different owners => same team
-                return this.gameMode.haveTeams &&
+                return this.mode.haveTeams &&
                     m.cell.owner.team == m.check.owner.team;
             }
         }
@@ -775,7 +773,7 @@ class GameServer {
         // Consume effect
         check.onEat(cell);
         cell.onEaten(check);
-        cell.killedBy = check;
+        cell.killer = check;
         // Remove cell
         this.removeNode(cell);
     }
@@ -856,7 +854,7 @@ class GameServer {
             maxx: cell.position.x + cell._size,
             maxy: cell.position.y + cell._size
         }, function (n) {
-            if (n.cellType == 0)
+            if (n.type == 0)
                 notSafe = true;
         });
         return notSafe;
@@ -888,15 +886,15 @@ class GameServer {
     canEjectMass(client) {
         if (client.lastEject === null) {
             // first eject
-            client.lastEject = this.tickCounter;
+            client.lastEject = this.ticks;
             return true;
         }
-        var dt = this.tickCounter - client.lastEject;
+        var dt = this.ticks - client.lastEject;
         if (dt < this.config.ejectCooldown) {
             // reject (cooldown)
             return false;
         }
-        client.lastEject = this.tickCounter;
+        client.lastEject = this.ticks;
         return true;
     }
     ejectMass(client) {
@@ -964,8 +962,8 @@ class GameServer {
             Logger.error(err.stack);
             Logger.error("Failed to load " + fileNameConfig + ": " + err.message);
         }
-        Logger.setVerbosity(this.config.logVerbosity);
-        Logger.setFileVerbosity(this.config.logFileVerbosity);
+        //Logger.setVerbosity(this.config.logVerbosity);
+        //Logger.setFileVerbosity(this.config.logFileVerbosity);
         // Load bad words
         var fileNameBadWords = this.srcFiles + '/badwords.txt';
         try {
@@ -1095,7 +1093,7 @@ class GameServer {
             'server_chat': this.config.serverChat ? "true" : "false",
             'border_width': this.border.width,
             'border_height': this.border.height,
-            'gamemode': this.gameMode.name,
+            'gamemode': this.mode.name,
             'max_players': this.config.serverMaxConnections,
             'current_players': totalPlayers,
             'alive': alivePlayers,
@@ -1136,7 +1134,7 @@ class GameServer {
             '&spectators=' + spectatePlayers +
             '&max_players=' + this.config.serverMaxConnections +
             '&sport=' + this.config.serverPort +
-            '&gamemode=[**] ' + this.gameMode.name + // we add [**] to indicate that this is MultiOgar-Edited server
+            '&gamemode=[**] ' + this.mode.name + // we add [**] to indicate that this is MultiOgar-Edited server
             '&agario=true' + // protocol version
             '&name=Unnamed Server' + // we cannot use it, because other value will be used as dns name
             '&opp=' + os.platform() + ' ' + os.arch() + // "win32 x64"
@@ -1174,4 +1172,4 @@ function trackerRequest(options, type, body) {
     req.write(body);
     req.end();
 }
-module.exports = GameServer;
+module.exports = Server;

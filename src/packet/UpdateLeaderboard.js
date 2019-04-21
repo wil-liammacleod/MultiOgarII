@@ -11,7 +11,7 @@ class UpdateLeaderboard {
         this.playerTracker = playerTracker;
         this.leaderboard = leaderboard;
         this.leaderboardType = leaderboardType;
-        this.leaderboardCount = Math.min(leaderboard.length, playerTracker.gameServer.config.serverMaxLB);
+        this.leaderboardCount = Math.min(leaderboard.length, playerTracker.server.config.serverMaxLB);
     }
     build(protocol) {
         switch (this.leaderboardType) {
@@ -153,8 +153,8 @@ class UpdateLeaderboard {
     // TODO: Implement the "minimap"
     buildParty() {
         var protocol13s = 0;
-        for (var i in this.playerTracker.gameServer.clients) {
-            var client = this.playerTracker.gameServer.clients[i].packetHandler;
+        for (var i in this.playerTracker.server.clients) {
+            var client = this.playerTracker.server.clients[i].packetHandler;
             if (client.protocol >= 13)
                 protocol13s++;
         }

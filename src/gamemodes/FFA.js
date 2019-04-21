@@ -8,17 +8,17 @@ class FFA extends Mode {
         this.specByLeaderboard = true;
     }
     // Gamemode Specific Functions
-    onPlayerSpawn(gameServer, player) {
-        player.color = gameServer.getRandomColor();
+    onPlayerSpawn(server, player) {
+        player.color = server.getRandomColor();
         // Spawn player
-        gameServer.spawnPlayer(player, gameServer.randomPos());
+        server.spawnPlayer(player, server.randomPos());
     }
-    updateLB(gameServer, lb) {
-        gameServer.leaderboardType = this.packetLB;
-        for (var i = 0, pos = 0; i < gameServer.clients.length; i++) {
-            var player = gameServer.clients[i].playerTracker;
+    updateLB(server, lb) {
+        server.leaderboardType = this.packetLB;
+        for (var i = 0, pos = 0; i < server.clients.length; i++) {
+            var player = server.clients[i].playerTracker;
             if (player.isRemoved || !player.cells.length ||
-                player.socket.isConnected == false || (!gameServer.config.minionsOnLeaderboard && player.isMi))
+                player.socket.isConnected == false || (!server.config.minionsOnLeaderboard && player.isMi))
                 continue;
             for (var j = 0; j < pos; j++)
                 if (lb[j]._score < player._score)

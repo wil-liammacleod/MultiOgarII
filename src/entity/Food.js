@@ -1,26 +1,25 @@
-var Cell = require('./Cell');
+const Cell = require('./Cell');
 
 class Food extends Cell {
-    constructor(gameServer, owner, position, size) {
-        super(gameServer, owner, position, size);
-        this.cellType = 1;
+    constructor(server, owner, position, size) {
+        super(server, owner, position, size);
+        this.type = 1;
         this.overrideReuse = false;
-    }
-    // Main Functions
-    onAdd(gameServer) {
-        gameServer.nodesFood.push(this);
-    }
-    onRemove(gameServer) {
-        // Remove from list of foods
-        var index = gameServer.nodesFood.indexOf(this);
+    };
+
+    onAdd(server) {
+        server.nodesFood.push(this);
+    };
+
+    onRemove(server) {
+        const index = server.nodesFood.indexOf(this);
         if (index != -1) {
-            gameServer.nodesFood.splice(index, 1);
-        }
-        ;
-        // Respawn
+            server.nodesFood.splice(index, 1);
+        };
+
         if (!this.overrideReuse)
-            gameServer.spawnFood();
-    }
-}
+            server.spawnFood();
+    };
+};
 
 module.exports = Food;

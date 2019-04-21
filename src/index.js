@@ -2,31 +2,20 @@
 var Logger = require('./modules/Logger');
 var CommandsList = require('./modules/CommandList');
 var Commands = new CommandsList;
-var GameServer = require('./GameServer');
+var Server = require('./Server');
 var figlet = require('figlet');
 
 // Init variables
 var showConsole = true;
 
-// Start msg
-setLoggerColorscheme();
-Logger.start();
-
-process.on('exit', function (code) {
-    Logger.debug("process.exit(" + code + ")");
-    Logger.shutdown();
-});
-
-process.on('uncaughtException', function (err) {
-    Logger.fatal(err.stack);
-    process.exit(1);
-});
 
 // Run MultiOgar-Edited
-var gameServer = new GameServer();
-Logger.info("\u001B[1m\u001B[32mMultiOgar-Edited " + gameServer.version + "\u001B[37m - An open source multi-protocol ogar server\u001B[0m");
+var server = new Server();
+server.start();
 
-// Handle arguments
+Logger.info("\u001B[1m\u001B[32mMultiOgar-Edited " + server.version + "\u001B[37m - An open source multi-protocol ogar server\u001B[0m");
+
+/*// Handle arguments
 process.argv.forEach(function (item) {
 
     switch (item){
@@ -38,7 +27,6 @@ process.argv.forEach(function (item) {
             console.log("    -m, --gamemode         Set game mode (id)");
             console.log("    -c, --connections      Set max connections limit");
             console.log("    -t, --tracker          Set serverTracker");
-            console.log("    -l, --light-background Set a light-background colorscheme for logger")
             console.log("    --noconsole            Disables the console");
             console.log("    --help                 Help menu");
             console.log("");
@@ -72,23 +60,11 @@ process.argv.forEach(function (item) {
             setParam("serverTracker", parseInt(getValue(item)));
             break;
 
-        case "-l":
-        case "--light-background":
-            //Has already been processed before logger initialisation
-            break;
-
         case "--noconsole":
             showConsole = false;
             break;
     }
 });
-
-function setLoggerColorscheme(){
-    if (process.argv.indexOf("-l") != -1
-        || process.argv.indexOf("--light-background") != -1) {
-        Logger.setLightBackgroundColorscheme();
-    }
-}
 
 function getValue(param){
     var ind = process.argv.indexOf(param);
@@ -102,20 +78,19 @@ function getValue(param){
 }
 
 function setParam(paramName, val){
-    if (!gameServer.config.hasOwnProperty(paramName)){
+    if (!server.config.hasOwnProperty(paramName)){
         Logger.error("Wrong parameter");
     }
     if (val || val === 0) {
         if (typeof val === 'string'){
             val = "'" + val + "'";
         }
-        eval("gameServer.config." + paramName + "=" + val);
+        eval("server.config." + paramName + "=" + val);
     }
 }
 
 
-gameServer.start();
-figlet(('MultiOgar-Edited  ' + gameServer.version), function(err, data) {
+figlet(('MultiOgar-Edited  ' + server.version), function(err, data) {
     if (err) {
         console.log('Something went wrong...');
         console.dir(err);
@@ -123,21 +98,19 @@ figlet(('MultiOgar-Edited  ' + gameServer.version), function(err, data) {
     }
     console.log(data)
 });
-
+*/
 // Initialize the server console
-if (showConsole) {
     var readline = require('readline');
     var in_ = readline.createInterface({
         input: process.stdin,
         output: process.stdout
     });
     setTimeout(prompt, 100);
-}
 
 // Console functions
 
 function prompt() {
-    in_.question(">", function (str) {
+    in_.question("", function (str) {
         try {
             parseCommands(str);
         } catch (err) {
@@ -149,9 +122,6 @@ function prompt() {
 }
 
 function parseCommands(str) {
-    // Log the string
-    Logger.write(">" + str);
-
     // Don't process ENTER
     if (str === '')
         return;
@@ -165,10 +135,9 @@ function parseCommands(str) {
     // Get command function
     var execute = Commands[first];
     if (typeof execute != 'undefined') {
-        execute(gameServer, split);
+        execute(server, split);
     } else {
         Logger.warn("Invalid Command!");
     }
 };
-
-exports.gameServer = gameServer;
+exports.server = server;
