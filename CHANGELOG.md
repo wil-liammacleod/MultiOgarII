@@ -21,7 +21,7 @@
 * Tweaked the readme, thanks to @B0RYS and @MastaCoder;
 * Fixed mothercell spawning issue;
 * Edited the Wiki, thanks to @AlexHGaming, @Steve7914, @Tyler3D, @ItzLevvie, and @MastaCoder;
-* Created the MultiOgar-Edited Wiki, thanks to @AlexHGaming;
+* Created the MultiOgarII Wiki, thanks to @AlexHGaming;
 * Match randomskins.txt to Agar.io's skins, thanks to @ItzLevvie;
 
 -------------

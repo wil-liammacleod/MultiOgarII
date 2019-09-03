@@ -125,7 +125,7 @@ class Server {
                 Logger.error("Please close out of Skype or change 'serverPort' in the config to a different number.");
                 break;
             case "EACCES":
-                Logger.error("Please make sure you are running MultiOgar-Edited with root privileges.");
+                Logger.error("Please make sure you are running MultiOgarII with root privileges.");
                 break;
         }
         process.exit(1); // Exits the program
@@ -1018,12 +1018,12 @@ class Server {
             '&spectators=' + spectatePlayers +
             '&max_players=' + this.config.serverMaxConnections +
             '&sport=' + this.config.serverPort +
-            '&gamemode=[**] ' + this.mode.name + // we add [**] to indicate that this is MultiOgar-Edited server
+            '&gamemode=[**] ' + this.mode.name + // we add [**] to indicate that this is MultiOgarII server
             '&agario=true' + // protocol version
             '&name=Unnamed Server' + // we cannot use it, because other value will be used as dns name
             '&opp=' + os.platform() + ' ' + os.arch() + // "win32 x64"
             '&uptime=' + process.uptime() + // Number of seconds server has been running
-            '&version=MultiOgar-Edited ' + this.version +
+            '&version=MultiOgarII ' + this.version +
             '&start_time=' + this.startTime;
         trackerRequest({
             host: 'ogar.mivabe.nl',
@@ -1036,7 +1036,7 @@ class Server {
 
 function trackerRequest(options, type, body) {
     if (options.headers == null) options.headers = {};
-    options.headers['user-agent'] = 'MultiOgar-Edited' + this.version;
+    options.headers['user-agent'] = 'MultiOgarII' + this.version;
     options.headers['content-type'] = type;
     options.headers['content-length'] = body == null ? 0 : Buffer.byteLength(body, 'utf8');
     var req = http.request(options, function (res) {

@@ -14,7 +14,7 @@ const instance = new Server();
 instance.start();
 
 // Welcome message.
-Logger.info(`Running MultiOgar-Edited ${instance.version}, a FOSS agar.io server implementation.`);
+Logger.info(`Running MultiOgarII ${instance.version}, a FOSS agar.io server implementation.`);
 
 // Catch console input.
 inputInterface.on("line", (input) => {

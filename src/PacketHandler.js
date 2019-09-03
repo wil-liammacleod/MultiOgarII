@@ -66,9 +66,9 @@ class PacketHandler {
         this.protocol = protocol;
         // Send handshake response
         this.sendPacket(new Packet.ClearAll());
-        this.sendPacket(new Packet.SetBorder(this.socket.playerTracker, this.server.border, this.server.config.serverGamemode, "MultiOgar-Edited " + this.server.version));
+        this.sendPacket(new Packet.SetBorder(this.socket.playerTracker, this.server.border, this.server.config.serverGamemode, "MultiOgarII " + this.server.version));
         // Send welcome message
-        this.server.sendChatMessage(null, this.socket.playerTracker, "MultiOgar-Edited " + this.server.version);
+        this.server.sendChatMessage(null, this.socket.playerTracker, "MultiOgarII " + this.server.version);
         if (this.server.config.serverWelcome1)
             this.server.sendChatMessage(null, this.socket.playerTracker, this.server.config.serverWelcome1);
         if (this.server.config.serverWelcome2)

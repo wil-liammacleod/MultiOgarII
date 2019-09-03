@@ -1,9 +1,9 @@
 {
-    "name": "MultiOgar-Edited",
+    "name": "MultiOgarII",
     "version": "1.6.2",
     "description": "Open source multi-protocol Ogar server",
     "author": "Megabyte918 (https://github.com/Megabyte918)",
-    "homepage": "https://github.com/Megabyte918/MultiOgar-Edited",
+    "homepage": "https://github.com/Megabyte918/MultiOgarII",
     "license": "Apache-2.0",
     "main": "src/index.js",
     "dependencies": {
@@ -15,9 +15,9 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/Megabyte918/MultiOgar-Edited"
+        "url": "https://github.com/Megabyte918/MultiOgarII"
     },
     "bugs": {
-        "url": "https://github.com/Megabyte918/MultiOgar-Edited/issues"
+        "url": "https://github.com/Megabyte918/MultiOgarII/issues"
     }
 }

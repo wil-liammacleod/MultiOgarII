@@ -1,9 +1,9 @@
 module.exports = Object.seal({
-    // MultiOgar-Edited configurations file
+    // MultiOgarII configurations file
 // Lines starting with semicolons are comments
 
 // [NOTES]
-// MultiOgar-Edited uses cell size instead of cell mass to improve performance!
+// MultiOgarII uses cell size instead of cell mass to improve performance!
 // In order to get the cell size from mass value, you need to calculate using this formula:
 //    size: SQRT( mass * 100 )
 //
@@ -68,8 +68,8 @@ module.exports = Object.seal({
 "serverChat": 1,
 "serverChatAscii": 1,
 "separateChatForTeams": 0,
-"serverName": "MultiOgar-Edited #1",
-"serverWelcome1": "Welcome to MultiOgar-Edited!",
+"serverName": "MultiOgarII #1",
+"serverWelcome1": "Welcome to MultiOgarII!",
 "serverWelcome2": "",
 "clientBind": "",
 
@@ -137,7 +137,7 @@ module.exports = Object.seal({
 "ejectVelocity": 780,
 
 // [PLAYERS]
-// Reminder: MultiOgar-Edited uses cell size instead of mass!
+// Reminder: MultiOgarII uses cell size instead of mass!
 //       playerStartMass replaced with playerStartSize
 //
 // playerMinSize: Minimum size a player cell can decay too. (vanilla: val*val/100: 10 mass)

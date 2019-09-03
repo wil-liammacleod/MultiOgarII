@@ -27,7 +27,7 @@ class CommandsList {
 
             // Ignore aliases, only print commands.
             if(CommandsList.prototype[commandObj.name] && !CommandsList.prototype[commandObj.name].isAlias) {
-                console.log(`- ${command}: ${commandObj.description}`);
+                console.log(`${commands.indexOf(command) + 1}. ${command}: ${commandObj.description}`);
             };
         });
     };
