@@ -1,143 +1,25 @@
-// Imports
-var Logger = require('./modules/Logger');
-var CommandsList = require('./modules/CommandList');
-var Commands = new CommandsList;
-var Server = require('./Server');
-var figlet = require('figlet');
+// External modules.
+const ReadLine = require("readline");
 
-// Init variables
-var showConsole = true;
+// Project modules.
+const Commands = require("./modules/CommandList.js");
+const Server = require("./Server.js");
+const Logger = require("./modules/Logger.js");
 
+// Create console interface.
+const inputInterface = ReadLine.createInterface(process.stdin, process.stdout);
 
-// Run MultiOgar-Edited
-var server = new Server();
-server.start();
+// Create and start instance of server.
+const instance = new Server();
+instance.start();
 
-Logger.info("\u001B[1m\u001B[32mMultiOgar-Edited " + server.version + "\u001B[37m - An open source multi-protocol ogar server\u001B[0m");
+// Welcome message.
+Logger.info(`Running MultiOgar-Edited ${instance.version}, a FOSS agar.io server implementation.`);
 
-/*// Handle arguments
-process.argv.forEach(function (item) {
-
-    switch (item){
-        case "--help":
-            console.log("Proper Usage: node index.js");
-            console.log("    -n, --name             Set name");
-            console.log("    -g, --gameport         Set game port");
-            console.log("    -s, --statsport        Set stats port");
-            console.log("    -m, --gamemode         Set game mode (id)");
-            console.log("    -c, --connections      Set max connections limit");
-            console.log("    -t, --tracker          Set serverTracker");
-            console.log("    --noconsole            Disables the console");
-            console.log("    --help                 Help menu");
-            console.log("");
-            break;
-
-        case "-n":
-        case "--name":
-            setParam("serverName", getValue(item));
-            break;
-
-        case "-g":
-        case "--gameport":
-            setParam("serverPort", parseInt(getValue(item)));
-            break;
-        case "-s":
-        case "--statsport":
-            setParam("serverStatsPort", parseInt(getValue(item)));
-            break;
-
-        case "-m":
-        case "--gamemode":
-            setParam("serverGamemode", getValue(item));
-            break;
-
-        case "-c":
-        case "--connections":
-            setParam("serverMaxConnections", parseInt(getValue(item)));
-            break;
-        case "-t":
-        case "--tracker":
-            setParam("serverTracker", parseInt(getValue(item)));
-            break;
-
-        case "--noconsole":
-            showConsole = false;
-            break;
-    }
+// Catch console input.
+inputInterface.on("line", (input) => {
+    const args = input.toLowerCase().split(" ");
+    if(Commands[args[0]]) {
+        Commands[args[0]](instance, args)
+    };
 });
-
-function getValue(param){
-    var ind = process.argv.indexOf(param);
-    var item  = process.argv[ind + 1]
-    if (!item || item.indexOf('-') != -1){
-        Logger.error("No value for " + param);
-        return null;
-    } else{
-        return item;
-    }
-}
-
-function setParam(paramName, val){
-    if (!server.config.hasOwnProperty(paramName)){
-        Logger.error("Wrong parameter");
-    }
-    if (val || val === 0) {
-        if (typeof val === 'string'){
-            val = "'" + val + "'";
-        }
-        eval("server.config." + paramName + "=" + val);
-    }
-}
-
-
-figlet(('MultiOgar-Edited  ' + server.version), function(err, data) {
-    if (err) {
-        console.log('Something went wrong...');
-        console.dir(err);
-        return;
-    }
-    console.log(data)
-});
-*/
-// Initialize the server console
-    var readline = require('readline');
-    var in_ = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-    });
-    setTimeout(prompt, 100);
-
-// Console functions
-
-function prompt() {
-    in_.question("", function (str) {
-        try {
-            parseCommands(str);
-        } catch (err) {
-            Logger.error(err.stack);
-        } finally {
-            setTimeout(prompt, 0);
-        }
-    });
-}
-
-function parseCommands(str) {
-    // Don't process ENTER
-    if (str === '')
-        return;
-
-    // Splits the string
-    var args = str.split(" ");
-
-    // Process the first string value
-    var first = args[0].toLowerCase();
-
-    // Get command function
-    var execute = Commands[first];
-    if (typeof execute != 'undefined') {
-        execute(server, args);
-    } else {
-        Logger.warn("Invalid Command!");
-    }
-};
-exports.server = server;

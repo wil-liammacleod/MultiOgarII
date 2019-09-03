@@ -234,4 +234,4 @@ class CommandsList {
     };
 };
 
-module.exports = CommandsList;
+module.exports = new CommandsList();
