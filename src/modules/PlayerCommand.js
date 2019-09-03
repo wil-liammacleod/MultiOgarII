@@ -277,14 +277,13 @@ class PlayerCommand {
                 bots++;
             }
         }
-        var ini = require('./ini.js');
         this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         this.writeLine("Connected players: " + this.server.clients.length + "/" + this.server.config.serverMaxConnections);
         this.writeLine("Players: " + humans + " - Bots: " + bots);
         this.writeLine("Server has been running for " + Math.floor(process.uptime() / 60) + " minutes");
         this.writeLine("Current memory usage: " + Math.round(process.memoryUsage().heapUsed / 1048576 * 10) / 10 + "/" + Math.round(process.memoryUsage().heapTotal / 1048576 * 10) / 10 + " mb");
         this.writeLine("Current game mode: " + this.server.mode.name);
-        this.writeLine("Current update time: " + this.server.updateTimeAvg.toFixed(3) + " [ms]  (" + ini.getLagMessage(this.server.updateTimeAvg) + ")");
+        this.writeLine(`Update time: ${server.updateTimeAvg.toFixed(3)}ms`);
         this.writeLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     };
 
