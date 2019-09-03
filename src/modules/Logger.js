@@ -17,20 +17,15 @@ class Logger {
 
     fatal(text) {
         console.log("Process stopped as a result of an error:");
-        this.error(text);
+        console.log(`${text}`);
     };
 
-    success(text) {
-        console.log(`[\x1b[32mSuccess\x1b[0m] ${text}`);
-    };
-    
     print(text) {
         console.log(`${text}`);
     };
 
-    // TODO: file writing
+    // TODO: error writing
     write(text) {
-        
     };
 
     start(text) {
