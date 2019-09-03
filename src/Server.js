@@ -41,101 +41,7 @@ class Server {
         this.ticks = 0;
         this.disableSpawn = false;
         // Config
-        this.config = {
-            /** LOGGING **/
-            logVerbosity: 4,
-            logFileVerbosity: 5,
-            /** SERVER **/
-            serverTimeout: 300,
-            serverWsModule: 'ws',
-            serverMaxConnections: 500,
-            serverPort: 443,
-            serverBind: '0.0.0.0',
-            serverTracker: 0,
-            serverGamemode: 0,
-            serverBots: 0,
-            serverViewBaseX: 1920,
-            serverViewBaseY: 1080,
-            serverMinScale: 0.15,
-            serverSpectatorScale: 0.4,
-            serverStatsPort: 88,
-            serverStatsUpdate: 60,
-            mobilePhysics: 0,
-            badWordFilter: 1,
-            serverRestart: 0,
-            /** CLIENT **/
-            serverMaxLB: 10,
-            serverChat: 1,
-            serverChatAscii: 1,
-            separateChatForTeams: 0,
-            serverName: 'MultiOgar-Edited #1',
-            serverWelcome1: 'Welcome to MultiOgar-Edited!',
-            serverWelcome2: '',
-            clientBind: '',
-            /** ANTI-BOT **/
-            serverIpLimit: 4,
-            serverMinionIgnoreTime: 30,
-            serverMinionThreshold: 10,
-            serverMinionInterval: 1000,
-            serverScrambleLevel: 1,
-            playerBotGrow: 0,
-            /** BORDER **/
-            borderWidth: 14142.135623730952,
-            borderHeight: 14142.135623730952,
-            /** FOOD **/
-            foodMinSize: 10,
-            foodMaxSize: 20,
-            foodAmount: 30,
-            foodMassGrow: 1,
-            /** VIRUSES **/
-            virusMinSize: 100,
-            virusMaxSize: 141.421356237,
-            virusMaxPoppedSize: 60,
-            virusEqualPopSize: 0,
-            virusAmount: 50,
-            virusMaxAmount: 100,
-            motherCellMaxMass: 0,
-            virusVelocity: 780,
-            virusMaxCells: 16,
-            /** EJECTED MASS **/
-            ejectSize: 36.06,
-            ejectSizeLoss: 42.43,
-            ejectCooldown: 3,
-            ejectSpawnPercent: 0.5,
-            ejectVirus: 0,
-            ejectVelocity: 780,
-            /** PLAYERS **/
-            playerMinSize: 31.6227766017,
-            playerMaxSize: 1500,
-            playerMinSplitSize: 59.16079783,
-            playerMinEjectSize: 59.16079783,
-            playerStartSize: 31.6227766017,
-            playerMaxCells: 16,
-            playerSpeed: 1,
-            playerDecayRate: 0.998,
-            playerDecayCap: 0,
-            playerRecombineTime: 30,
-            playerDisconnectTime: -1,
-            playerMaxNickLength: 15,
-            splitVelocity: 780,
-            /** MINIONS **/
-            minionStartSize: 31.6227766017,
-            minionMaxStartSize: 31.6227766017,
-            minionCollideTeam: 0,
-            disableERTP: 1,
-            disableQ: 0,
-            serverMinions: 0,
-            defaultName: "minion",
-            minionsOnLeaderboard: 0,
-            /** TOURNAMENT **/
-            tourneyMaxPlayers: 12,
-            tourneyPrepTime: 10,
-            tourneyEndTime: 30,
-            tourneyTimeLimit: 20,
-            tourneyAutoFill: 0,
-            tourneyAutoFillPlayers: 1,
-            tourneyLeaderboardToggleTime: 10,
-        };
+        this.config = require("./config.js");
         this.ipBanList = [];
         this.minionTest = [];
         this.userList = [];
@@ -212,7 +118,7 @@ class Server {
         switch (error.code) {
             case "EADDRINUSE":
                 Logger.error("Server could not bind to port " + this.config.serverPort + "!");
-                Logger.error("Please close out of Skype or change 'serverPort' in gameserver.ini to a different number.");
+                Logger.error("Please close out of Skype or change 'serverPort' in the config to a different number.");
                 break;
             case "EACCES":
                 Logger.error("Please make sure you are running MultiOgar-Edited with root privileges.");
@@ -935,33 +841,7 @@ class Server {
         this.addNode(newVirus);
     }
     loadFiles() {
-        // Load config
-        var fs = require("fs");
-        var fileNameConfig = this.srcFiles + '/gameserver.ini';
-        var ini = require(this.srcFiles + '/modules/ini.js');
-        try {
-            if (!fs.existsSync(fileNameConfig)) {
-                // No config
-                Logger.warn("Config not found... Generating new config");
-                // Create a new config
-                fs.writeFileSync(fileNameConfig, ini.stringify(this.config), 'utf-8');
-            }
-            else {
-                // Load the contents of the config file
-                var load = ini.parse(fs.readFileSync(fileNameConfig, 'utf-8'));
-                // Replace all the default config's values with the loaded config's values
-                for (var key in load) {
-                    if (this.config.hasOwnProperty(key))
-                        this.config[key] = load[key];
-                    else
-                        Logger.error("Unknown gameserver.ini value: " + key);
-                }
-            }
-        }
-        catch (err) {
-            Logger.error(err.stack);
-            Logger.error("Failed to load " + fileNameConfig + ": " + err.message);
-        }
+        const fs = require("fs")
         //Logger.setVerbosity(this.config.logVerbosity);
         //Logger.setFileVerbosity(this.config.logFileVerbosity);
         // Load bad words
