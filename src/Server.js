@@ -11,6 +11,7 @@ class Server {
     constructor() {
         // Location of source files - For renaming or moving source files!
         this.srcFiles = "../src";
+        
         // Startup
         this.run = true;
         this.version = '1.6.2';
@@ -30,6 +31,7 @@ class Server {
         this.leaderboardType = -1; // No type
         var BotLoader = require('./ai/BotLoader');
         this.bots = new BotLoader(this);
+
         // Main loop tick
         this.startTime = Date.now();
         this.stepDateTime = 0;
@@ -40,6 +42,7 @@ class Server {
         this.mainLoopBind = null;
         this.ticks = 0;
         this.disableSpawn = false;
+
         // Config
         this.config = require("./config.js");
         this.ipBanList = [];
@@ -47,6 +50,7 @@ class Server {
         this.userList = [];
         this.badWords = [];
         this.loadFiles();
+
         // Set border, quad-tree
         var QuadNode = require('./modules/QuadNode.js');
         this.setBorder(this.config.borderWidth, this.config.borderHeight);
