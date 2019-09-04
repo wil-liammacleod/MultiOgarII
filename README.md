@@ -7,6 +7,12 @@ Before the server can be used you need to install [NodeJS](https://nodejs.org/en
 ## Running
 The server can be ran by executing the following commands in a `Linux` terminal or a `Windows Command Prompt`. This is assuming that you're in the `root` of the project directory.
 ```BASH
+# install modules
+$ npm i
+
+# change directory
 $ cd src
+
+# start server
 $ node index.js
 ```
