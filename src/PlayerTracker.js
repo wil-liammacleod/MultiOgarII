@@ -305,9 +305,12 @@ class PlayerTracker {
         else {
             if (this.freeRoam || this.getSpecTarget() == null) {
                 // free roam
-                var d = this.mouse.clone().sub(this.centerPos);
+                var mouseVec = this.mouse.clone().sub(this.centerPos);
+                var mouseDist = mouseVec.sqDist();
+                if (mouseDist != 0) {
+                    this.setCenterPos(this.centerPos.add(mouseVec, 32 / mouseDist));
+                }
                 var scale = this.server.config.serverSpectatorScale;
-                this.setCenterPos(this.centerPos.add(d, 32 / d.sqDist()));
             }
             else {
                 // spectate target
