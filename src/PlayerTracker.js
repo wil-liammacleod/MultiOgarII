@@ -295,19 +295,17 @@ class PlayerTracker {
     updateSpecView(len) {
         if (!this.spectate || len) {
             // in game
-            var cx = 0, cy = 0;
-            for (var i = 0; i < len; i++) {
-                cx += this.cells[i].position.x / len;
-                cy += this.cells[i].position.y / len;
-                this.centerPos = new Vec2(cx, cy);
-            }
+            this.centerPos = this.cells.reduce(
+                (average, current) => average.add(current.position.quotient(len)),
+                new Vec2(0, 0)
+            );
         }
         else {
             if (this.freeRoam || this.getSpecTarget() == null) {
                 // free roam
-                var d = this.mouse.clone().sub(this.centerPos);
+                var d = this.mouse.difference(this.centerPos);
                 var scale = this.server.config.serverSpectatorScale;
-                this.setCenterPos(this.centerPos.add(d, 32 / d.sqDist()));
+                this.setCenterPos(this.centerPos.add(d.product(32 / d.dist())));
             }
             else {
                 // spectate target

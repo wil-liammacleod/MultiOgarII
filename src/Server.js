@@ -11,7 +11,7 @@ class Server {
     constructor() {
         // Location of source files - For renaming or moving source files!
         this.srcFiles = "../src";
-        
+
         // Startup
         this.run = true;
         this.version = '1.6.2';
@@ -543,11 +543,11 @@ class Server {
         if (client.socket.isConnected == false || client.frozen || !client.mouse)
             return; // Do not move
         // get movement from vector
-        var d = client.mouse.clone().sub(cell.position);
-        var move = cell.getSpeed(d.sqDist()); // movement speed
+        var d = client.mouse.difference(cell.position);
+        var move = cell.getSpeed(d.dist()); // movement speed
         if (!move)
             return; // avoid jittering
-        cell.position.add(d, move);
+        cell.position.add(d.product(move));
         // update remerge
         var time = this.config.playerRecombineTime, base = Math.max(time, cell._size * 0.2) * 25;
         // instant merging conditions
@@ -578,7 +578,7 @@ class Server {
         // decay boost-speed from distance
         var speed = cell.boostDistance / 9; // val: 87
         cell.boostDistance -= speed; // decays from speed
-        cell.position.add(cell.boostDirection, speed);
+        cell.position.add(cell.boostDirection.product(speed));
         // update boundries
         cell.checkBorder(this.border);
         this.updateNodeQuad(cell);
@@ -614,12 +614,12 @@ class Server {
     }
     // Checks cells for collision
     checkCellCollision(cell, check) {
-        var p = check.position.clone().sub(cell.position);
+        var p = check.position.difference(cell.position);
         // create collision manifold
         return {
             cell: cell,
             check: check,
-            d: p.sqDist(),
+            d: p.dist(),
             p: p // check - cell position
         };
     }
@@ -654,8 +654,8 @@ class Server {
         var r1 = push * m.cell.radius / rt;
         var r2 = push * m.check.radius / rt;
         // apply extrusion force
-        m.cell.position.sub2(m.p, r2);
-        m.check.position.add(m.p, r1);
+        m.cell.position.subtract(m.p.product(r2));
+        m.check.position.add(m.p.product(r1));
     }
     // Resolves non-rigid body collision
     resolveCollision(m) {
@@ -701,7 +701,8 @@ class Server {
         this.addNode(newCell);
     }
     randomPos() {
-        return new Vec2(this.border.minx + this.border.width * Math.random(), this.border.miny + this.border.height * Math.random());
+        return new Vec2(this.border.minx + this.border.width * Math.random(),
+            this.border.miny + this.border.height * Math.random());
     }
     spawnFood() {
         var cell = new Entity.Food(this, null, this.randomPos(), this.config.foodMinSize);
@@ -748,26 +749,20 @@ class Server {
             pos = this.randomPos(); // Not safe => retry
         this.addNode(cell);
         // Set initial mouse coords
-        player.mouse = new Vec2(pos.x, pos.y);
+        player.mouse = pos.clone();
     }
     willCollide(cell) {
-        var notSafe = false; // Safe by default
-        var sqSize = cell.radius;
-        var pos = this.randomPos();
-        var d = cell.position.clone().sub(pos);
-        if (d.dist() + sqSize <= sqSize * 2) {
-            notSafe = true;
-        }
+        var safe = true; // Safe by default
         this.quadTree.find({
             minx: cell.position.x - cell._size,
             miny: cell.position.y - cell._size,
             maxx: cell.position.x + cell._size,
             maxy: cell.position.y + cell._size
-        }, function (n) {
+        }, n => {
             if (n.type == 0)
-                notSafe = true;
+                safe = false;
         });
-        return notSafe;
+        return !safe;
     }
     splitCells(client) {
         // Split cell order decided by cell age
@@ -776,8 +771,8 @@ class Server {
             cellToSplit.push(client.cells[i]);
         // Split split-able cells
         cellToSplit.forEach((cell) => {
-            var d = client.mouse.clone().sub(cell.position);
-            if (d.dist() < 1) {
+            var d = client.mouse.difference(cell.position);
+            if (d.distSquared() < 1) {
                 d.x = 1, d.y = 0;
             }
             if (cell._size < this.config.playerMinSplitSize)
@@ -814,8 +809,8 @@ class Server {
             var cell = client.cells[i];
             if (cell._size < this.config.playerMinEjectSize)
                 continue; // Too small to eject
-            var d = client.mouse.clone().sub(cell.position);
-            var sq = d.sqDist();
+            var d = client.mouse.difference(cell.position);
+            var sq = d.dist();
             d.x = sq > 1 ? d.x / sq : 1;
             d.y = sq > 1 ? d.y / sq : 0;
             // Remove mass from parent cell first
@@ -823,7 +818,7 @@ class Server {
             loss = cell.radius - loss * loss;
             cell.setSize(Math.sqrt(loss));
             // Get starting position
-            var pos = new Vec2(cell.position.x + d.x * cell._size, cell.position.y + d.y * cell._size);
+            var pos = cell.position.sum(d.product(cell._size));
             var angle = d.angle() + (Math.random() * .6) - .3;
             // Create cell and add it to node list
             if (!this.config.ejectVirus) {
