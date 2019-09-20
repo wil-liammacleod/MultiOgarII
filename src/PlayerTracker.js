@@ -1,6 +1,7 @@
 var Packet = require('./packet');
 var Vec2 = require('./modules/Vec2');
 var BinaryWriter = require("./packet/BinaryWriter");
+var {Quad} = require("./modules/QuadNode.js");
 
 class PlayerTracker {
     constructor(server, socket) {
@@ -33,12 +34,7 @@ class PlayerTracker {
         this.lastKeypressTick = 0;
         this.centerPos = new Vec2(0, 0);
         this.mouse = new Vec2(0, 0);
-        this.viewBox = {
-            minx: 0,
-            miny: 0,
-            maxx: 0,
-            maxy: 0
-        };
+        this.viewBox = new Quad(0, 0, 0, 0);
         // Scramble the coordinate system for anti-raga
         this.scrambleX = 0;
         this.scrambleY = 0;
@@ -150,12 +146,12 @@ class PlayerTracker {
             else if (this.server.config.serverScrambleLevel == 3) {
                 var ran = 10065536 * Math.random();
                 // Ruins most known minimaps (no border)
-                var border = {
-                    minx: this.server.border.minx - ran,
-                    miny: this.server.border.miny - ran,
-                    maxx: this.server.border.maxx + ran,
-                    maxy: this.server.border.maxy + ran
-                };
+                var border = new Quad(
+                    this.server.border.minx - ran,
+                    this.server.border.miny - ran,
+                    this.server.border.maxx + ran,
+                    this.server.border.maxy + ran
+                );
                 packetHandler.sendPacket(new Packet.SetBorder(this, border));
             }
         }
@@ -200,12 +196,12 @@ class PlayerTracker {
         var scale = Math.max(this.getScale(), this.server.config.serverMinScale);
         var halfWidth = (this.server.config.serverViewBaseX + 100) / scale / 2;
         var halfHeight = (this.server.config.serverViewBaseY + 100) / scale / 2;
-        this.viewBox = {
-            minx: this.centerPos.x - halfWidth,
-            miny: this.centerPos.y - halfHeight,
-            maxx: this.centerPos.x + halfWidth,
-            maxy: this.centerPos.y + halfHeight
-        };
+        this.viewBox = new Quad(
+            this.centerPos.x - halfWidth,
+            this.centerPos.y - halfHeight,
+            this.centerPos.x + halfWidth,
+            this.centerPos.y + halfHeight
+        );
         // update visible nodes
         this.viewNodes = [];
         var self = this;
@@ -228,12 +224,12 @@ class PlayerTracker {
             // scramble (moving border)
             if (!this.borderCounter) {
                 var b = this.server.border, v = this.viewBox;
-                var bound = {
-                    minx: Math.max(b.minx, v.minx - v.halfWidth),
-                    miny: Math.max(b.miny, v.miny - v.halfHeight),
-                    maxx: Math.min(b.maxx, v.maxx + v.halfWidth),
-                    maxy: Math.min(b.maxy, v.maxy + v.halfHeight)
-                };
+                var bound = new Quad(
+                    Math.max(b.minx, v.minx - v.halfWidth),
+                    Math.max(b.miny, v.miny - v.halfHeight),
+                    Math.min(b.maxx, v.maxx + v.halfWidth),
+                    Math.min(b.maxy, v.maxy + v.halfHeight)
+                );
                 packetHandler.sendPacket(new Packet.SetBorder(this, bound));
             }
             if (++this.borderCounter >= 20)

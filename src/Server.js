@@ -5,6 +5,7 @@ var http = require('http');
 var Entity = require('./entity');
 var Vec2 = require('./modules/Vec2');
 var Logger = require('./modules/Logger');
+var {QuadNode, Quad} = require('./modules/QuadNode.js');
 
 // Server implementation
 class Server {
@@ -52,7 +53,6 @@ class Server {
         this.loadFiles();
 
         // Set border, quad-tree
-        var QuadNode = require('./modules/QuadNode.js');
         this.setBorder(this.config.borderWidth, this.config.borderHeight);
         this.quadTree = new QuadNode(this.border);
     }
@@ -105,12 +105,7 @@ class Server {
         var s = node._size;
         node.quadItem = {
             cell: node,
-            bound: {
-                minx: x - s,
-                miny: y - s,
-                maxx: x + s,
-                maxy: y + s
-            }
+            bound: new Quad(x - s, y - s, x + s, y + s)
         };
         this.quadTree.insert(node.quadItem);
         this.nodes.push(node);
@@ -263,14 +258,9 @@ class Server {
     setBorder(width, height) {
         var hw = width / 2;
         var hh = height / 2;
-        this.border = {
-            minx: -hw,
-            miny: -hh,
-            maxx: hw,
-            maxy: hh,
-            width: width,
-            height: height
-        };
+        this.border = new Quad(-hw, -hh, hw, hh);
+        this.border.width = width;
+        this.border.height = height;
     }
     getRandomColor() {
         // get random
@@ -446,7 +436,6 @@ class Server {
         var self = this;
         // Restart
         if (this.ticks > this.config.serverRestart) {
-            var QuadNode = require('./modules/QuadNode.js');
             this.httpServer = null;
             this.wsServer = null;
             this.run = true;
@@ -752,17 +741,11 @@ class Server {
         player.mouse = pos.clone();
     }
     willCollide(cell) {
-        var safe = true; // Safe by default
-        this.quadTree.find({
-            minx: cell.position.x - cell._size,
-            miny: cell.position.y - cell._size,
-            maxx: cell.position.x + cell._size,
-            maxy: cell.position.y + cell._size
-        }, n => {
-            if (n.type == 0)
-                safe = false;
-        });
-        return !safe;
+        const x = cell.position.x;
+        const y = cell.position.y;
+        const r = cell._size;
+        const bound = new Quad(x - r, y - r, x + r, y + r);
+        return this.quadTree.find(bound, n => n.type == 0);
     }
     splitCells(client) {
         // Split cell order decided by cell age

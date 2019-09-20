@@ -6,6 +6,21 @@
  * License: Apache License, Version 2.0
  */
 
+const maxItemCount = 64;
+
+class Quad {
+    constructor(minx, miny, maxx, maxy) {
+        this.minx = minx;
+        this.miny = miny;
+        this.maxx = maxx;
+        this.maxy = maxy;
+    }
+    overlaps(/* Quad */other) {
+        return !(this.minx >= other.maxx || this.maxx <= other.minx
+            || this.miny >= other.maxy || this.maxy <= other.miny);
+    }
+}
+
 class QuadNode {
     constructor(bound) {
         this.halfWidth = (bound.maxx - bound.minx) / 2;
@@ -25,22 +40,22 @@ class QuadNode {
         this.items.push(item);
         item._quadNode = this; // used for quick search quad node by item
         // split and rebalance current node
-        if (this.childNodes.length == 0 && this.items.length > 64) {
-            // split into 4 subnodes (top, left, bottom, right)
-            var w = this.halfWidth;
-            var h = this.halfHeight;
-            var my = this.bound.miny;
-            var mx = this.bound.minx;
-            var mh = my + h;
-            var mw = mx + w;
-            var b0 = { minx: mw, miny: my, maxx: mw + w, maxy: my + h };
-            var b1 = { minx: mx, miny: my, maxx: mx + w, maxy: my + h };
-            var b2 = { minx: mx, miny: mh, maxx: mx + w, maxy: mh + h };
-            var b3 = { minx: mw, miny: mh, maxx: mw + w, maxy: mh + h };
-            this.childNodes.push(new QuadNode(b0));
-            this.childNodes.push(new QuadNode(b1));
-            this.childNodes.push(new QuadNode(b2));
-            this.childNodes.push(new QuadNode(b3));
+        if (this.childNodes.length == 0 && this.items.length > maxItemCount) {
+            // split into 4 subnodes
+            var minx = this.bound.minx;
+            var miny = this.bound.miny;
+            var midx = this.bound.cx;
+            var midy = this.bound.cy;
+            var maxx = this.bound.maxx;
+            var maxy = this.bound.maxy;
+            var nw = new Quad(minx, miny, midx, midy);
+            var ne = new Quad(midx, miny, maxx, midy);
+            var sw = new Quad(minx, midy, midx, maxy);
+            var se = new Quad(midx, midy, maxx, maxy);
+            this.childNodes.push(new QuadNode(nw));
+            this.childNodes.push(new QuadNode(ne));
+            this.childNodes.push(new QuadNode(sw));
+            this.childNodes.push(new QuadNode(se));
         }
     }
     remove(item) {
@@ -49,48 +64,35 @@ class QuadNode {
         this.items.splice(this.items.indexOf(item), 1);
         item._quadNode = null;
     }
-    find(bound, callback) {
-        if (this.childNodes.length != 0) {
-            var quad = this.getQuad(bound);
-            if (quad !== -1) {
-                this.childNodes[quad].find(bound, callback);
-            }
-            else {
-                for (var i = 0; i < this.childNodes.length; i++) {
-                    var node = this.childNodes[i];
-                    if (!this.intersects(node.bound, bound))
-                        node.find(bound, callback);
-                }
-            }
+    find(bound, callback) { // returns bool found
+        for (const childNode of this.childNodes) {
+            if (bound.overlaps(childNode.bound))
+                if (childNode.find(bound, callback))
+                    return true;
         }
-        for (var i = 0; i < this.items.length; i++) {
-            var item = this.items[i];
-            if (!this.intersects(item.bound, bound))
-                callback(item.cell);
+        for (const item of this.items) {
+            if (bound.overlaps(item.bound))
+                if (callback(item.cell))
+                    return true;
         }
+        return false;
     }
     // Returns quadrant for the bound.
     // Returns -1 if bound cannot completely fit within a child node
     getQuad(bound) {
-        var isTop = (bound.miny && bound.maxy) < this.bound.cy;
-        if ((bound.minx && bound.maxx) < this.bound.cx) {
-            if (isTop)
-                return 1;
-            else if (bound.miny > this.bound.cy)
-                return 2; // isBottom
-        }
-        else if (bound.minx > this.bound.cx) { // isRight
-            if (isTop)
+        if (bound.maxx <= this.bound.cx) { // left
+            if (bound.maxy <= this.bound.cy) // top
                 return 0;
-            else if (bound.miny > this.bound.cy)
-                return 3; // isBottom
+            if (bound.miny >= this.bound.cy) // bottom
+                return 2;
+        } else if (bound.minx >= this.bound.cx) { // right
+            if (bound.maxy <= this.bound.cy) // top
+                return 1;
+            if (bound.miny >= this.bound.cy) // bottom
+                return 3;
         }
-        return -1; // cannot fit (too large size)
-    }
-    intersects(a, b) {
-        return b.minx >= a.maxx || b.maxx <= a.minx
-            || b.miny >= a.maxy || b.maxy <= a.miny;
+        return -1;
     }
 }
 
-module.exports = QuadNode;
+module.exports = {QuadNode: QuadNode, Quad: Quad};
