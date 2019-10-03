@@ -6,7 +6,7 @@ class MotherCell extends Virus {
     constructor(server, owner, position, size) {
         super(server, owner, position, size);
         this.onEat = Cell.prototype.onEat;
-        
+
         this.type = 2;
         this.isVirus = true;
         this.isMotherCell = true;
@@ -32,7 +32,7 @@ class MotherCell extends Virus {
             cell.type == 2 || // can eat virus
             cell.type == 3; // can eat ejected mass
     };
-        
+
     onUpdate() {
         if (this._size == this.motherCellMinSize) {
             return;
@@ -45,10 +45,8 @@ class MotherCell extends Virus {
             size1 = Math.max(size1, this.motherCellMinSize);
             this.setSize(size1);
 
-            // Spawn food with size2
             const angle = Math.random() * 2 * Math.PI;
-            const pos = {x: this.position.x + size1 * Math.sin(angle), y: this.position.y + size1 * Math.cos(angle)};
-
+            const pos = this.position.sum(Vec2.fromAngle(angle).multiply(size1));
             // Spawn food
             const food = new Food(this.server, null, pos, size2);
             food.color = this.server.getRandomColor();

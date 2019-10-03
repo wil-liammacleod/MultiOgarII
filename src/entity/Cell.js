@@ -15,14 +15,14 @@ class Cell {
         this.isMoving = false; // Indicate that cell is in boosted mode
         this.boostDistance = 0;
         this.boostDirection = new Vec2(0, 0);
-        
+
         if (this.server) {
             this.createdAt = this.server.ticks;
             this.nodeId = this.server.lastNodeId++ >> 0;
             if (size)
                 this.setSize(size);
             if (position)
-                this.position = new Vec2(position.x, position.y);
+                this.position = position.clone();
         };
     };
 
@@ -55,7 +55,7 @@ class Cell {
     // Boost cell
     setBoost(distance, angle) {
         this.boostDistance = distance;
-        this.boostDirection = new Vec2(Math.sin(angle), Math.cos(angle));
+        this.boostDirection = Vec2.fromAngle(angle);
         this.isMoving = true;
         if (!this.owner) {
             const index = this.server.movingNodes.indexOf(this);
@@ -68,12 +68,12 @@ class Cell {
     checkBorder(b) {
         const r = this._size / 2;
         if (this.position.x < b.minx + r || this.position.x > b.maxx - r) {
-            this.boostDirection.scale(-1, 1); // Reflect left-right
+            this.boostDirection.x *= -1; // Reflect left-right
             this.position.x = Math.max(this.position.x, b.minx + r);
             this.position.x = Math.min(this.position.x, b.maxx - r);
         }
         if (this.position.y < b.miny + r || this.position.y > b.maxy - r) {
-            this.boostDirection.scale(1, -1); // Reflect off of top and bottom, borders
+            this.boostDirection.y *= -1; // Reflect off of top and bottom, borders
             this.position.y = Math.max(this.position.y, b.miny + r);
             this.position.y = Math.min(this.position.y, b.maxy - r);
         }

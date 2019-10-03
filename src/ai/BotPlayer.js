@@ -1,58 +1,70 @@
 const PlayerTracker = require('../PlayerTracker');
 const Vec2 = require('../modules/Vec2');
 
+const decideTypes = [
+    function decidePlayer(node, cell) {
+        // Same team, don't eat
+        if (this.server.mode.haveTeams && cell.owner.team == node.owner.team)
+            return 0;
+        if (cell._size > node._size * 1.15) // Edible
+            return node._size * 2.5;
+        if (node._size > cell._size * 1.15) // Bigger, avoid
+            return -node._size;
+        return -(node._size / cell._size) / 3;
+    },
+    function decideFood(node, cell) { // Always edible
+        return 1;
+    },
+    function decideEjected(node, cell) {
+        if (cell._size > node._size * 1.15)
+            return node._size;
+        return 0;
+    },
+    function decideVirus(node, cell) {
+        if (cell._size > node._size * 1.15) { // Edible
+            if (this.cells.length == this.server.config.playerMaxCells) {
+                // Reached cell limit, won't explode
+                return node._size * 2.5;
+            }
+            // Will explode, avoid
+            return -1;
+        }
+        if (node.isMotherCell && node._size > cell._size * 1.15) // Avoid mother cell if bigger than player
+            return -1;
+        return 0;
+    }
+];
+
 class BotPlayer extends PlayerTracker {
     constructor(server, socket) {
         super(server, socket);
         this.influence = 0;
-    };
-
+    }
     largest(list) {
-        return list.sort((a, b) => {
-            return b._size - a._size
-        })[0];
-    };
-
+        return list.reduce((largest, current) => {
+            return current._size > largest._size ? current : largest;
+        });
+    }
     checkConnection() {
         // Respawn if bot is dead
         if (!this.cells.length)
             this.server.mode.onPlayerSpawn(this.server, this);
-    };
-
+    }
     sendUpdate() {
         this.decide(this.largest(this.cells));
-    };
-
+    }
     decide(cell) {
         if (!cell)
             return;
 
         const result = new Vec2(0, 0);
 
-        for (let i = 0; i < this.viewNodes.length; i++) {
-            const node = this.viewNodes[i];
+        for (const node of this.viewNodes) {
             if (node.owner == this)
                 continue;
 
             // Make decisions
-            switch (node.type) {
-                case 0:
-                    // Player cells
-                    this.decidePlayer(node, cell);
-                    break;
-                case 1:
-                    // Food cells
-                    this.decideFood();
-                    break;
-                case 2:
-                    // Virus cells and its derivatives
-                    this.decideVirus(node, cell);
-                    break;
-                case 3:
-                    // Ejected cells
-                    this.decideEjected(node, cell);
-                    break
-            }
+            this.influence = decideTypes[node.type].call(this, node, cell);
 
             // Conclude decisions
             // Apply this.influence if it isn't 0
@@ -60,15 +72,13 @@ class BotPlayer extends PlayerTracker {
                 continue;
 
             // Calculate separation between cell and node
-            const displacement = new Vec2(node.position.x - cell.position.x, node.position.y - cell.position.y);
+            const displacement = node.position.difference(cell.position);
 
             // Figure out distance between cells
-            let distance = displacement.sqDist();
+            let distance = displacement.dist();
 
-            if (this.influence < 0) {
-                // Get edge distance
+            if (this.influence < 0) // Get edge distance
                 distance -= cell._size + node._size;
-            };
 
             // The farther they are the smaller influence it is
             if (distance < 1)
@@ -87,53 +97,12 @@ class BotPlayer extends PlayerTracker {
                 return;
             } else {
                 // Produce force vector exerted by this entity on the cell
-                result.add(displacement.normalize(), this.influence);
-            };
-        };
+                result.add(displacement.normalize().product(this.influence));
+            }
+        }
 
         // Set bot's mouse position
-        this.mouse = new Vec2(cell.position.x + result.x * 900, cell.position.y + result.y * 900);
-    };
-
-    decidePlayer(node, cell) {
-        // Same team, don't eat
-        if (this.server.mode.haveTeams && cell.owner.team == node.owner.team) {
-            this.influence = 0;
-        } else if (cell._size > node._size * 1.15) {
-            // Eadible
-            this.influence = node._size * 2.5;
-        } else if (node._size > cell._size * 1.15) {
-            // Bigger, avoid
-            this.influence = -node._size;
-        } else {
-            this.influence = -(node._size / cell._size) / 3;
-        }
-    };
-
-    decideFood() {
-        // Always eadible
-        this.influence = 1;
-    };
-
-    decideEjected(node, cell) {
-        if (cell._size > node._size * 1.15)
-            this.influence = node._size;
-    };
-
-    decideVirus(node, cell) {
-        if (cell._size > node._size * 1.15) {
-            // Eadible
-            if (this.cells.length == this.server.config.playerMaxCells) {
-                // Reached cell limit, won't explode
-                this.influence = node._size * 2.5;
-            } else {
-                // Will explode, avoid
-                this.influence = -1;
-            }
-        } else if (node.isMotherCell && node._size > cell._size * 1.15) {
-            // Avoid mother cell if bigger than player
-            this.influence = -1;
-        }
-    };
-};
+        this.mouse = cell.position.sum(result.multiply(900));
+    }
+}
 module.exports = BotPlayer;
