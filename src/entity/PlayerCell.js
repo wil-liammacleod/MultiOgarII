@@ -9,11 +9,15 @@ class PlayerCell extends Cell {
     };
 
     canEat(cell) {
-        return true; 
+        return true;
     };
-    
+
     getSpeed(dist) {
-        return Math.min(dist, 2.2 * Math.pow(this._size, -0.45) * 40) / dist;
+        let speed = 2.2 * Math.pow(this._size, -0.45) * 40;
+        speed *= this.server.config.playerSpeed;
+        speed = Math.min(dist, speed);
+        if (dist != 0) speed /= dist;
+        return speed;
     };
 
     onAdd(server) {
