@@ -783,25 +783,28 @@ class Server {
             return;
         for (var i = 0; i < client.cells.length; i++) {
             var cell = client.cells[i];
-            if (cell._size < this.config.playerMinEjectSize)
+            if (cell._size < this.config.playerMinEjectSize) continue;
+            var loss = this.config.ejectSizeLoss;
+            var newSize = cell.radius - loss * loss;
+            var minSize = this.config.playerMinSize;
+            if (newSize < 0 || newSize < minSize * minSize)
                 continue; // Too small to eject
+            cell.setSize(Math.sqrt(newSize));
+
             var d = client.mouse.difference(cell.position);
             var sq = d.dist();
             d.x = sq > 1 ? d.x / sq : 1;
             d.y = sq > 1 ? d.y / sq : 0;
-            // Remove mass from parent cell first
-            var loss = this.config.ejectSizeLoss;
-            loss = cell.radius - loss * loss;
-            cell.setSize(Math.sqrt(loss));
+
             // Get starting position
             var pos = cell.position.sum(d.product(cell._size));
             var angle = d.angle() + (Math.random() * .6) - .3;
             // Create cell and add it to node list
-            if (!this.config.ejectVirus) {
-                var ejected = new Entity.EjectedMass(this, null, pos, this.config.ejectSize);
-            }
-            else {
+            var ejected;
+            if (this.config.ejectVirus) {
                 ejected = new Entity.Virus(this, null, pos, this.config.ejectSize);
+            } else {
+                ejected = new Entity.EjectedMass(this, null, pos, this.config.ejectSize);
             }
             ejected.color = cell.color;
             ejected.setBoost(this.config.ejectVelocity, angle);
