@@ -913,7 +913,6 @@ class Server {
     }
     startStatsServer(port) {
         // Create stats
-        this.stats = "Test";
         this.getStats();
         // Show stats
         this.httpServer = http.createServer(function (req, res) {
@@ -933,18 +932,16 @@ class Server {
     }
     getStats() {
         // Get server statistics
-        var totalPlayers = 0;
-        var alivePlayers = 0;
-        var spectatePlayers = 0;
-        for (var i = 0, len = this.clients.length; i < len; i++) {
-            var socket = this.clients[i];
-            if (!socket || !socket.isConnected || socket.playerTracker.isMi)
-                continue;
-            totalPlayers++;
-            if (socket.playerTracker.cells.length)
-                alivePlayers++;
-            else
-                spectatePlayers++;
+        let alivePlayers = 0;
+        let spectatePlayers = 0;
+        let bots = 0;
+        let minions = 0;
+        for (const client of this.clients) {
+            if (!client || !client.isConnected) continue;
+            if (client.playerTracker.isBot) ++bots;
+            else if (client.playerTracker.isMi) ++minions;
+            else if (client.playerTracker.cells.length) ++alivePlayers;
+            else ++spectatePlayers;
         }
         var s = {
             'server_name': this.config.serverName,
@@ -953,13 +950,17 @@ class Server {
             'border_height': this.border.height,
             'gamemode': this.mode.name,
             'max_players': this.config.serverMaxConnections,
-            'current_players': totalPlayers,
+            'current_players': alivePlayers + spectatePlayers,
             'alive': alivePlayers,
             'spectators': spectatePlayers,
+            'bots': bots,
+            'minions': minions,
             'update_time': this.updateTimeAvg.toFixed(3),
             'uptime': Math.round((this.stepDateTime - this.startTime) / 1000 / 60),
-            'start_time': this.startTime
+            'start_time': this.startTime,
+            'stats_time': Date.now()
         };
+        this.statsObj = s;
         this.stats = JSON.stringify(s);
     }
     // Pings the server tracker, should be called every 30 seconds

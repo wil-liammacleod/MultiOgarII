@@ -11,17 +11,7 @@ class BotLoader {
     constructor(server) {
         this.server = server;
         this.botCount = 0;
-    };
-
-    checkConnection() {
-        if(this.socket.isCloseRequest) {
-            while(this.cells.length)
-                this.server.removeNode(this.cells[0]);
-
-            return this.isRemoved = true;
-        };
-    };
-
+    }
     addBot() {
         // Create a FakeSocket instance and assign it's properties.
         const socket = new FakeSocket(this.server);
@@ -31,8 +21,7 @@ class BotLoader {
         // Add to client list and spawn.
         this.server.clients.push(socket);
         socket.packetHandler.setNickname(`Bot | ${this.botCount++}`);
-    };
-
+    }
     addMinion(owner, name, mass) {
         // Aliases
         const maxSize = this.server.config.minionMaxStartSize;
@@ -51,7 +40,7 @@ class BotLoader {
 
         // Add to world
         socket.packetHandler.setNickname(name == "" || !name ? this.server.config.defaultName : name);
-    };
-};
+    }
+}
 
 module.exports = BotLoader;

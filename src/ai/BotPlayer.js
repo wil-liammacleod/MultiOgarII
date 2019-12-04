@@ -38,6 +38,7 @@ const decideTypes = [
 class BotPlayer extends PlayerTracker {
     constructor(server, socket) {
         super(server, socket);
+        this.isBot = true;
         this.influence = 0;
     }
     largest(list) {

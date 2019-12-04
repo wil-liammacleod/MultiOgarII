@@ -273,8 +273,8 @@ class PacketHandler {
     }
     sendPacket(packet) {
         var socket = this.socket;
-        if (!packet || socket.isConnected == null || socket.playerTracker.isMi)
-            return;
+        if (!packet || !socket.isConnected || socket.playerTracker.isMi ||
+            socket.playerTracker.isBot) return;
         if (socket.readyState == this.server.WebSocket.OPEN) {
             var buffer = packet.build(this.protocol);
             if (buffer)
