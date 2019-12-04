@@ -14,13 +14,13 @@ class CommandsList {
         this.stats.description = "Generate current server stats";
         this.aliases.description = "Generate command aliases.";
     };
-    
+
     help() {
         const commands = Object.getOwnPropertyNames(CommandsList.prototype); // List of methods.
         commands.shift(); // Remove constructor.
 
         Logger.info(`The server currently supports a total of ${commands.length} commands.`);
-            
+
         // Print each command and its description.
         commands.forEach(command => {
             const commandObj = CommandsList.prototype[command]; // Command object
@@ -32,7 +32,7 @@ class CommandsList {
         });
     };
 
-    playerlist(server) {        
+    playerlist(server) {
         // Sort client IDs in descending order.
         server.clients.sort((a, b) => {return a.playerTracker.pID - b.playerTracker.pID});
 
@@ -68,7 +68,7 @@ class CommandsList {
 
         for (let key in server.clients) {
             const client = server.clients[key].playerTracker;
-            
+
             // Check if server is empty.
             if(!server.clients.length) {
                 return Logger.warn("The server is empty.");
@@ -78,19 +78,19 @@ class CommandsList {
             if(client.pID != ID) {
                 return;
             };
-            
+
             // Remove minions if no amount is provided.
             if (client.hasMinions == true) {
                 // Set hasMinions flag to false.
                 client.hasMinions = false;
                 return Logger.info(`Removed ${client._name}'s minions.`);
             };
-            
+
             // Exclude disconnected players.
             if (!server.clients[key].isConnected) {
                 return Logger.warn(`${client._name} isn't connected`)
             };
-            
+
 
             // Add the provided (or default) amount of minions to the client specified.
             for (let i = 0; i < amount; i++) {
@@ -122,7 +122,7 @@ class CommandsList {
         server.clients.forEach(socket => {
             const client = socket.playerTracker;
             if(!socket.isConnected && total <= amount) {
-                socket.close() 
+                socket.close()
                 return total++;
             };
         });
@@ -221,7 +221,7 @@ class CommandsList {
         commands.forEach(command => {
             const commandObj = CommandsList.prototype[command]; // Command object.
             const aliasName = commandObj.name[0] + commandObj.name[commandObj.name.length - 1]; // Alias name.
-            
+
             // Ignore aliases, only print commands.
             if(CommandsList.prototype[commandObj.name]) {
                 CommandsList.prototype[aliasName] = (server, args) => CommandsList.prototype[commandObj.name](server, args);

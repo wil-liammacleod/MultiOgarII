@@ -32,7 +32,7 @@ const commands = [
         send(player, "~".repeat(70));
     }),
     new Command("id", "gets your playerID", "", UserRoleEnum.GUEST, (player, args) => {
-        send(player, "Your PlayerID is" + player.pID);
+        send(player, `Your PlayerID is ${player.pID}`);
     }),
     new Command("kill", "self kill", "", UserRoleEnum.GUEST, (player, args) => {
         if (!player.cells.length)
@@ -122,6 +122,7 @@ const commands = [
         const s = p.server.config.minionMaxStartSize;
         const mass = s * s / 100;
         for (let i = 0; i < count; ++i) p.server.bots.addMinion(p, name, mass);
+        if (count > 0) p.hasMinions = true;
         send(player, `Added ${count} minions for ` + p._name);
         if (p != player) send(p, player._name + ` gave you ${count} minions.`);
     }),
@@ -129,7 +130,7 @@ const commands = [
         const id = parseInt(args[1]);
         let p = isNaN(id) ? player : findPlayer(player.server, id);
         if (!p) return send(player, "Didn't find player with id " + id);
-        p.miQ = false;
+        p.hasMinions = p.miQ = false;
         send(player, "Succesfully removed minions for " + p._name);
         if (p != player) send(p, player._name + " removed all of your minions.");
     }),

@@ -6,33 +6,27 @@ class MinionPlayer extends PlayerTracker {
         this.owner = owner;
         this.isMi = true;
         this.socket.isConnected = true;
-    };
-
+    }
+    remove() {
+        this.socket.close();
+        this.isRemoved = true;
+        while (this.cells.length)
+            this.server.removeNode(this.cells[0]);
+    }
     checkConnection() {
-        if(this.socket.isCloseRequest) {
-            while(this.cells.length)
-                this.server.removeNode(this.cells[0]);
+        if (this.socket.isCloseRequest ||
+            !this.owner.socket.isConnected ||
+            !this.owner.hasMinions) return this.remove();
 
-            return this.isRemoved = true;
-        };
-
-        if(!this.cells.length && this.owner.hasMinions) {
-            return this.server.mode.onPlayerSpawn(this.server, this);
-        } else if (!this.owner.hasMinions){
-            this.socket.isCloseRequest = true;
-        };
-
-        if(!this.owner.socket.isConnected) {
-            return this.socket.close();
-        };
+        if (!this.cells.length)
+            this.server.mode.onPlayerSpawn(this.server, this);
 
         this.frozen = this.owner.minionFrozen;
-
         this.socket.packetHandler.pressSpace = this.owner.minionSplit;
         this.socket.packetHandler.pressW = this.owner.minionEject;
 
         this.mouse = this.owner.mouse.clone();
-    };
-};
+    }
+}
 
 module.exports = MinionPlayer;
