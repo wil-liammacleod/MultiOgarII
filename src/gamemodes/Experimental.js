@@ -63,8 +63,3 @@ class Experimental extends FFA {
 }
 
 module.exports = Experimental;
-Experimental.prototype = new FFA();
-
-
-
-

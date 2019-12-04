@@ -1,6 +1,7 @@
 const Cell = require('./Cell');
 const Food = require('./Food');
 const Virus = require('./Virus');
+const Vec2 = require('../modules/Vec2.js');
 
 class MotherCell extends Virus {
     constructor(server, owner, position, size) {
