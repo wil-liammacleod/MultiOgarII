@@ -1,15 +1,15 @@
 # MultiOgarII
 MultiOgarII is a FOSS agar.io server implementation that is based upon the [work done](https://github.com/Barbosik/MultiOgar) by [Barbosik](https://github.com/Barbosik/).
 
-# Usage
-Before the server can be used you need to install [NodeJS](https://nodejs.org/en/) onto your machine. Instructions for which are available on the NodeJS website linked above.
-
 
 # Details
 This section is a brief documentation of the server for those interested in using it.
 
 ## Quick Start
-The server can be ran by executing the following commands in a `Linux` terminal or a `Windows Command Prompt`. This is assuming that you're in the `root` of the project directory.
+Before the server can be used you need to install [NodeJS](https://nodejs.org/en/) onto your machine. Instructions for which are available on the NodeJS website linked above.
+
+Once this is done, the server can be ran by executing the following commands in a `Linux` terminal or a `Windows Command Prompt`. This is assuming that you're in the project directory. 
+
 ```BASH
 # install modules
 $ npm i
