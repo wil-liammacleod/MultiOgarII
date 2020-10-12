@@ -18,9 +18,18 @@ class BotLoader {
         socket.playerTracker = new BotPlayer(this.server, socket);
         socket.packetHandler = new PacketHandler(this.server, socket);
 
+        let name = "";
+        // Check if name file exists, if so pick a random name and apply it to the bot.
+        if(fs.existsSync("./ai/botnames.txt")) {
+            const file = fs.readFileSync("./ai/botnames.txt", "utf-8").split("\n");
+            name = file[Math.floor(Math.random() * Math.floor(file.length))];
+        } else {
+            name = `Bot | ${this.botCount++}`;
+        };
+
         // Add to client list and spawn.
         this.server.clients.push(socket);
-        socket.packetHandler.setNickname(`Bot | ${this.botCount++}`);
+        socket.packetHandler.setNickname(name);
     }
     addMinion(owner, name, mass) {
         // Aliases

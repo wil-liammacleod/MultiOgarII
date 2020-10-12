@@ -1,6 +1,8 @@
 # Prevent possible banned IP address leak
 src/ipbanlist.txt
 
+# Botname file
+src/ai/botnames.txt
 # Config file
 src/config.js
 
