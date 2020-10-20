@@ -10,6 +10,7 @@ class CommandsList {
         this.rmbot.description = "Remove bots from the server";
         this.kick.description = "Kick a client from the game";
         this.killall.description = "Remove all client cells from the game.";
+        this.mass.description = "Set the mass of a specific client."
         this.exit.description = "Exit the server.";
         this.stats.description = "Generate current server stats";
         this.aliases.description = "Generate command aliases.";
