@@ -1,11 +1,12 @@
 // Library imports
-var http = require('http');
-
+const http = require('http');
+const https = require("https");
+const fs = require("fs");
 // Project imports
-var Entity = require('./entity');
-var Vec2 = require('./modules/Vec2');
-var Logger = require('./modules/Logger');
-var {QuadNode, Quad} = require('./modules/QuadNode.js');
+const Entity = require('./entity');
+const Vec2 = require('./modules/Vec2.js');
+const Logger = require('./modules/Logger.js');
+const {QuadNode, Quad} = require('./modules/QuadNode.js');
 
 // Server implementation
 class Server {
@@ -66,8 +67,18 @@ class Server {
         // Client Binding
         var bind = this.config.clientBind + "";
         this.clientBind = bind.split(' - ');
-        // Start the server
-        this.httpServer = http.createServer();
+
+        // Check if certificates exist
+        if (fs.existsSync('../keys/key.pem') && fs.existsSync('../keys/cert.pem')) {
+            Logger.info("Using HTTPS, use the wss:// protocol prefix when connecting");
+            this.httpServer = https.createServer({key: fs.readFileSync('../keys/key.pem', 'utf8'), cert: fs.readFileSync('../keys/cert.pem', 'utf8')});
+        } else {
+            // HTTP only
+            Logger.info("Using HTTP");
+            this.httpServer = http.createServer();
+        }
+
+        //this.httpServer = http.createServer();
         var wsOptions = {
             server: this.httpServer,
             perMessageDeflate: false,

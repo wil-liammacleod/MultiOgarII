@@ -1,6 +1,10 @@
 # Prevent possible banned IP address leak
 src/ipbanlist.txt
 
+# Prevent tls keys from being leaked
+keys/cert.pem
+keys/key.pem
+
 # Botname file
 src/ai/botnames.txt
 # Config file
