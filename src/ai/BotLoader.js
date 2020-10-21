@@ -7,6 +7,11 @@ const PacketHandler = require('../PacketHandler');
 const BotPlayer = require('./BotPlayer');
 const MinionPlayer = require('./MinionPlayer');
 
+const botnameFile = "./ai/botnames.txt";
+let botnames = null;
+if(fs.existsSync(botnameFile))
+    botnames = fs.readFileSync(botnameFile, "utf-8").split("\n");
+
 class BotLoader {
     constructor(server) {
         this.server = server;
@@ -18,14 +23,9 @@ class BotLoader {
         socket.playerTracker = new BotPlayer(this.server, socket);
         socket.packetHandler = new PacketHandler(this.server, socket);
 
-        let name = "";
-        // Check if name file exists, if so pick a random name and apply it to the bot.
-        if(fs.existsSync("./ai/botnames.txt")) {
-            const file = fs.readFileSync("./ai/botnames.txt", "utf-8").split("\n");
-            name = file[Math.floor(Math.random() * Math.floor(file.length))];
-        } else {
-            name = `Bot | ${this.botCount++}`;
-        };
+        const name = botnames ?
+            botnames[Math.random() * botnames.length | 0] :
+            `Bot | ${this.botCount++}`;
 
         // Add to client list and spawn.
         this.server.clients.push(socket);
