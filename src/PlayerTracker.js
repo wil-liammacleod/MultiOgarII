@@ -11,7 +11,7 @@ class PlayerTracker {
         this.userAuth = null;
         this.isRemoved = false;
         this.isCloseRequested = false;
-        this._name = "An unnamed cell";
+        this._name = "";
         this._skin = "";
         this._nameUtf8 = null;
         this._skinUtf8protocol11 = null;
@@ -124,7 +124,7 @@ class PlayerTracker {
         if (skin)
             this.setSkin(skin);
         if (!name)
-            name = "An unnamed cell";
+            name = "";
         this.setName(name);
         this.spectate = false;
         this.freeRoam = false;
