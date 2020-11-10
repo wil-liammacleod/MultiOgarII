@@ -94,6 +94,7 @@ class Server {
         if (this.config.serverStatsPort > 0) {
             this.startStatsServer(this.config.serverStatsPort);
         }
+        this.spawnCells(this.config.virusAmount, this.config.foodAmount);
     }
     onHttpServerOpen() {
         // Start Main Loop
@@ -107,7 +108,6 @@ class Server {
                 this.bots.addBot();
             Logger.info("Added " + this.config.serverBots + " player bots");
         }
-        this.spawnCells(this.config.virusAmount, this.config.foodAmount);
     }
     addNode(node) {
         // Add to quad-tree & node list
@@ -213,6 +213,41 @@ class Server {
         this.clients.push(ws);
         // Check for external minions
         this.checkMinion(ws, req);
+    }
+    restart() {
+        if (this.run) {
+            this.run = false;
+            this.sendChatMessage(null, null, "Server restarting...");
+            setTimeout(this.restart.bind(this), 3000);
+            return;
+        }
+        this.httpServer = null;
+        this.wsServer = null;
+        this.run = true;
+        this.lastNodeId = 1;
+        this.lastPlayerId = 1;
+        for (const client of this.clients) client.close();
+        this.nodes = [];
+        this.nodesVirus = [];
+        this.nodesFood = [];
+        this.nodesEjected = [];
+        this.nodesPlayer = [];
+        this.movingNodes = [];
+        if (this.config.serverBots) {
+            for (var i = 0; i < this.config.serverBots; i++)
+                this.bots.addBot();
+            Logger.info(`Added ${this.config.serverBots} player bots`);
+        }
+        this.commands;
+        this.ticks = 0;
+        const now = new Date();
+        this.startTime = now.getTime();
+        this.setBorder(this.config.borderWidth, this.config.borderHeight);
+        this.quadTree = new QuadNode(this.border, 64, 32);
+        this.spawnCells(this.config.virusAmount, this.config.foodAmount);
+        const date = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`
+        const time = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+        Logger.info(`Restarted ${date} ${time}`);
     }
     checkMinion(ws, req) {
         // Check headers (maybe have a config for this?)
@@ -390,14 +425,10 @@ class Server {
         this.sendChatMessage(from, to, message);
     }
     checkBadWord(value) {
-        if (!value)
-            return false;
-        value = " " + value.toLowerCase().trim() + " ";
-        for (var i = 0; i < this.badWords.length; i++) {
-            if (value.indexOf(this.badWords[i]) >= 0) {
-                return true;
-            }
-        }
+        if (!(value = value.trim())) return false;
+        value = ` ${value.toLowerCase()} `;
+        for (const badWord of this.badWords)
+            if (value.indexOf(badWord) >= 0) return true;
         return false;
     }
     sendChatMessage(from, to, message) {
@@ -438,37 +469,7 @@ class Server {
         this.stepDateTime = Date.now();
         var tStart = process.hrtime();
         var self = this;
-        // Restart
-        if (this.ticks > this.config.serverRestart) {
-            this.httpServer = null;
-            this.wsServer = null;
-            this.run = true;
-            this.lastNodeId = 1;
-            this.lastPlayerId = 1;
-            for (var i = 0; i < this.clients.length; i++) {
-                var client = this.clients[i];
-                client.close();
-            }
-            ;
-            this.nodes = [];
-            this.nodesVirus = [];
-            this.nodesFood = [];
-            this.nodesEjected = [];
-            this.nodesPlayer = [];
-            this.movingNodes = [];
-            if (this.config.serverBots) {
-                for (var i = 0; i < this.config.serverBots; i++)
-                    this.bots.addBot();
-                Logger.info("Added " + this.config.serverBots + " player bots");
-            }
-            ;
-            this.commands;
-            this.ticks = 0;
-            this.startTime = Date.now();
-            this.setBorder(this.config.borderWidth, this.config.borderHeight);
-            this.quadTree = new QuadNode(this.border, 64, 32);
-        }
-        ;
+        if (this.ticks > this.config.serverRestart && this.run) this.restart();
         // Loop main functions
         if (this.run) {
             // Move moving nodes first

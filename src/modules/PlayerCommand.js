@@ -176,7 +176,7 @@ const commands = [
     }),
     new Command("restart", "restarts the server", "", UserRoleEnum.ADMIN, (player, args) => {
         Logger.warn(`RESTART REQUEST FROM ${player.socket.remoteAddress} as ` + player.userAuth);
-        process.exit(3);
+        player.server.restart();
     })
 ];
 
