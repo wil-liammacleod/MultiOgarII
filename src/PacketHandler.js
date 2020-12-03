@@ -1,5 +1,6 @@
-var Packet = require('./packet');
-var BinaryReader = require('./packet/BinaryReader');
+const WebSocket = require("ws");
+const Packet = require('./packet');
+const BinaryReader = require('./packet/BinaryReader');
 
 class PacketHandler {
     constructor(server, socket) {
@@ -275,13 +276,13 @@ class PacketHandler {
         var socket = this.socket;
         if (!packet || !socket.isConnected || socket.playerTracker.isMi ||
             socket.playerTracker.isBot) return;
-        if (socket.readyState == this.server.WebSocket.OPEN) {
+        if (socket.readyState == WebSocket.OPEN) {
             var buffer = packet.build(this.protocol);
             if (buffer)
                 socket.send(buffer, { binary: true });
         }
         else {
-            socket.readyState = this.server.WebSocket.CLOSED;
+            socket.readyState = WebSocket.CLOSED;
             socket.emit('close');
         }
     }

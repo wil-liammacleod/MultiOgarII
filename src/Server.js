@@ -2,6 +2,8 @@
 const http = require('http');
 const https = require("https");
 const fs = require("fs");
+const WebSocket = require("ws");
+
 // Project imports
 const Entity = require('./entity');
 const Vec2 = require('./modules/Vec2.js');
@@ -84,9 +86,7 @@ class Server {
             perMessageDeflate: false,
             maxPayload: 4096
         };
-        Logger.info("WebSocket: " + this.config.serverWsModule);
-        this.WebSocket = require(this.config.serverWsModule);
-        this.wsServer = new this.WebSocket.Server(wsOptions);
+        this.wsServer = new WebSocket.Server(wsOptions);
         this.wsServer.on('error', this.onServerSocketError.bind(this));
         this.wsServer.on('connection', this.onClientSocketOpen.bind(this));
         this.httpServer.listen(this.config.serverPort, this.config.serverBind, this.onHttpServerOpen.bind(this));

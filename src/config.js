@@ -23,7 +23,6 @@ module.exports = Object.seal({
 
 // [SERVER]
 // serverTimeout: Seconds to keep connection alive for non-responding client
-// serverWsModule: WebSocket module: 'ws' or 'uws' (install npm package before using uws)
 // serverMaxConnections: Maximum number of connections to the server. (0 for no limit)
 // serverPort: Server port which will be used to listen for incoming connections
 // serverBind: Server network interface which will be used to listen for incoming connections (0.0.0.0 for all IPv4 interfaces)
@@ -39,7 +38,6 @@ module.exports = Object.seal({
 // badWordFilter: Toggle whether you enable bad word filter (set to 0 to disable)
 // serverRestart: Toggle whether you want your server to auto-restart in minutes. (set to 0 to disable)
 "serverTimeout": 300,
-"serverWsModule": "ws",
 "serverMaxConnections": 500,
 "serverPort": 8080,
 "serverBind": "0.0.0.0",
