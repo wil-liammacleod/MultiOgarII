@@ -104,7 +104,7 @@ class UpdateLeaderboard {
     /* It was switched off anyway, however not removing yet
     UpdateLeaderboard.prototype.buildFfa11 = function() {
         var pos = require('./LeaderboardPosition');
-        this.player.socket.packetHandler.sendPacket(new pos(this.leaderboard.indexOf(this.player) + 1));
+        this.player.socket.client.sendPacket(new pos(this.leaderboard.indexOf(this.player) + 1));
         var writer = new BinaryWriter();
         writeCount(writer, 0x31, this.leaderboardCount);
         for (var i = 0; i < this.leaderboardCount; i++) {
@@ -154,7 +154,7 @@ class UpdateLeaderboard {
     buildParty() {
         var protocol13s = 0;
         for (var i in this.player.server.clients) {
-            var client = this.player.server.clients[i].packetHandler;
+            var client = this.player.server.clients[i].client;
             if (client.protocol >= 13)
                 protocol13s++;
         }

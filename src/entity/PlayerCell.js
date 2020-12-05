@@ -23,7 +23,7 @@ class PlayerCell extends Cell {
     onAdd(server) {
         this.color = this.owner.color;
         this.owner.cells.push(this);
-        this.owner.socket.packetHandler.sendPacket(new Packet.AddNode(this.owner, this));
+        this.owner.socket.client.sendPacket(new Packet.AddNode(this.owner, this));
         this.server.nodesPlayer.unshift(this);
         server.mode.onCellAdd(this);
     }

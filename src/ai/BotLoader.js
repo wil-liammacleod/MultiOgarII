@@ -3,7 +3,7 @@ const fs = require("fs");
 
 // Project imports
 const FakeSocket = require('./FakeSocket');
-const PacketHandler = require('../PacketHandler');
+const Client = require('../Client');
 const BotPlayer = require('./BotPlayer');
 const MinionPlayer = require('./MinionPlayer');
 
@@ -21,7 +21,7 @@ class BotLoader {
         // Create a FakeSocket instance and assign it's properties.
         const socket = new FakeSocket(this.server);
         socket.player = new BotPlayer(this.server, socket);
-        socket.packetHandler = new PacketHandler(this.server, socket);
+        socket.client = new Client(this.server, socket);
 
         const name = botnames ?
             botnames[Math.random() * botnames.length | 0] :
@@ -29,7 +29,7 @@ class BotLoader {
 
         // Add to client list and spawn.
         this.server.clients.push(socket);
-        socket.packetHandler.setNickname(name);
+        socket.client.setNickname(name);
     }
     addMinion(owner, name, mass) {
         // Aliases
@@ -39,7 +39,7 @@ class BotLoader {
         // Create a FakeSocket instance and assign it's properties.
         const socket = new FakeSocket(this.server);
         socket.player = new MinionPlayer(this.server, socket, owner);
-        socket.packetHandler = new PacketHandler(this.server, socket);
+        socket.client = new Client(this.server, socket);
 
         // Set minion spawn size
         socket.player.spawnmass = mass || maxSize > defaultSize ? Math.floor(Math.random() * (maxSize - defaultSize) + defaultSize) : defaultSize;
@@ -48,7 +48,7 @@ class BotLoader {
         this.server.clients.push(socket);
 
         // Add to world
-        socket.packetHandler.setNickname(name == "" || !name ? this.server.config.defaultName : name);
+        socket.client.setNickname(name == "" || !name ? this.server.config.defaultName : name);
     }
 }
 

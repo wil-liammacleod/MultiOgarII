@@ -22,8 +22,8 @@ class MinionPlayer extends Player {
             this.server.mode.onPlayerSpawn(this.server, this);
 
         this.frozen = this.owner.minionFrozen;
-        this.socket.packetHandler.pressSpace = this.owner.minionSplit;
-        this.socket.packetHandler.pressW = this.owner.minionEject;
+        this.socket.client.pressSpace = this.owner.minionSplit;
+        this.socket.client.pressW = this.owner.minionEject;
 
         this.mouse = this.owner.mouse.clone();
     }

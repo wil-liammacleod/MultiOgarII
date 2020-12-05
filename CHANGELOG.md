@@ -59,7 +59,7 @@
 -------------
 #### 1.4.8:
 * Added multiple client bindings, thanks to @MastaCoder;
-* Cleaned up setNickname function in PacketHandler, thanks to @MastaCoder;
+* Cleaned up setNickname function in Client, thanks to @MastaCoder;
 * Improved popsplit/virus explosion physics yet again;
 * Disabled html tags in names for console-plus, thanks to @Gimmo;
 * Added mobile agar.io physics with config;

@@ -94,7 +94,7 @@ class BotPlayer extends Player {
                 // Splitkill the target
                 this.splitCooldown = 15;
                 this.mouse.assign(node.position);
-                this.socket.packetHandler.pressSpace = true;
+                this.socket.client.pressSpace = true;
                 return;
             } else {
                 // Produce force vector exerted by this entity on the cell

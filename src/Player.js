@@ -129,19 +129,19 @@ class Player {
         this.spectate = false;
         this.freeRoam = false;
         this.spectateTarget = null;
-        var packetHandler = this.socket.packetHandler;
+        var client = this.socket.client;
         if (!this.isMi && this.socket.isConnected != null) {
             // some old clients don't understand ClearAll message
             // so we will send update for them
-            if (packetHandler.protocol < 6) {
-                packetHandler.sendPacket(new Packet.UpdateNodes(this, [], [], [], this.clientNodes));
+            if (client.protocol < 6) {
+                client.sendPacket(new Packet.UpdateNodes(this, [], [], [], this.clientNodes));
             }
-            packetHandler.sendPacket(new Packet.ClearAll());
+            client.sendPacket(new Packet.ClearAll());
             this.clientNodes = [];
             this.scramble();
             if (this.server.config.serverScrambleLevel < 2) {
                 // no scramble / lightweight scramble
-                packetHandler.sendPacket(new Packet.SetBorder(this, this.server.border));
+                client.sendPacket(new Packet.SetBorder(this, this.server.border));
             }
             else if (this.server.config.serverScrambleLevel == 3) {
                 var ran = 10065536 * Math.random();
@@ -152,7 +152,7 @@ class Player {
                     this.server.border.maxx + ran,
                     this.server.border.maxy + ran
                 );
-                packetHandler.sendPacket(new Packet.SetBorder(this, border));
+                client.sendPacket(new Packet.SetBorder(this, border));
             }
         }
         this.server.mode.onPlayerSpawn(this.server, this);
@@ -171,9 +171,9 @@ class Player {
             this.cells = [];
             this.isRemoved = true;
             this.mouse = null;
-            this.socket.packetHandler.pressSpace = false;
-            this.socket.packetHandler.pressQ = false;
-            this.socket.packetHandler.pressW = false;
+            this.socket.client.pressSpace = false;
+            this.socket.client.pressQ = false;
+            this.socket.client.pressW = false;
             return;
         }
         // Check timeout
@@ -188,7 +188,7 @@ class Player {
     updateTick() {
         if (this.isRemoved || this.isMinion)
             return; // do not update
-        this.socket.packetHandler.process();
+        this.socket.client.process();
         if (this.isMi)
             return;
         // update viewbox
@@ -211,7 +211,7 @@ class Player {
         this.viewNodes.sort(function (a, b) { return a.nodeId - b.nodeId; });
     }
     sendUpdate() {
-        if (this.isRemoved || !this.socket.packetHandler.protocol ||
+        if (this.isRemoved || !this.socket.client.protocol ||
             !this.socket.isConnected || this.isMi || this.isMinion ||
             (this.socket._socket.writable != null && !this.socket._socket.writable) ||
             this.socket.readyState != this.socket.OPEN) {
@@ -219,7 +219,7 @@ class Player {
             // also do not send if initialization is not complete yet
             return;
         }
-        var packetHandler = this.socket.packetHandler;
+        var client = this.socket.client;
         if (this.server.config.serverScrambleLevel == 2) {
             // scramble (moving border)
             if (!this.borderCounter) {
@@ -230,7 +230,7 @@ class Player {
                     Math.min(b.maxx, v.maxx + v.halfWidth),
                     Math.min(b.maxy, v.maxy + v.halfHeight)
                 );
-                packetHandler.sendPacket(new Packet.SetBorder(this, bound));
+                client.sendPacket(new Packet.SetBorder(this, bound));
             }
             if (++this.borderCounter >= 20)
                 this.borderCounter = 0;
@@ -279,13 +279,13 @@ class Player {
         }
         this.clientNodes = this.viewNodes;
         // Send update packet
-        packetHandler.sendPacket(new Packet.UpdateNodes(this, addNodes, updNodes, eatNodes, delNodes));
+        client.sendPacket(new Packet.UpdateNodes(this, addNodes, updNodes, eatNodes, delNodes));
         // Update leaderboard
         if (++this.tickLeaderboard > 25) {
             // 1 / 0.040 = 25 (once per second)
             this.tickLeaderboard = 0;
             if (this.server.leaderboardType >= 0)
-                packetHandler.sendPacket(new Packet.UpdateLeaderboard(this, this.server.leaderboard, this.server.leaderboardType));
+                client.sendPacket(new Packet.UpdateLeaderboard(this, this.server.leaderboard, this.server.leaderboardType));
         }
     }
     updateSpecView(len) {
@@ -318,7 +318,7 @@ class Player {
                 }
             }
             // sends camera packet
-            this.socket.packetHandler.sendPacket(new Packet.UpdatePosition(this, this.centerPos.x, this.centerPos.y, scale));
+            this.socket.client.sendPacket(new Packet.UpdatePosition(this, this.centerPos.x, this.centerPos.y, scale));
         }
     }
     pressSpace() {

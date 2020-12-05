@@ -2,7 +2,7 @@ const WebSocket = require("ws");
 const Packet = require('./packet');
 const BinaryReader = require('./packet/BinaryReader');
 
-class PacketHandler {
+class Client {
     constructor(server, socket) {
         this.server = server;
         this.socket = socket;
@@ -276,7 +276,7 @@ class PacketHandler {
         var socket = this.socket;
         if (!packet || !socket.isConnected || socket.player.isMi ||
             socket.player.isBot) return;
-        if (socket.readyState == this.server.WebSocket.OPEN) {
+        if (socket.readyState == WebSocket.OPEN) {
             var buffer = packet.build(this.protocol);
             if (buffer)
                 socket.send(buffer, { binary: true });
@@ -288,4 +288,4 @@ class PacketHandler {
     }
 }
 
-module.exports = PacketHandler;
+module.exports = Client;

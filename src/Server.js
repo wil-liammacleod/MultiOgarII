@@ -10,7 +10,7 @@ const Vec2 = require('./modules/Vec2.js');
 const Logger = require('./modules/Logger.js');
 const {QuadNode, Quad} = require('./modules/QuadNode.js');
 const Player = require('./Player');
-const PacketHandler = require('./PacketHandler');
+const Client = require('./Client');
 const PlayerCommand = require('./modules/PlayerCommand');
 
 // Server implementation
@@ -176,7 +176,7 @@ class Server {
         ws.lastAliveTime = Date.now();
         Logger.write("CONNECTED " + ws.remoteAddress + ":" + ws.remotePort + ", origin: \"" + req.headers.origin + "\"");
         ws.player = new Player(this, ws);
-        ws.packetHandler = new PacketHandler(this, ws);
+        ws.client = new Client(this, ws);
         ws.playerCommand = new PlayerCommand(this, ws.player);
         var self = this;
         ws.on('message', function (message) {
@@ -189,10 +189,10 @@ class Server {
                 ws.close(1009, "Spam");
                 return;
             }
-            ws.packetHandler.handleMessage(message);
+            ws.client.handleMessage(message);
         });
         ws.on('error', function (error) {
-            ws.packetHandler.sendPacket = function (data) { };
+            ws.client.sendPacket = function (data) { };
         });
         ws.on('close', function (reason) {
             if (ws._socket && ws._socket.destroy != null && typeof ws._socket.destroy == 'function') {
@@ -200,7 +200,7 @@ class Server {
             }
             self.socketCount--;
             ws.isConnected = false;
-            ws.packetHandler.sendPacket = function (data) { };
+            ws.client.sendPacket = function (data) { };
             ws.closeReason = {
                 reason: ws._closeCode,
                 message: ws._closeMessage
@@ -440,11 +440,11 @@ class Server {
                 if (this.config.separateChatForTeams && this.mode.haveTeams) {
                     //  from equals null if message from server
                     if (from == null || from.team === this.clients[i].player.team) {
-                        this.clients[i].packetHandler.sendPacket(new Packet.ChatMessage(from, message));
+                        this.clients[i].client.sendPacket(new Packet.ChatMessage(from, message));
                     }
                 }
                 else {
-                    this.clients[i].packetHandler.sendPacket(new Packet.ChatMessage(from, message));
+                    this.clients[i].client.sendPacket(new Packet.ChatMessage(from, message));
                 }
             }
         }
