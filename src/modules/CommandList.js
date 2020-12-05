@@ -35,10 +35,10 @@ class CommandsList {
 
     playerlist(server) {
         // Sort client IDs in descending order.
-        server.clients.sort((a, b) => {return a.playerTracker.pID - b.playerTracker.pID});
+        server.clients.sort((a, b) => {return a.player.pID - b.player.pID});
 
         server.clients.forEach(socket => {
-            const client = socket.playerTracker;
+            const client = socket.player;
 
             // Ignore disconnnected sockets.
             if(!socket.isConnected) {
@@ -68,7 +68,7 @@ class CommandsList {
         };
 
         for (let key in server.clients) {
-            const client = server.clients[key].playerTracker;
+            const client = server.clients[key].player;
 
             // Check if server is empty.
             if(!server.clients.length) {
@@ -121,7 +121,7 @@ class CommandsList {
         let total = 0;
 
         server.clients.forEach(socket => {
-            const client = socket.playerTracker;
+            const client = socket.player;
             if(!socket.isConnected && total <= amount) {
                 socket.close()
                 return total++;
@@ -142,7 +142,7 @@ class CommandsList {
 
 
         server.clients.forEach(socket => {
-            const client = socket.playerTracker;
+            const client = socket.player;
 
             if(client.pID == ID || ID == "all") {
                 socket.close();
@@ -164,7 +164,7 @@ class CommandsList {
         };
 
         server.clients.forEach(socket => {
-            const client = socket.playerTracker;
+            const client = socket.player;
 
             while (client.cells.length) {
                 server.removeNode(client.cells[0]);
@@ -187,7 +187,7 @@ class CommandsList {
         };
 
         server.clients.forEach(socket => {
-            const client = socket.playerTracker;
+            const client = socket.player;
 
             if(client.pID == ID) {
                 client.cells.forEach(cell => {

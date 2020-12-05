@@ -53,7 +53,7 @@ class Teams extends Mode{
         }
         // migrate current players to team mode
         for (var i = 0; i < server.clients.length; i++) {
-            var client = server.clients[i].playerTracker;
+            var client = server.clients[i].player;
             this.onPlayerInit(client);
             client.color = this.getTeamColor(client.team);
             for (var j = 0; j < client.cells.length; j++) {
@@ -130,13 +130,3 @@ class Teams extends Mode{
 
 module.exports = Teams;
 Teams.prototype = new Mode();
-
-
-
-
-
-
-
-
-
-

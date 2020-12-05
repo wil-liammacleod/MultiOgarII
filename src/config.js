@@ -1,6 +1,6 @@
 module.exports = Object.seal({
-    // MultiOgarII configurations file
-// Lines starting with semicolons are comments
+// MultiOgarII configurations file
+// Lines starting with // are comments
 
 // [NOTES]
 // MultiOgarII uses cell size instead of cell mass to improve performance!
@@ -52,7 +52,7 @@ module.exports = Object.seal({
 "serverStatsUpdate": 60,
 "mobilePhysics": 0,
 "badWordFilter": 1,
-"serverRestart": 0,
+"serverRestart": 3,
 
 // [CLIENT]
 // serverMaxLB: Controls the maximum players displayed on the leaderboard.

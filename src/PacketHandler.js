@@ -67,23 +67,23 @@ class PacketHandler {
         this.protocol = protocol;
         // Send handshake response
         this.sendPacket(new Packet.ClearAll());
-        this.sendPacket(new Packet.SetBorder(this.socket.playerTracker, this.server.border, this.server.config.serverGamemode, "MultiOgarII " + this.server.version));
+        this.sendPacket(new Packet.SetBorder(this.socket.player, this.server.border, this.server.config.serverGamemode, "MultiOgarII " + this.server.version));
         // Send welcome message
-        this.server.sendChatMessage(null, this.socket.playerTracker, "MultiOgarII " + this.server.version);
+        this.server.sendChatMessage(null, this.socket.player, "MultiOgarII " + this.server.version);
         if (this.server.config.serverWelcome1)
-            this.server.sendChatMessage(null, this.socket.playerTracker, this.server.config.serverWelcome1);
+            this.server.sendChatMessage(null, this.socket.player, this.server.config.serverWelcome1);
         if (this.server.config.serverWelcome2)
-            this.server.sendChatMessage(null, this.socket.playerTracker, this.server.config.serverWelcome2);
+            this.server.sendChatMessage(null, this.socket.player, this.server.config.serverWelcome2);
         if (this.server.config.serverChat == 0)
-            this.server.sendChatMessage(null, this.socket.playerTracker, "This server's chat is disabled.");
+            this.server.sendChatMessage(null, this.socket.player, "This server's chat is disabled.");
         if (this.protocol < 4)
-            this.server.sendChatMessage(null, this.socket.playerTracker, "WARNING: Protocol " + this.protocol + " assumed as 4!");
+            this.server.sendChatMessage(null, this.socket.player, "WARNING: Protocol " + this.protocol + " assumed as 4!");
     }
     message_onJoin(message) {
         var tick = this.server.ticks;
         var dt = tick - this.lastJoinTick;
         this.lastJoinTick = tick;
-        if (dt < 25 || this.socket.playerTracker.cells.length !== 0) {
+        if (dt < 25 || this.socket.player.cells.length !== 0) {
             return;
         }
         var reader = new BinaryReader(message);
@@ -96,10 +96,10 @@ class PacketHandler {
         this.setNickname(text);
     }
     message_onSpectate(message) {
-        if (message.length !== 1 || this.socket.playerTracker.cells.length !== 0) {
+        if (message.length !== 1 || this.socket.player.cells.length !== 0) {
             return;
         }
-        this.socket.playerTracker.spectate = true;
+        this.socket.player.spectate = true;
     }
     message_onMouse(message) {
         if (message.length !== 13 && message.length !== 9 && message.length !== 21) {
@@ -108,8 +108,8 @@ class PacketHandler {
         this.mouseData = Buffer.concat([message]);
     }
     message_onKeySpace(message) {
-        if (this.socket.playerTracker.miQ) {
-            this.socket.playerTracker.minionSplit = true;
+        if (this.socket.player.miQ) {
+            this.socket.player.minionSplit = true;
         }
         else {
             this.pressSpace = true;
@@ -125,7 +125,7 @@ class PacketHandler {
         }
         this.lastQTick = tick;
         if (!this.server.config.disableQ) {
-            this.socket.playerTracker.miQ = !this.socket.playerTracker.miQ;
+            this.socket.player.miQ = !this.socket.player.miQ;
         }
         else {
             this.pressQ = true;
@@ -134,8 +134,8 @@ class PacketHandler {
     message_onKeyW(message) {
         if (message.length !== 1)
             return;
-        if (this.socket.playerTracker.miQ) {
-            this.socket.playerTracker.minionEject = true;
+        if (this.socket.player.miQ) {
+            this.socket.player.minionEject = true;
         }
         else {
             this.pressW = true;
@@ -144,17 +144,17 @@ class PacketHandler {
     message_onKeyE(message) {
         if (this.server.config.disableERTP)
             return;
-        this.socket.playerTracker.minionSplit = true;
+        this.socket.player.minionSplit = true;
     }
     message_onKeyR(message) {
         if (this.server.config.disableERTP)
             return;
-        this.socket.playerTracker.minionEject = true;
+        this.socket.player.minionEject = true;
     }
     message_onKeyT(message) {
         if (this.server.config.disableERTP)
             return;
-        this.socket.playerTracker.minionFrozen = !this.socket.playerTracker.minionFrozen;
+        this.socket.player.minionFrozen = !this.socket.player.minionFrozen;
     }
     message_onChat(message) {
         if (message.length < 3)
@@ -176,7 +176,7 @@ class PacketHandler {
             text = reader.readStringZeroUnicode();
         else
             text = reader.readStringZeroUtf8();
-        this.server.onChatMessage(this.socket.playerTracker, null, text);
+        this.server.onChatMessage(this.socket.player, null, text);
     }
     message_onStat(message) {
         if (message.length !== 1)
@@ -187,12 +187,12 @@ class PacketHandler {
         if (dt < 25) {
             return;
         }
-        this.sendPacket(new Packet.ServerStat(this.socket.playerTracker));
+        this.sendPacket(new Packet.ServerStat(this.socket.player));
     }
     processMouse() {
         if (this.mouseData == null)
             return;
-        var client = this.socket.playerTracker;
+        var client = this.socket.player;
         var reader = new BinaryReader(this.mouseData);
         reader.skipBytes(1);
         if (this.mouseData.length === 13) {
@@ -214,22 +214,22 @@ class PacketHandler {
     }
     process() {
         if (this.pressSpace) { // Split cell
-            this.socket.playerTracker.pressSpace();
+            this.socket.player.pressSpace();
             this.pressSpace = false;
         }
         if (this.pressW) { // Eject mass
-            this.socket.playerTracker.pressW();
+            this.socket.player.pressW();
             this.pressW = false;
         }
         if (this.pressQ) { // Q Press
-            this.socket.playerTracker.pressQ();
+            this.socket.player.pressQ();
             this.pressQ = false;
         }
-        if (this.socket.playerTracker.minionSplit) {
-            this.socket.playerTracker.minionSplit = false;
+        if (this.socket.player.minionSplit) {
+            this.socket.player.minionSplit = false;
         }
-        if (this.socket.playerTracker.minionEject) {
-            this.socket.playerTracker.minionEject = false;
+        if (this.socket.player.minionEject) {
+            this.socket.player.minionEject = false;
         }
         this.processMouse();
     }
@@ -270,13 +270,13 @@ class PacketHandler {
             skin = null;
             name = "Hi there!";
         }
-        this.socket.playerTracker.joinGame(name, skin);
+        this.socket.player.joinGame(name, skin);
     }
     sendPacket(packet) {
         var socket = this.socket;
-        if (!packet || !socket.isConnected || socket.playerTracker.isMi ||
-            socket.playerTracker.isBot) return;
-        if (socket.readyState == WebSocket.OPEN) {
+        if (!packet || !socket.isConnected || socket.player.isMi ||
+            socket.player.isBot) return;
+        if (socket.readyState == this.server.WebSocket.OPEN) {
             var buffer = packet.build(this.protocol);
             if (buffer)
                 socket.send(buffer, { binary: true });

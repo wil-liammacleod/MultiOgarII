@@ -1,6 +1,6 @@
-const PlayerTracker = require('../PlayerTracker');
+const Player = require('../PlayerTracker');
 
-class MinionPlayer extends PlayerTracker {
+class MinionPlayer extends Player {
     constructor(server, socket, owner) {
         super(server, socket);
         this.owner = owner;

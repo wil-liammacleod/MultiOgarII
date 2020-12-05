@@ -7,11 +7,11 @@ function writeCount(writer, flag1, flag2) {
 }
 
 class UpdateLeaderboard {
-    constructor(playerTracker, leaderboard, leaderboardType) {
-        this.playerTracker = playerTracker;
+    constructor(player, leaderboard, leaderboardType) {
+        this.player = player;
         this.leaderboard = leaderboard;
         this.leaderboardType = leaderboardType;
-        this.leaderboardCount = Math.min(leaderboard.length, playerTracker.server.config.serverMaxLB);
+        this.leaderboardCount = Math.min(leaderboard.length, player.server.config.serverMaxLB);
     }
     build(protocol) {
         switch (this.leaderboardType) {
@@ -72,8 +72,8 @@ class UpdateLeaderboard {
                 return null; // bad leaderboardm just don't send it
             var name = item._nameUnicode;
             var id = 0;
-            if (item == this.playerTracker && item.cells.length)
-                id = item.cells[0].nodeId ^ this.playerTracker.scrambleId;
+            if (item == this.player && item.cells.length)
+                id = item.cells[0].nodeId ^ this.player.scrambleId;
             writer.writeUInt32(id >>> 0); // Player cell Id
             if (name)
                 writer.writeBytes(name);
@@ -91,7 +91,7 @@ class UpdateLeaderboard {
             if (item == null)
                 return null; // bad leaderboard just don't send it
             var name = item._nameUtf8;
-            var id = item == this.playerTracker ? 1 : 0;
+            var id = item == this.player ? 1 : 0;
             writer.writeUInt32(id >>> 0); // isMe flag
             if (name)
                 writer.writeBytes(name);
@@ -104,7 +104,7 @@ class UpdateLeaderboard {
     /* It was switched off anyway, however not removing yet
     UpdateLeaderboard.prototype.buildFfa11 = function() {
         var pos = require('./LeaderboardPosition');
-        this.playerTracker.socket.packetHandler.sendPacket(new pos(this.leaderboard.indexOf(this.playerTracker) + 1));
+        this.player.socket.packetHandler.sendPacket(new pos(this.leaderboard.indexOf(this.player) + 1));
         var writer = new BinaryWriter();
         writeCount(writer, 0x31, this.leaderboardCount);
         for (var i = 0; i < this.leaderboardCount; i++) {
@@ -128,7 +128,7 @@ class UpdateLeaderboard {
             var item = this.leaderboard[i];
             if (item == null)
                 return null; // bad leaderboard just don't send it
-            if (item === this.playerTracker) {
+            if (item === this.player) {
                 writer.writeUInt8(0x09);
                 writer.writeUInt16(1);
             }
@@ -141,9 +141,9 @@ class UpdateLeaderboard {
                     writer.writeUInt8(0);
             }
         }
-        var thing = this.leaderboard.indexOf(this.playerTracker) + 1;
+        var thing = this.leaderboard.indexOf(this.player) + 1;
         var place = (thing <= 10) ? null : thing;
-        if (this.playerTracker.cells.length && place != null) {
+        if (this.player.cells.length && place != null) {
             writer.writeUInt8(0x09);
             writer.writeUInt16(place);
         }
@@ -153,8 +153,8 @@ class UpdateLeaderboard {
     // TODO: Implement the "minimap"
     buildParty() {
         var protocol13s = 0;
-        for (var i in this.playerTracker.server.clients) {
-            var client = this.playerTracker.server.clients[i].packetHandler;
+        for (var i in this.player.server.clients) {
+            var client = this.player.server.clients[i].packetHandler;
             if (client.protocol >= 13)
                 protocol13s++;
         }
@@ -165,7 +165,7 @@ class UpdateLeaderboard {
             var item = this.leaderboard[i];
             if (item == null)
                 return null; // bad leaderboard just don't send it
-            if (item === this.playerTracker) {
+            if (item === this.player) {
                 writer.writeUInt8(0x09);
                 writer.writeUInt16(1);
             }
@@ -178,9 +178,9 @@ class UpdateLeaderboard {
                     writer.writeUInt8(0);
             }
         }
-        var thing = this.leaderboard.indexOf(this.playerTracker) + 1;
+        var thing = this.leaderboard.indexOf(this.player) + 1;
         var place = (thing <= 10) ? null : thing;
-        if (this.playerTracker.cells.length && place != null) {
+        if (this.player.cells.length && place != null) {
             writer.writeUInt16(place);
         }
         return writer.toBuffer();

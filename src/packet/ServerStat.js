@@ -1,11 +1,11 @@
 const BinaryWriter = require("./BinaryWriter");
 
 class ServerStat {
-    constructor(playerTracker) {
-        this.playerTracker = playerTracker;
+    constructor(player) {
+        this.player = player;
     }
     build(protocol) {
-        let server = this.playerTracker.server;
+        let server = this.player.server;
         if (!server.statsObj) server.getStats();
         if (Date.now() - server.statsObj.stats_time > 5e3) server.getStats();
         let stats = server.statsObj;

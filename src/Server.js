@@ -9,6 +9,9 @@ const Entity = require('./entity');
 const Vec2 = require('./modules/Vec2.js');
 const Logger = require('./modules/Logger.js');
 const {QuadNode, Quad} = require('./modules/QuadNode.js');
+const Player = require('./PlayerTracker');
+const PacketHandler = require('./PacketHandler');
+const PlayerCommand = require('./modules/PlayerCommand');
 
 // Server implementation
 class Server {
@@ -172,12 +175,9 @@ class Server {
         ws.remotePort = ws._socket.remotePort;
         ws.lastAliveTime = Date.now();
         Logger.write("CONNECTED " + ws.remoteAddress + ":" + ws.remotePort + ", origin: \"" + req.headers.origin + "\"");
-        var PlayerTracker = require('./PlayerTracker');
-        ws.playerTracker = new PlayerTracker(this, ws);
-        var PacketHandler = require('./PacketHandler');
+        ws.player = new Player(this, ws);
         ws.packetHandler = new PacketHandler(this, ws);
-        var PlayerCommand = require('./modules/PlayerCommand');
-        ws.playerCommand = new PlayerCommand(this, ws.playerTracker);
+        ws.playerCommand = new PlayerCommand(this, ws.player);
         var self = this;
         ws.on('message', function (message) {
             if (self.config.serverWsModule === "uws")
@@ -207,7 +207,7 @@ class Server {
             };
             ws.closeTime = Date.now();
             Logger.write("DISCONNECTED " + ws.remoteAddress + ":" + ws.remotePort + ", code: " + ws._closeCode +
-                ", reason: \"" + ws._closeMessage + "\", name: \"" + ws.playerTracker._name + "\"");
+                ", reason: \"" + ws._closeMessage + "\", name: \"" + ws.player._name + "\"");
         });
         this.socketCount++;
         this.clients.push(ws);
@@ -253,29 +253,29 @@ class Server {
         // Check headers (maybe have a config for this?)
         if (!req.headers['user-agent'] || !req.headers['cache-control'] ||
             req.headers['user-agent'].length < 50) {
-            ws.playerTracker.isMinion = true;
+            ws.player.isMinion = true;
         }
         // External minion detection
         if (this.config.serverMinionThreshold) {
             if ((ws.lastAliveTime - this.startTime) / 1000 >= this.config.serverMinionIgnoreTime) {
                 if (this.minionTest.length >= this.config.serverMinionThreshold) {
-                    ws.playerTracker.isMinion = true;
+                    ws.player.isMinion = true;
                     for (var i = 0; i < this.minionTest.length; i++) {
-                        var playerTracker = this.minionTest[i];
-                        if (!playerTracker.socket.isConnected)
+                        var player = this.minionTest[i];
+                        if (!player.socket.isConnected)
                             continue;
-                        playerTracker.isMinion = true;
+                        player.isMinion = true;
                     }
                     if (this.minionTest.length)
                         this.minionTest.splice(0, 1);
                 }
-                this.minionTest.push(ws.playerTracker);
+                this.minionTest.push(ws.player);
             }
         }
         // Add server minions if needed
-        if (this.config.serverMinions && !ws.playerTracker.isMinion) {
+        if (this.config.serverMinions && !ws.player.isMinion) {
             for (var i = 0; i < this.config.serverMinions; i++) {
-                this.bots.addMinion(ws.playerTracker);
+                this.bots.addMinion(ws.player);
             }
         }
     }
@@ -344,8 +344,8 @@ class Server {
                 i++;
                 continue;
             }
-            this.clients[i].playerTracker.checkConnection();
-            if (this.clients[i].playerTracker.isRemoved || this.clients[i].isCloseRequest)
+            this.clients[i].player.checkConnection();
+            if (this.clients[i].player.isRemoved || this.clients[i].isCloseRequest)
                 // remove dead client
                 this.clients.splice(i, 1);
             else
@@ -355,12 +355,12 @@ class Server {
         for (var i = 0; i < len; i++) {
             if (!this.clients[i])
                 continue;
-            this.clients[i].playerTracker.updateTick();
+            this.clients[i].player.updateTick();
         }
         for (var i = 0; i < len; i++) {
             if (!this.clients[i])
                 continue;
-            this.clients[i].playerTracker.sendUpdate();
+            this.clients[i].player.sendUpdate();
         }
         // check minions
         for (var i = 0, test = this.minionTest.length; i < test;) {
@@ -385,11 +385,11 @@ class Server {
             var clients = this.clients.valueOf();
             // Use sort function
             clients.sort(function (a, b) {
-                return b.playerTracker._score - a.playerTracker._score;
+                return b.player._score - a.player._score;
             });
             this.largestClient = null;
             if (clients[0])
-                this.largestClient = clients[0].playerTracker;
+                this.largestClient = clients[0].player;
         }
         else {
             this.largestClient = this.mode.rankOne;
@@ -435,11 +435,11 @@ class Server {
         for (var i = 0, len = this.clients.length; i < len; i++) {
             if (!this.clients[i])
                 continue;
-            if (!to || to == this.clients[i].playerTracker) {
+            if (!to || to == this.clients[i].player) {
                 var Packet = require('./packet');
                 if (this.config.separateChatForTeams && this.mode.haveTeams) {
                     //  from equals null if message from server
-                    if (from == null || from.team === this.clients[i].playerTracker.team) {
+                    if (from == null || from.team === this.clients[i].player.team) {
                         this.clients[i].packetHandler.sendPacket(new Packet.ChatMessage(from, message));
                     }
                 }
@@ -950,9 +950,9 @@ class Server {
         let minions = 0;
         for (const client of this.clients) {
             if (!client || !client.isConnected) continue;
-            if (client.playerTracker.isBot) ++bots;
-            else if (client.playerTracker.isMi) ++minions;
-            else if (client.playerTracker.cells.length) ++alivePlayers;
+            if (client.player.isBot) ++bots;
+            else if (client.player.isMi) ++minions;
+            else if (client.player.cells.length) ++alivePlayers;
             else ++spectatePlayers;
         }
         var s = {
@@ -993,7 +993,7 @@ class Server {
             }
             else {
                 totalPlayers++;
-                if (socket.playerTracker.cells.length)
+                if (socket.player.cells.length)
                     alivePlayers++;
                 else
                     spectatePlayers++;

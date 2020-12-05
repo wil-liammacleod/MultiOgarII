@@ -1,6 +1,6 @@
 class UpdateNodes {
-    constructor(playerTracker, addNodes, updNodes, eatNodes, delNodes) {
-        this.playerTracker = playerTracker;
+    constructor(player, addNodes, updNodes, eatNodes, delNodes) {
+        this.player = player;
         this.addNodes = addNodes;
         this.updNodes = updNodes;
         this.eatNodes = eatNodes;
@@ -26,9 +26,9 @@ class UpdateNodes {
     }
     // protocol 4
     writeUpdateItems4(writer) {
-        var scrambleX = this.playerTracker.scrambleX;
-        var scrambleY = this.playerTracker.scrambleY;
-        var scrambleId = this.playerTracker.scrambleId;
+        var scrambleX = this.player.scrambleX;
+        var scrambleY = this.player.scrambleY;
+        var scrambleId = this.player.scrambleId;
         for (var i = 0; i < this.updNodes.length; i++) {
             var node = this.updNodes[i];
             if (node.nodeId == 0)
@@ -90,9 +90,9 @@ class UpdateNodes {
     }
     // protocol 5
     writeUpdateItems5(writer) {
-        var scrambleX = this.playerTracker.scrambleX;
-        var scrambleY = this.playerTracker.scrambleY;
-        var scrambleId = this.playerTracker.scrambleId;
+        var scrambleX = this.player.scrambleX;
+        var scrambleY = this.player.scrambleY;
+        var scrambleId = this.player.scrambleId;
         for (var i = 0; i < this.updNodes.length; i++) {
             var node = this.updNodes[i];
             if (node.nodeId == 0)
@@ -160,9 +160,9 @@ class UpdateNodes {
     }
     // protocol 6
     writeUpdateItems6(writer) {
-        var scrambleX = this.playerTracker.scrambleX;
-        var scrambleY = this.playerTracker.scrambleY;
-        var scrambleId = this.playerTracker.scrambleId;
+        var scrambleX = this.player.scrambleX;
+        var scrambleY = this.player.scrambleY;
+        var scrambleId = this.player.scrambleId;
         for (var i = 0; i < this.updNodes.length; i++) {
             var node = this.updNodes[i];
             if (node.nodeId == 0)
@@ -237,9 +237,9 @@ class UpdateNodes {
     }
     // protocol 11
     writeUpdateItems11(writer) {
-        var scrambleX = this.playerTracker.scrambleX;
-        var scrambleY = this.playerTracker.scrambleY;
-        var scrambleId = this.playerTracker.scrambleId;
+        var scrambleX = this.player.scrambleX;
+        var scrambleY = this.player.scrambleY;
+        var scrambleId = this.player.scrambleId;
         for (var i = 0; i < this.updNodes.length; i++) {
             var node = this.updNodes[i];
             if (node.nodeId == 0)
@@ -321,7 +321,7 @@ class UpdateNodes {
         writer.writeUInt32(0); // Cell Update record terminator
     }
     writeEatItems(writer) {
-        var scrambleId = this.playerTracker.scrambleId;
+        var scrambleId = this.player.scrambleId;
         writer.writeUInt16(this.eatNodes.length >>> 0); // EatRecordCount
         for (var i = 0; i < this.eatNodes.length; i++) {
             var node = this.eatNodes[i];
@@ -334,7 +334,7 @@ class UpdateNodes {
         }
     }
     writeRemoveItems(writer, protocol) {
-        var scrambleId = this.playerTracker.scrambleId;
+        var scrambleId = this.player.scrambleId;
         var length = this.eatNodes.length + this.delNodes.length;
         if (protocol < 6)
             writer.writeUInt32(length >>> 0); // RemoveRecordCount

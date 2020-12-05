@@ -1,4 +1,4 @@
-const PlayerTracker = require('../PlayerTracker');
+const Player = require('../PlayerTracker');
 const Vec2 = require('../modules/Vec2');
 
 const decideTypes = [
@@ -35,7 +35,7 @@ const decideTypes = [
     }
 ];
 
-class BotPlayer extends PlayerTracker {
+class BotPlayer extends Player {
     constructor(server, socket) {
         super(server, socket);
         this.isBot = true;

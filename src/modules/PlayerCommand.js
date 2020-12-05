@@ -14,8 +14,8 @@ class Command {
 
 const send = (player, msg) => player.server.sendChatMessage(null, player, msg);
 const findPlayer = (server, id) => {
-    const c = server.clients.find(c => c.playerTracker.pID == id);
-    return c && c.playerTracker;
+    const c = server.clients.find(c => c.player.pID == id);
+    return c && c.player;
 };
 
 let commandMap = new Map();
@@ -137,7 +137,7 @@ const commands = [
     new Command("killall", "kills everyone", "", UserRoleEnum.MODER, (player, args) => {
         let count = 0;
         for (const client of player.server.clients) {
-            const p = client.playerTracker;
+            const p = client.player;
             while (p.cells.length > 0) {
                 p.server.removeNode(p.cells[0]);
                 ++count;
@@ -183,9 +183,9 @@ const commands = [
 for (const cmd of commands) commandMap.set(cmd.name, cmd);
 
 class PlayerCommand {
-    constructor(server, playerTracker) {
+    constructor(server, player) {
         this.server = server;
-        this.playerTracker = playerTracker;
+        this.player = player;
     }
     processMessage(from, msg) {
         msg = msg.slice(1); // remove forward-slash

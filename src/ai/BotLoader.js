@@ -20,7 +20,7 @@ class BotLoader {
     addBot() {
         // Create a FakeSocket instance and assign it's properties.
         const socket = new FakeSocket(this.server);
-        socket.playerTracker = new BotPlayer(this.server, socket);
+        socket.player = new BotPlayer(this.server, socket);
         socket.packetHandler = new PacketHandler(this.server, socket);
 
         const name = botnames ?
@@ -38,11 +38,11 @@ class BotLoader {
 
         // Create a FakeSocket instance and assign it's properties.
         const socket = new FakeSocket(this.server);
-        socket.playerTracker = new MinionPlayer(this.server, socket, owner);
+        socket.player = new MinionPlayer(this.server, socket, owner);
         socket.packetHandler = new PacketHandler(this.server, socket);
 
         // Set minion spawn size
-        socket.playerTracker.spawnmass = mass || maxSize > defaultSize ? Math.floor(Math.random() * (maxSize - defaultSize) + defaultSize) : defaultSize;
+        socket.player.spawnmass = mass || maxSize > defaultSize ? Math.floor(Math.random() * (maxSize - defaultSize) + defaultSize) : defaultSize;
 
         // Add to client list
         this.server.clients.push(socket);

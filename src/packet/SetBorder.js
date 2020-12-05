@@ -1,13 +1,13 @@
 class SetBorder {
-    constructor(playerTracker, border, gameType, serverName) {
-        this.playerTracker = playerTracker;
+    constructor(player, border, gameType, serverName) {
+        this.player = player;
         this.border = border;
         this.gameType = gameType;
         this.serverName = serverName;
     }
     build(protocol) {
-        var scrambleX = this.playerTracker.scrambleX;
-        var scrambleY = this.playerTracker.scrambleY;
+        var scrambleX = this.player.scrambleX;
+        var scrambleY = this.player.scrambleY;
         if (this.gameType == null) {
             var buffer = Buffer.alloc(33);
             buffer.writeUInt8(0x40, 0, true);

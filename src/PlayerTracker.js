@@ -3,7 +3,7 @@ var Vec2 = require('./modules/Vec2');
 var BinaryWriter = require("./packet/BinaryWriter");
 var {Quad} = require("./modules/QuadNode.js");
 
-class PlayerTracker {
+class Player {
     constructor(server, socket) {
         this.server = server;
         this.socket = socket;
@@ -373,4 +373,4 @@ class PlayerTracker {
     }
 }
 
-module.exports = PlayerTracker;
+module.exports = Player;

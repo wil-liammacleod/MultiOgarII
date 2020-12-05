@@ -1,8 +1,8 @@
 var BinaryWriter = require("./BinaryWriter");
 
 class UpdatePosition {
-    constructor(playerTracker, x, y, scale) {
-        this.playerTracker = playerTracker,
+    constructor(player, x, y, scale) {
+        this.player = player,
             this.x = x;
         this.y = y;
         this.scale = scale;
@@ -11,8 +11,8 @@ class UpdatePosition {
     build(protocol) {
         var writer = new BinaryWriter();
         writer.writeUInt8(0x11);
-        writer.writeFloat(this.x + this.playerTracker.scrambleX);
-        writer.writeFloat(this.y + this.playerTracker.scrambleY);
+        writer.writeFloat(this.x + this.player.scrambleX);
+        writer.writeFloat(this.y + this.player.scrambleY);
         writer.writeFloat(this.scale);
         return writer.toBuffer();
     };
