@@ -52,7 +52,7 @@ module.exports = Object.seal({
 "serverStatsUpdate": 60,
 "mobilePhysics": 0,
 "badWordFilter": 1,
-"serverRestart": 3,
+"serverRestart": 0,
 
 // [CLIENT]
 // serverMaxLB: Controls the maximum players displayed on the leaderboard.
