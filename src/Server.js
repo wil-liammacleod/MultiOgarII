@@ -9,7 +9,7 @@ const Entity = require('./entity');
 const Vec2 = require('./modules/Vec2.js');
 const Logger = require('./modules/Logger.js');
 const {QuadNode, Quad} = require('./modules/QuadNode.js');
-const Player = require('./PlayerTracker');
+const Player = require('./Player');
 const PacketHandler = require('./PacketHandler');
 const PlayerCommand = require('./modules/PlayerCommand');
 

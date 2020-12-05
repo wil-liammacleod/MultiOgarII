@@ -1,4 +1,4 @@
-const Player = require('../PlayerTracker');
+const Player = require('../Player');
 
 class MinionPlayer extends Player {
     constructor(server, socket, owner) {

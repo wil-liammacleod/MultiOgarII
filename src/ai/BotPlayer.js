@@ -1,4 +1,4 @@
-const Player = require('../PlayerTracker');
+const Player = require('../Player');
 const Vec2 = require('../modules/Vec2');
 
 const decideTypes = [
