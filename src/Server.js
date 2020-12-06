@@ -473,49 +473,41 @@ class Server {
         // Loop main functions
         if (this.run) {
             // Move moving nodes first
-            this.movingNodes.forEach((cell) => {
-                if (cell.isRemoved)
-                    return;
+            for (const cell of this.movingNodes) {
+                if (cell.isRemoved) continue;
                 // Scan and check for ejected mass / virus collisions
                 this.boostCell(cell);
-                this.quadTree.find(cell.quadItem.bound, function (check) {
+                this.quadTree.find(cell.quadItem.bound, check => {
                     var m = self.checkCellCollision(cell, check);
                     if (cell.type == 3 && check.type == 3 && !self.config.mobilePhysics)
                         self.resolveRigidCollision(m);
-                    else
-                        self.resolveCollision(m);
+                    else self.resolveCollision(m);
                 });
-                if (!cell.isMoving)
-                    this.movingNodes = null;
-            });
+                if (!cell.isMoving) this.movingNodes = null;
+            }
             // Update players and scan for collisions
             var eatCollisions = [];
-            this.nodesPlayer.forEach((cell) => {
-                if (cell.isRemoved)
-                    return;
+            for (const cell of this.nodesPlayer) {
+                if (cell.isRemoved) continue;
                 // Scan for eat/rigid collisions and resolve them
-                this.quadTree.find(cell.quadItem.bound, function (check) {
+                this.quadTree.find(cell.quadItem.bound, check => {
                     var m = self.checkCellCollision(cell, check);
                     if (self.checkRigidCollision(m))
                         self.resolveRigidCollision(m);
-                    else if (check != cell)
-                        eatCollisions.unshift(m);
+                    else if (check != cell) eatCollisions.unshift(m);
                 });
                 this.movePlayer(cell, cell.owner);
                 this.boostCell(cell);
                 this.autoSplit(cell, cell.owner);
                 // Decay player cells once per second
-                if (((this.ticks + 3) % 25) === 0)
-                    this.updateSizeDecay(cell);
+                if (((this.ticks + 3) % 25) === 0) this.updateSizeDecay(cell);
                 // Remove external minions if necessary
                 if (cell.owner.isMinion) {
                     cell.owner.socket.close(1000, "Minion");
                     this.removeNode(cell);
                 }
-            });
-            eatCollisions.forEach((m) => {
-                this.resolveCollision(m);
-            });
+            }
+            for (const m of eatCollisions) this.resolveCollision(m);
             this.mode.onTick(this);
             this.ticks++;
         }
@@ -758,41 +750,29 @@ class Server {
         for (var i = 0; i < client.cells.length; i++)
             cellToSplit.push(client.cells[i]);
         // Split split-able cells
-        cellToSplit.forEach((cell) => {
+        for (const cell of cellToSplit) {
             var d = client.mouse.difference(cell.position);
-            if (d.distSquared() < 1) {
-                d.x = 1, d.y = 0;
-            }
-            if (cell._size < this.config.playerMinSplitSize)
-                return; // cannot split
+            if (d.distSquared() < 1) d.x = 1, d.y = 0;
+            if (cell._size < this.config.playerMinSplitSize) continue;
             // Get maximum cells for rec mode
-            if (client.rec)
-                var max = 200; // rec limit
-            else
-                max = this.config.playerMaxCells;
-            if (client.cells.length >= max)
-                return;
+            const max = client.rec ? 200 : this.config.playerMaxCells;
+            if (client.cells.length >= max) continue;
             // Now split player cells
             this.splitPlayerCell(client, cell, d.angle(), cell._mass * .5);
-        });
+        }
     }
     canEjectMass(client) {
-        if (client.lastEject === null) {
-            // first eject
+        if (client.lastEject === null) { // first eject
             client.lastEject = this.ticks;
             return true;
         }
-        var dt = this.ticks - client.lastEject;
-        if (dt < this.config.ejectCooldown) {
-            // reject (cooldown)
-            return false;
-        }
+        if (this.ticks - client.lastEject < this.config.ejectCooldown)
+            return false; // reject (cooldown)
         client.lastEject = this.ticks;
         return true;
     }
     ejectMass(client) {
-        if (!this.canEjectMass(client) || client.frozen)
-            return;
+        if (!this.canEjectMass(client) || client.frozen) return;
         for (var i = 0; i < client.cells.length; i++) {
             var cell = client.cells[i];
             if (cell._size < this.config.playerMinEjectSize) continue;
