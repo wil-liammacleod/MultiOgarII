@@ -65,17 +65,24 @@ class QuadNode {
         item._quadNode = null;
     }
     find(bound, callback) { // returns bool found
-        for (const childNode of this.childNodes) {
-            if (bound.overlaps(childNode.bound))
-                if (childNode.find(bound, callback))
-                    return true;
-        }
-        for (const item of this.items) {
-            if (bound.overlaps(item.bound))
-                if (callback(item.cell))
-                    return true;
-        }
+        for (const childNode of this.childNodes)
+            if (bound.overlaps(childNode.bound) &&
+                childNode.find(bound, callback)) return true;
+        for (const item of this.items)
+            if (bound.overlaps(item.bound) && callback(item.cell)) return true;
         return false;
+    }
+    allOverlapped(bound) {
+        const items = [];
+        const nodes = [];
+        let node = this;
+        do {
+            for (const item of node.items)
+                if (item.bound.overlaps(bound)) items.push(item.cell);
+            for (const childNode of node.childNodes)
+                if (childNode.bound.overlaps(bound)) nodes.push(childNode);
+        } while (node = nodes.pop());
+        return items;
     }
     // Returns quadrant for the bound.
     // Returns -1 if bound cannot completely fit within a child node

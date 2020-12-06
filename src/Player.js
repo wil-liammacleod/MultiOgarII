@@ -186,16 +186,14 @@ class Player {
         }
     }
     updateTick() {
-        if (this.isRemoved || this.isMinion)
-            return; // do not update
+        if (this.isRemoved || this.isMinion) return; // do not update
         this.socket.client.process();
-        if (this.isMi)
-            return;
+        if (this.isMi) return;
         // update viewbox
         this.updateSpecView(this.cells.length);
-        var scale = Math.max(this.getScale(), this.server.config.serverMinScale);
-        var halfWidth = (this.server.config.serverViewBaseX + 100) / scale / 2;
-        var halfHeight = (this.server.config.serverViewBaseY + 100) / scale / 2;
+        const scale = Math.max(this.getScale(), this.server.config.serverMinScale);
+        const halfWidth = (this.server.config.serverViewBaseX + 100) / scale / 2;
+        const halfHeight = (this.server.config.serverViewBaseY + 100) / scale / 2;
         this.viewBox = new Quad(
             this.centerPos.x - halfWidth,
             this.centerPos.y - halfHeight,
@@ -203,25 +201,18 @@ class Player {
             this.centerPos.y + halfHeight
         );
         // update visible nodes
-        this.viewNodes = [];
-        var self = this;
-        this.server.quadTree.find(this.viewBox, function (check) {
-            self.viewNodes.push(check);
-        });
-        this.viewNodes.sort(function (a, b) { return a.nodeId - b.nodeId; });
+        this.viewNodes = this.server.quadTree.allOverlapped(this.viewBox);
+        this.viewNodes.sort((a, b) => a.nodeId - b.nodeId);
     }
     sendUpdate() {
+        // do not send update for disconnected clients
+        // also do not send if initialization is not complete yet
         if (this.isRemoved || !this.socket.client.protocol ||
             !this.socket.isConnected || this.isMi || this.isMinion ||
             (this.socket._socket.writable != null && !this.socket._socket.writable) ||
-            this.socket.readyState != this.socket.OPEN) {
-            // do not send update for disconnected clients
-            // also do not send if initialization is not complete yet
-            return;
-        }
-        var client = this.socket.client;
+            this.socket.readyState != this.socket.OPEN) return;
+        const client = this.socket.client;
         if (this.server.config.serverScrambleLevel == 2) {
-            // scramble (moving border)
             if (!this.borderCounter) {
                 var b = this.server.border, v = this.viewBox;
                 var bound = new Quad(
@@ -235,54 +226,41 @@ class Player {
             if (++this.borderCounter >= 20)
                 this.borderCounter = 0;
         }
-        var delNodes = [];
-        var eatNodes = [];
-        var addNodes = [];
-        var updNodes = [];
-        var oldIndex = 0;
-        var newIndex = 0;
-        for (; newIndex < this.viewNodes.length && oldIndex < this.clientNodes.length;) {
-            if (this.viewNodes[newIndex].nodeId < this.clientNodes[oldIndex].nodeId) {
-                if (this.viewNodes[newIndex].isRemoved)
-                    continue;
-                addNodes.push(this.viewNodes[newIndex]);
-                newIndex++;
-                continue;
+        const delNodes = [];
+        const eatNodes = [];
+        const addNodes = [];
+        const updNodes = [];
+        let clientIndex = 0;
+        let viewIndex = 0;
+        while (viewIndex < this.viewNodes.length && clientIndex < this.clientNodes.length) {
+            const viewNode = this.viewNodes[viewIndex];
+            const clientNode = this.clientNodes[clientIndex];
+            if (viewNode.nodeId < clientNode.nodeId) {
+                if (!viewNode.isRemoved) addNodes.push(viewNode);
+                ++viewIndex;
+            } else if (viewNode.nodeId > clientNode.nodeId) {
+                (clientNode.isRemoved ? eatNodes : delNodes).push(clientNode);
+                ++clientIndex;
+            } else {
+                if (viewNode.isRemoved) {
+                    eatNodes.push(viewNode);
+                } else if (viewNode.isMoving || viewNode.type == 0 ||
+                    viewNode.type == 2 ||
+                    this.server.config.serverGamemode == 3 &&
+                    viewNode.type == 1) updNodes.push(viewNode);
+                ++viewIndex;
+                ++clientIndex;
             }
-            if (this.viewNodes[newIndex].nodeId > this.clientNodes[oldIndex].nodeId) {
-                var node = this.clientNodes[oldIndex];
-                if (node.isRemoved)
-                    eatNodes.push(node);
-                else
-                    delNodes.push(node);
-                oldIndex++;
-                continue;
-            }
-            var node = this.viewNodes[newIndex];
-            if (node.isRemoved)
-                continue;
-            // only send update for moving or player nodes
-            if (node.isMoving || node.type == 0 || node.type == 2 || this.server.config.serverGamemode == 3 && node.type == 1)
-                updNodes.push(node);
-            newIndex++;
-            oldIndex++;
         }
-        for (; newIndex < this.viewNodes.length; newIndex++) {
-            addNodes.push(this.viewNodes[newIndex]);
-        }
-        for (; oldIndex < this.clientNodes.length; oldIndex++) {
-            var node = this.clientNodes[oldIndex];
-            if (node.isRemoved)
-                eatNodes.push(node);
-            else
-                delNodes.push(node);
+        for (; viewIndex < this.viewNodes.length; viewIndex++)
+            addNodes.push(this.viewNodes[viewIndex]);
+        for (; clientIndex < this.clientNodes.length; clientIndex++) {
+            const node = this.clientNodes[clientIndex];
+            (node.isRemoved ? eatNodes : delNodes).push(node);
         }
         this.clientNodes = this.viewNodes;
-        // Send update packet
         client.sendPacket(new Packet.UpdateNodes(this, addNodes, updNodes, eatNodes, delNodes));
-        // Update leaderboard
-        if (++this.tickLeaderboard > 25) {
-            // 1 / 0.040 = 25 (once per second)
+        if (++this.tickLeaderboard > 25) { // 1 / 0.040 = 25 (once per second)
             this.tickLeaderboard = 0;
             if (this.server.leaderboardType >= 0)
                 client.sendPacket(new Packet.UpdateLeaderboard(this, this.server.leaderboard, this.server.leaderboardType));
