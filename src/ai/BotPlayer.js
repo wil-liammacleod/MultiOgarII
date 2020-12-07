@@ -6,30 +6,30 @@ const decideTypes = [
         // Same team, don't eat
         if (this.server.mode.haveTeams && cell.owner.team == node.owner.team)
             return 0;
-        if (cell._size > node._size * 1.15) // Edible
-            return node._size * 2.5;
-        if (node._size > cell._size * 1.15) // Bigger, avoid
-            return -node._size;
-        return -(node._size / cell._size) / 3;
+        if (cell.radius > node.radius * 1.15) // Edible
+            return node.radius * 2.5;
+        if (node.radius > cell.radius * 1.15) // Bigger, avoid
+            return -node.radius;
+        return -(node.radius / cell.radius) / 3;
     },
     function decideFood(node, cell) { // Always edible
         return 1;
     },
     function decideEjected(node, cell) {
-        if (cell._size > node._size * 1.15)
-            return node._size;
+        if (cell.radius > node.radius * 1.15)
+            return node.radius;
         return 0;
     },
     function decideVirus(node, cell) {
-        if (cell._size > node._size * 1.15) { // Edible
+        if (cell.radius > node.radius * 1.15) { // Edible
             if (this.cells.length == this.server.config.playerMaxCells) {
                 // Reached cell limit, won't explode
-                return node._size * 2.5;
+                return node.radius * 2.5;
             }
             // Will explode, avoid
             return -1;
         }
-        if (node.isMotherCell && node._size > cell._size * 1.15) // Avoid mother cell if bigger than player
+        if (node.isMotherCell && node.radius > cell.radius * 1.15) // Avoid mother cell if bigger than player
             return -1;
         return 0;
     }
@@ -43,7 +43,7 @@ class BotPlayer extends Player {
     }
     largest(list) {
         return list.reduce((largest, current) => {
-            return current._size > largest._size ? current : largest;
+            return current.radius > largest.radius ? current : largest;
         });
     }
     checkConnection() {
@@ -79,7 +79,7 @@ class BotPlayer extends Player {
             let distance = displacement.dist();
 
             if (this.influence < 0) // Get edge distance
-                distance -= cell._size + node._size;
+                distance -= cell.radius + node.radius;
 
             // The farther they are the smaller influence it is
             if (distance < 1)
@@ -88,9 +88,9 @@ class BotPlayer extends Player {
             this.influence /= distance;
 
             // Splitting conditions
-            if (node.type != 1 && cell._size > node._size * 1.15 &&
+            if (node.type != 1 && cell.radius > node.radius * 1.15 &&
                 !this.splitCooldown && this.cells.length < 8 &&
-                400 - cell._size / 2 - node._size >= distance) {
+                400 - cell.radius / 2 - node.radius >= distance) {
                 // Splitkill the target
                 this.splitCooldown = 15;
                 this.mouse.assign(node.position);

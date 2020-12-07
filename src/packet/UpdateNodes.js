@@ -39,7 +39,7 @@ class UpdateNodes {
             writer.writeUInt32((node.nodeId ^ scrambleId) >>> 0); // Cell ID
             writer.writeUInt16(cellX >> 0); // Coordinate X
             writer.writeUInt16(cellY >> 0); // Coordinate Y
-            writer.writeUInt16(node._size >>> 0); // Cell Size (not to be confused with mass, because mass = size*size/100)
+            writer.writeUInt16(node.radius >>> 0); // Cell Size (not to be confused with mass, because mass = size*size/100)
             var color = node.color;
             writer.writeUInt8(color.r >>> 0); // Color R
             writer.writeUInt8(color.g >>> 0); // Color G
@@ -68,7 +68,7 @@ class UpdateNodes {
             writer.writeUInt32((node.nodeId ^ scrambleId) >>> 0); // Cell ID
             writer.writeUInt16(cellX >> 0); // Coordinate X
             writer.writeUInt16(cellY >> 0); // Coordinate Y
-            writer.writeUInt16(node._size >>> 0); // Cell Size (not to be confused with mass, because mass = size*size/100)
+            writer.writeUInt16(node.radius >>> 0); // Cell Size (not to be confused with mass, because mass = size*size/100)
             var color = node.color;
             writer.writeUInt8(color.r >>> 0); // Color R
             writer.writeUInt8(color.g >>> 0); // Color G
@@ -103,7 +103,7 @@ class UpdateNodes {
             writer.writeUInt32((node.nodeId ^ scrambleId) >>> 0); // Cell ID
             writer.writeUInt32(cellX >> 0); // Coordinate X
             writer.writeUInt32(cellY >> 0); // Coordinate Y
-            writer.writeUInt16(node._size >>> 0); // Cell Size (not to be confused with mass, because mass = size*size/100)
+            writer.writeUInt16(node.radius >>> 0); // Cell Size (not to be confused with mass, because mass = size*size/100)
             var color = node.color;
             writer.writeUInt8(color.r >>> 0); // Color R
             writer.writeUInt8(color.g >>> 0); // Color G
@@ -134,7 +134,7 @@ class UpdateNodes {
             writer.writeUInt32((node.nodeId ^ scrambleId) >>> 0); // Cell ID
             writer.writeUInt32(cellX >> 0); // Coordinate X
             writer.writeUInt32(cellY >> 0); // Coordinate Y
-            writer.writeUInt16(node._size >>> 0); // Cell Size (not to be confused with mass, because mass = size*size/100)
+            writer.writeUInt16(node.radius >>> 0); // Cell Size (not to be confused with mass, because mass = size*size/100)
             var color = node.color;
             writer.writeUInt8(color.r >>> 0); // Color R
             writer.writeUInt8(color.g >>> 0); // Color G
@@ -173,7 +173,7 @@ class UpdateNodes {
             writer.writeUInt32((node.nodeId ^ scrambleId) >>> 0); // Cell ID
             writer.writeUInt32(cellX >> 0); // Coordinate X
             writer.writeUInt32(cellY >> 0); // Coordinate Y
-            writer.writeUInt16(node._size >>> 0); // Cell Size (not to be confused with mass, because mass = size*size/100)
+            writer.writeUInt16(node.radius >>> 0); // Cell Size (not to be confused with mass, because mass = size*size/100)
             var flags = 0;
             if (node.isVirus)
                 flags |= 0x01; // isVirus
@@ -207,7 +207,7 @@ class UpdateNodes {
             writer.writeUInt32((node.nodeId ^ scrambleId) >>> 0); // Cell ID
             writer.writeUInt32(cellX >> 0); // Coordinate X
             writer.writeUInt32(cellY >> 0); // Coordinate Y
-            writer.writeUInt16(node._size >>> 0); // Cell Size (not to be confused with mass, because mass = size*size/100)
+            writer.writeUInt16(node.radius >>> 0); // Cell Size (not to be confused with mass, because mass = size*size/100)
             var flags = 0;
             if (node.isVirus)
                 flags |= 0x01; // isVirus
@@ -250,7 +250,7 @@ class UpdateNodes {
             writer.writeUInt32((node.nodeId ^ scrambleId) >>> 0); // Cell ID
             writer.writeUInt32(cellX >> 0); // Coordinate X
             writer.writeUInt32(cellY >> 0); // Coordinate Y
-            writer.writeUInt16(node._size >>> 0); // Cell Size (not to be confused with mass, because mass = size*size/100)
+            writer.writeUInt16(node.radius >>> 0); // Cell Size (not to be confused with mass, because mass = size*size/100)
             var flags = 0;
             if (node.isVirus)
                 flags |= 0x01; // isVirus
@@ -288,7 +288,7 @@ class UpdateNodes {
             writer.writeUInt32((node.nodeId ^ scrambleId) >>> 0); // Cell ID
             writer.writeUInt32(cellX >> 0); // Coordinate X
             writer.writeUInt32(cellY >> 0); // Coordinate Y
-            writer.writeUInt16(node._size >>> 0); // Cell Size (not to be confused with mass, because mass = size*size/100)
+            writer.writeUInt16(node.radius >>> 0); // Cell Size (not to be confused with mass, because mass = size*size/100)
             var flags = 0;
             if (node.isVirus)
                 flags |= 0x01; // isVirus

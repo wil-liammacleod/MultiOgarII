@@ -20,7 +20,7 @@ class MotherCell extends Virus {
         this.motherCellMinSize = 149;
         this.motherCellSpawnAmount = 2;
 
-        if (!this._size) {
+        if (!this.radius) {
             this.setSize(this.motherCellMinSize);
         }
     }
@@ -32,9 +32,9 @@ class MotherCell extends Virus {
             cell.type == 3; // can eat ejected mass
     }
     onUpdate() {
-        if (this._size == this.motherCellMinSize) return;
+        if (this.radius == this.motherCellMinSize) return;
 
-        let size1 = this._size;
+        let size1 = this.radius;
         let size2 = this.server.config.foodMinSize;
         for (let i = 0; i < this.motherCellSpawnAmount; i++) {
             size1 = Math.sqrt(size1 * size1 - (size2 * size2) * 2);

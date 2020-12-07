@@ -116,7 +116,7 @@ class Server {
         // Add to quad-tree & node list
         var x = node.position.x;
         var y = node.position.y;
-        var s = node._size;
+        var s = node.radius;
         node.quadItem = {
             cell: node,
             bound: new Quad(x - s, y - s, x + s, y + s)
@@ -513,7 +513,7 @@ class Server {
         if (!move) return; // avoid jittering
         cell.position.add(d.product(move));
         // update remerge
-        var time = this.config.playerRecombineTime, base = Math.max(time, cell._size * 0.2) * 25;
+        var time = this.config.playerRecombineTime, base = Math.max(time, cell.radius * 0.2) * 25;
         // instant merging conditions
         if (!time || client.rec || client.mergeOverride) {
             cell._canRemerge = cell.boostDistance < 100;
@@ -525,13 +525,13 @@ class Server {
     // decay player cells
     updateSizeDecay(cell) {
         var rate = this.config.playerDecayRate, cap = this.config.playerDecayCap;
-        if (!rate || cell._size <= this.config.playerMinSize)
+        if (!rate || cell.radius <= this.config.playerMinSize)
             return;
         // remove size from cell at decay rate
         if (cap && cell._mass > cap)
             rate *= 10;
         var decay = 1 - rate * this.mode.decayMod;
-        cell.setSize(Math.sqrt(cell.radius * decay));
+        cell.setSize(Math.sqrt(cell._radius2 * decay));
     }
     boostCell(cell) {
         if (cell.isMoving && !cell.boostDistance || cell.isRemoved) {
@@ -554,7 +554,7 @@ class Server {
         else
             maxSize = this.config.playerMaxSize;
         // check size limit
-        if (client.mergeOverride || cell._size < maxSize)
+        if (client.mergeOverride || cell.radius < maxSize)
             return;
         if (client.cells.length >= this.config.playerMaxCells || this.config.mobilePhysics) {
             // cannot split => just limit
@@ -569,10 +569,10 @@ class Server {
     updateNodeQuad(node) {
         // update quad tree
         var item = node.quadItem.bound;
-        item.minx = node.position.x - node._size;
-        item.miny = node.position.y - node._size;
-        item.maxx = node.position.x + node._size;
-        item.maxy = node.position.y + node._size;
+        item.minx = node.position.x - node.radius;
+        item.miny = node.position.y - node.radius;
+        item.maxx = node.position.x + node.radius;
+        item.maxy = node.position.y + node.radius;
         this.quadTree.remove(node.quadItem);
         this.quadTree.insert(node.quadItem);
     }
@@ -608,12 +608,12 @@ class Server {
     // Resolves rigid body collisions
     resolveRigidCollision(m) {
         if (m.d == 0) return;
-        var push = (m.cell._size + m.check._size - m.d) / m.d;
+        var push = (m.cell.radius + m.check.radius - m.d) / m.d;
         if (push <= 0) return; // do not extrude
         // body impulse
-        const massSum = m.cell.radius + m.check.radius;
-        const r1 = push * m.cell.radius / massSum;
-        const r2 = push * m.check.radius / massSum;
+        const massSum = m.cell._radius2 + m.check._radius2;
+        const r1 = push * m.cell._radius2 / massSum;
+        const r2 = push * m.check._radius2 / massSum;
         // apply extrusion force
         m.cell.position.subtract(m.p.product(r2));
         m.check.position.add(m.p.product(r1));
@@ -623,19 +623,19 @@ class Server {
         let cell = m.cell;
         let check = m.check;
         if (cell.isRemoved || check.isRemoved) return;
-        if (cell._size > check._size) {
+        if (cell.radius > check.radius) {
             cell = m.check;
             check = m.cell;
         }
         // check eating distance
         const div = this.config.mobilePhysics ? 20 : 3;
-        if (m.d >= check._size - cell._size / div) return; // too far => can't eat
+        if (m.d >= check.radius - cell.radius / div) return; // too far => can't eat
         // collision owned => ignore, resolve, or remerge
         if (cell.owner && cell.owner == check.owner) {
             if (cell.getAge() < 13 || check.getAge() < 13)
                 return; // just split => ignore
         }
-        else if (check._size < cell._size * 1.15 || !check.canEat(cell))
+        else if (check.radius < cell.radius * 1.15 || !check.canEat(cell))
             return; // Cannot eat or cell refuses to be eaten
         // Consume effect
         check.onEat(cell);
@@ -646,7 +646,7 @@ class Server {
     }
     splitPlayerCell(client, parent, angle, mass) {
         var size = Math.sqrt(mass * 100);
-        var size1 = Math.sqrt(parent.radius - size * size);
+        var size1 = Math.sqrt(parent._radius2 - size * size);
         // Too small to split
         if (!size1 || size1 < this.config.playerMinSize)
             return;
@@ -664,8 +664,8 @@ class Server {
     spawnFood() {
         var cell = new Entity.Food(this, null, this.randomPos(), this.config.foodMinSize);
         if (this.config.foodMassGrow) {
-            var maxGrow = this.config.foodMaxSize - cell._size;
-            cell.setSize(cell._size += maxGrow * Math.random());
+            var maxGrow = this.config.foodMaxSize - cell.radius;
+            cell.setSize(cell.radius += maxGrow * Math.random());
         }
         cell.color = this.getRandomColor();
         this.addNode(cell);
@@ -698,7 +698,7 @@ class Server {
             // Spawn from ejected mass
             pos = eject.position.clone();
             player.color = eject.color;
-            size = Math.max(size, eject._size * 1.15);
+            size = Math.max(size, eject.radius * 1.15);
         }
         // Spawn player safely (do not check minions)
         var cell = new Entity.PlayerCell(this, player, pos, size);
@@ -711,7 +711,7 @@ class Server {
     willCollide(cell) {
         const x = cell.position.x;
         const y = cell.position.y;
-        const r = cell._size;
+        const r = cell.radius;
         const bound = new Quad(x - r, y - r, x + r, y + r);
         return this.quadTree.find(bound, n => n.type == 0);
     }
@@ -724,7 +724,7 @@ class Server {
         for (const cell of cellToSplit) {
             var d = client.mouse.difference(cell.position);
             if (d.distSquared() < 1) d.x = 1, d.y = 0;
-            if (cell._size < this.config.playerMinSplitSize) continue;
+            if (cell.radius < this.config.playerMinSplitSize) continue;
             // Get maximum cells for rec mode
             const max = client.rec ? 200 : this.config.playerMaxCells;
             if (client.cells.length >= max) continue;
@@ -746,9 +746,9 @@ class Server {
         if (!this.canEjectMass(client) || client.frozen) return;
         for (var i = 0; i < client.cells.length; i++) {
             var cell = client.cells[i];
-            if (cell._size < this.config.playerMinEjectSize) continue;
+            if (cell.radius < this.config.playerMinEjectSize) continue;
             var loss = this.config.ejectSizeLoss;
-            var newSize = cell.radius - loss * loss;
+            var newSize = cell._radius2 - loss * loss;
             var minSize = this.config.playerMinSize;
             if (newSize < 0 || newSize < minSize * minSize)
                 continue; // Too small to eject
@@ -760,7 +760,7 @@ class Server {
             d.y = sq > 1 ? d.y / sq : 0;
 
             // Get starting position
-            var pos = cell.position.sum(d.product(cell._size));
+            var pos = cell.position.sum(d.product(cell.radius));
             var angle = d.angle() + (Math.random() * .6) - .3;
             // Create cell and add it to node list
             var ejected;

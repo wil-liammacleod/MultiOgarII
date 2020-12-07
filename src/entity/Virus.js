@@ -20,8 +20,8 @@ class Virus extends Cell {
     }
     onEat(prey) {
         // Called to eat prey cell
-        this.setSize(Math.sqrt(this.radius + prey.radius));
-        if (this._size >= this.server.config.virusMaxSize) {
+        this.setSize(Math.sqrt(this._radius2 + prey._radius2));
+        if (this.radius >= this.server.config.virusMaxSize) {
             this.setSize(this.server.config.virusMinSize); // Reset mass
             this.server.shootVirus(this, prey.boostDirection.angle());
         }

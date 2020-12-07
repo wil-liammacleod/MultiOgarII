@@ -109,9 +109,9 @@ class Player {
     getScale() {
         this._score = 0; // reset to not cause bugs with leaderboard
         var scale = 0; // reset to not cause bugs with viewbox
-        for (var i = 0; i < this.cells.length; i++) {
-            scale += this.cells[i]._size;
-            this._score += this.cells[i]._mass;
+        for (const cell of this.cells) {
+            scale += cell.radius;
+            this._score += cell._mass;
         }
         if (!scale)
             return scale = this._score = 0.4; // reset scale

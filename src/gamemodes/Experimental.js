@@ -48,7 +48,7 @@ class Experimental extends FFA {
         }
         var updateInterval;
         for (const motherCell of this.nodesMother) {
-            if (motherCell._size <= motherCell.motherCellMinSize)
+            if (motherCell.radius <= motherCell.motherCellMinSize)
                 updateInterval = Math.random() * (50 - 25) + 25;
             else updateInterval = 2;
             if ((server.ticks % ~~updateInterval) === 0)

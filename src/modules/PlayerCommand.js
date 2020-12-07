@@ -41,7 +41,7 @@ const commands = [
             let cell = player.cells[0];
             player.server.removeNode(cell);
             // replace with food
-            let food = new Food(player.server, null, cell.position, cell._size);
+            let food = new Food(player.server, null, cell.position, cell.radius);
             food.color = cell.color;
             player.server.addNode(food);
         }

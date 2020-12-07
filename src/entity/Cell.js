@@ -5,8 +5,8 @@ class Cell {
         this.server = server;
         this.owner = owner; // Client that owns this cell
         this.color = { r: 0, g: 0, b: 0 };
+        this._radius2 = 0;
         this.radius = 0;
-        this._size = 0;
         this._mass = 0;
         this.type = -1; // 0 = Player Cell, 1 = Food, 2 = Virus, 3 = Ejected Mass
         this.isVirus = false; // If true, then this cell has spikes around it
@@ -27,9 +27,9 @@ class Cell {
     }
     // Fields not defined by the constructor are considered private and need a getter/setter to access from a different class
     setSize(size) {
-        this._size = size;
-        this.radius = size * size;
-        this._mass = this.radius / 100;
+        this.radius = size;
+        this._radius2 = size * size;
+        this._mass = this._radius2 / 100;
     }
     // By default cell cannot eat anyone
     canEat(cell) {
@@ -42,10 +42,10 @@ class Cell {
     // Called to eat prey cell
     onEat(prey) {
         if (!this.server.config.playerBotGrow) {
-            if (this._size >= 250 && prey._size <= 41 && prey.type == 0)
-                prey.radius = 0; // Can't grow from players under 17 mass
+            if (this.radius >= 250 && prey.radius <= 41 && prey.type == 0)
+                prey._radius2 = 0; // Can't grow from players under 17 mass
         }
-        return this.setSize(Math.sqrt(this.radius + prey.radius));
+        return this.setSize(Math.sqrt(this._radius2 + prey._radius2));
     }
     // Boost cell
     setBoost(distance, angle) {
@@ -60,7 +60,7 @@ class Cell {
     }
     // Prevent cell from crossing the border
     checkBorder(b) {
-        const r = this._size / 2;
+        const r = this.radius / 2;
         if (this.position.x < b.minx + r || this.position.x > b.maxx - r) {
             this.boostDirection.x *= -1; // Reflect left-right
             this.position.x = Math.max(this.position.x, b.minx + r);
