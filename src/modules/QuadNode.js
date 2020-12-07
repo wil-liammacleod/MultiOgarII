@@ -61,7 +61,7 @@ class QuadNode {
     remove(item) {
         if (item._quadNode !== this)
             return item._quadNode.remove(item);
-        this.items.splice(this.items.indexOf(item), 1);
+        this.items.removeUnsorted(item);
         item._quadNode = null;
     }
     find(bound, callback) { // returns bool found

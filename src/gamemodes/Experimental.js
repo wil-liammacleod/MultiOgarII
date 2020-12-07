@@ -38,9 +38,7 @@ class Experimental extends FFA {
             self.nodesMother.push(this);
         };
         Entity.MotherCell.prototype.onRemove = function () {
-            var index = self.nodesMother.indexOf(this);
-            if (index != -1)
-                self.nodesMother.splice(index, 1);
+            self.nodesMother.removeUnsorted(this);
         };
     }
     onTick(server) {
@@ -49,15 +47,12 @@ class Experimental extends FFA {
             this.spawnMotherCell(server);
         }
         var updateInterval;
-        for (var i = 0; i < this.nodesMother.length; ++i) {
-            var motherCell = this.nodesMother[i];
+        for (const motherCell of this.nodesMother) {
             if (motherCell._size <= motherCell.motherCellMinSize)
                 updateInterval = Math.random() * (50 - 25) + 25;
-            else
-                updateInterval = 2;
-            if ((server.ticks % ~~updateInterval) === 0) {
+            else updateInterval = 2;
+            if ((server.ticks % ~~updateInterval) === 0)
                 motherCell.onUpdate();
-            }
         }
     }
 }

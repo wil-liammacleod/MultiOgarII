@@ -78,20 +78,10 @@ class Virus extends Cell {
         server.nodesVirus.push(this);
     }
     onRemove(server) {
-        var index = server.nodesVirus.indexOf(this);
-        if (index != -1)
-            server.nodesVirus.splice(index, 1);
-        // Respawn
+        server.nodesVirus.removeUnsorted(this);
         server.spawnVirus();
     }
 }
 
 module.exports = Virus;
 Virus.prototype = new Cell();
-
-
-
-
-
-
-

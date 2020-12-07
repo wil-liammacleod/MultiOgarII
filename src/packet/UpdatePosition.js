@@ -7,7 +7,6 @@ class UpdatePosition {
         this.y = y;
         this.scale = scale;
     }
-
     build(protocol) {
         var writer = new BinaryWriter();
         writer.writeUInt8(0x11);
@@ -15,7 +14,7 @@ class UpdatePosition {
         writer.writeFloat(this.y + this.player.scrambleY);
         writer.writeFloat(this.scale);
         return writer.toBuffer();
-    };
-};
+    }
+}
 
 module.exports = UpdatePosition;

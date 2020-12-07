@@ -30,9 +30,6 @@ class Mode {
     onCellRemove(cell) {
         // Called when a player cell is removed
     }
-    onCellMove(cell, server) {
-        // Called when a player cell is moved
-    }
     updateLB(server) {
         // Called when the leaderboard update function is called
         server.leaderboardType = this.packetLB;
@@ -40,12 +37,3 @@ class Mode {
 }
 
 module.exports = Mode;
-
-
-
-
-
-
-
-
-

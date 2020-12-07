@@ -23,21 +23,18 @@ class Cell {
                 this.setSize(size);
             if (position)
                 this.position = position.clone();
-        };
-    };
-
+        }
+    }
     // Fields not defined by the constructor are considered private and need a getter/setter to access from a different class
     setSize(size) {
         this._size = size;
         this.radius = size * size;
         this._mass = this.radius / 100;
-    };
-
+    }
     // By default cell cannot eat anyone
     canEat(cell) {
         return false;
     }
-
     // Returns cell age in ticks for specified game tick
     getAge() {
         return this.server.ticks - this.createdAt;
@@ -47,11 +44,9 @@ class Cell {
         if (!this.server.config.playerBotGrow) {
             if (this._size >= 250 && prey._size <= 41 && prey.type == 0)
                 prey.radius = 0; // Can't grow from players under 17 mass
-        };
-
+        }
         return this.setSize(Math.sqrt(this.radius + prey.radius));
-    };
-
+    }
     // Boost cell
     setBoost(distance, angle) {
         this.boostDistance = distance;
@@ -61,9 +56,8 @@ class Cell {
             const index = this.server.movingNodes.indexOf(this);
             if (index < 0)
                 this.server.movingNodes.push(this);
-        };
-    };
-
+        }
+    }
     // Prevent cell from crossing the border
     checkBorder(b) {
         const r = this._size / 2;
@@ -80,9 +74,9 @@ class Cell {
     }
 
     // Misc event functions
-    onEaten(hunter) {};
-    onAdd(server) {};
-    onRemove(server) {};
+    onEaten(hunter) {}
+    onAdd(server) {}
+    onRemove(server) {}
 }
 
 module.exports = Cell;

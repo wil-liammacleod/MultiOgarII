@@ -73,29 +73,8 @@ class Teams extends Mode{
     }
     onCellRemove(cell) {
         // Remove from team list
-        var index = this.nodes[cell.owner.team].indexOf(cell);
-        if (index != -1) {
-            this.nodes[cell.owner.team].splice(index, 1);
-        }
-    }
-    onCellMove(cell, server) {
-        // Find team
-        for (var i = 0; i < cell.owner.visibleNodes.length; i++) {
-            // Only collide with player cells
-            var check = cell.owner.visibleNodes[i];
-            if ((check.type != 0) || (cell.owner == check.owner)) {
-                continue;
-            }
-            // Collision with teammates
-            var team = cell.owner.team;
-            if (check.owner.team == team) {
-                var manifold = server.checkCellCollision(cell, check); // Calculation info
-                if (manifold != null) { // Collided
-                    // Cant eat team members
-                    !manifold.check.canEat(manifold.cell);
-                }
-            }
-        }
+        const team = this.nodes[cell.owner.team];
+        team.removeUnsorted(cell);
     }
     updateLB(server) {
         server.leaderboardType = this.packetLB;

@@ -46,18 +46,12 @@ class Rainbow extends FFA{
     onServerInit() { }
     onTick(server) {
         // Change color
-        for (var i in server.nodes) {
-            var node = server.nodes[i];
-            if (!node)
-                continue;
+        for (const node of server.nodes) {
+            if (!node) continue;
             this.changeColor(node, server);
         }
-        ;
     }
 }
 
 module.exports = Rainbow;
 Rainbow.prototype = new FFA();
-
-
-

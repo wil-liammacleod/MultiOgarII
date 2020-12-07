@@ -50,7 +50,7 @@ class ChatMessage {
             writer.writeStringZeroUtf8(text);
         }
         return writer.toBuffer();
-    };
-};
+    }
+}
 
 module.exports = ChatMessage;

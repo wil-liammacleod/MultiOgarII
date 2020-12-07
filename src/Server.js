@@ -178,13 +178,11 @@ class Server {
         ws.player = new Player(this, ws);
         ws.client = new Client(this, ws);
         ws.playerCommand = new PlayerCommand(this, ws.player);
-        var self = this;
-        ws.on('message', function (message) {
-            if (self.config.serverWsModule === "uws")
+        ws.on('message', message => {
+            if (this.config.serverWsModule === "uws")
                 // uws gives ArrayBuffer - convert it to Buffer
-                message = parseInt(process.version[1]) < 6 ? Buffer.from(message) : Buffer.from(message);
-            if (!message.length)
-                return;
+                message = Buffer.from(message);
+            if (!message.length) return;
             if (message.length > 256) {
                 ws.close(1009, "Spam");
                 return;
@@ -194,13 +192,13 @@ class Server {
         ws.on('error', function (error) {
             ws.client.sendPacket = function (data) { };
         });
-        ws.on('close', function (reason) {
+        ws.on('close', reason => {
             if (ws._socket && ws._socket.destroy != null && typeof ws._socket.destroy == 'function') {
                 ws._socket.destroy();
             }
-            self.socketCount--;
+            this.socketCount--;
             ws.isConnected = false;
-            ws.client.sendPacket = function (data) { };
+            ws.client.sendPacket = () => {};
             ws.closeReason = {
                 reason: ws._closeCode,
                 message: ws._closeMessage
@@ -327,52 +325,34 @@ class Server {
         this.quadTree.remove(node.quadItem);
         node.quadItem = null;
         // Remove from node lists
-        var i = this.nodes.indexOf(node);
-        if (i > -1)
-            this.nodes.splice(i, 1);
-        i = this.movingNodes.indexOf(node);
-        if (i > -1)
-            this.movingNodes.splice(i, 1);
+        this.nodes.removeUnsorted(node);
+        this.movingNodes.removeUnsorted(node);
         // Special on-remove actions
         node.onRemove(this);
     }
     updateClients() {
         // check dead clients
-        var len = this.clients.length;
-        for (var i = 0; i < len;) {
-            if (!this.clients[i]) {
-                i++;
-                continue;
+        for (var i = 0; i < this.clients.length; ++i) {
+            const client = this.clients[i];
+            client.player.checkConnection();
+            // remove dead client
+            if (client.player.isRemoved || client.isCloseRequest) {
+                this.clients.removeUnsorted(null, i);
+                --i;
             }
-            this.clients[i].player.checkConnection();
-            if (this.clients[i].player.isRemoved || this.clients[i].isCloseRequest)
-                // remove dead client
-                this.clients.splice(i, 1);
-            else
-                i++;
         }
         // update
-        for (var i = 0; i < len; i++) {
-            if (!this.clients[i])
-                continue;
-            this.clients[i].player.updateTick();
-        }
-        for (var i = 0; i < len; i++) {
-            if (!this.clients[i])
-                continue;
-            this.clients[i].player.sendUpdate();
-        }
+        for (const client of this.clients) client.player.updateTick();
+        for (const client of this.clients) client.player.sendUpdate();
         // check minions
-        for (var i = 0, test = this.minionTest.length; i < test;) {
-            if (!this.minionTest[i]) {
-                i++;
-                continue;
+        for (let i = 0; i < this.minionTest.length; ++i) {
+            const minionTest = this.minionTest[i];
+            if (!minionTest) continue;
+            var date = new Date() - minionTest.connectedTime;
+            if (date > this.config.serverMinionInterval) {
+                this.minionTest.removeUnsorted(null, i);
+                --i;
             }
-            var date = new Date() - this.minionTest[i].connectedTime;
-            if (date > this.config.serverMinionInterval)
-                this.minionTest.splice(i, 1);
-            else
-                i++;
         }
     }
     updateLeaderboard() {
@@ -468,39 +448,40 @@ class Server {
     mainLoop() {
         this.stepDateTime = Date.now();
         var tStart = process.hrtime();
-        var self = this;
         if (this.ticks > this.config.serverRestart && this.run) this.restart();
         // Loop main functions
         if (this.run) {
             // Move moving nodes first
             for (const cell of this.movingNodes) {
-                if (cell.isRemoved) continue;
+                if (cell.isRemoved || !cell.isMoving) continue;
                 // Scan and check for ejected mass / virus collisions
                 this.boostCell(cell);
-                this.quadTree.find(cell.quadItem.bound, check => {
-                    var m = self.checkCellCollision(cell, check);
-                    if (cell.type == 3 && check.type == 3 && !self.config.mobilePhysics)
-                        self.resolveRigidCollision(m);
-                    else self.resolveCollision(m);
-                });
-                if (!cell.isMoving) this.movingNodes = null;
+                const nodes = this.quadTree.allOverlapped(cell.quadItem.bound);
+                for (const check of nodes) {
+                    var m = this.checkCellCollision(cell, check);
+                    if (cell.type == 3 && check.type == 3 && !this.config.mobilePhysics)
+                        this.resolveRigidCollision(m);
+                    else this.resolveCollision(m);
+                }
             }
             // Update players and scan for collisions
             var eatCollisions = [];
+            // Decay player cells once per second
+            if (((this.ticks + 3) % 25) === 0)
+                for (const cell of this.nodesPlayer) this.updateSizeDecay(cell);
             for (const cell of this.nodesPlayer) {
                 if (cell.isRemoved) continue;
                 // Scan for eat/rigid collisions and resolve them
-                this.quadTree.find(cell.quadItem.bound, check => {
-                    var m = self.checkCellCollision(cell, check);
-                    if (self.checkRigidCollision(m))
-                        self.resolveRigidCollision(m);
-                    else if (check != cell) eatCollisions.unshift(m);
-                });
+                const nodes = this.quadTree.allOverlapped(cell.quadItem.bound);
+                for (const check of nodes) {
+                    const m = this.checkCellCollision(cell, check);
+                    if (this.checkRigidCollision(m))
+                        this.resolveRigidCollision(m);
+                    else if (check != cell) eatCollisions.push(m);
+                }
                 this.movePlayer(cell, cell.owner);
                 this.boostCell(cell);
                 this.autoSplit(cell, cell.owner);
-                // Decay player cells once per second
-                if (((this.ticks + 3) % 25) === 0) this.updateSizeDecay(cell);
                 // Remove external minions if necessary
                 if (cell.owner.isMinion) {
                     cell.owner.socket.close(1000, "Minion");
@@ -511,8 +492,6 @@ class Server {
             this.mode.onTick(this);
             this.ticks++;
         }
-        if (!this.run && this.mode.IsTournament)
-            this.ticks++;
         this.updateClients();
         // update leaderboard
         if (((this.ticks + 7) % 25) === 0)
@@ -531,8 +510,7 @@ class Server {
         // get movement from vector
         var d = client.mouse.difference(cell.position);
         var move = cell.getSpeed(d.dist()); // movement speed
-        if (!move)
-            return; // avoid jittering
+        if (!move) return; // avoid jittering
         cell.position.add(d.product(move));
         // update remerge
         var time = this.config.playerRecombineTime, base = Math.max(time, cell._size * 0.2) * 25;
@@ -600,7 +578,7 @@ class Server {
     }
     // Checks cells for collision
     checkCellCollision(cell, check) {
-        var p = check.position.difference(cell.position);
+        const p = check.position.difference(cell.position);
         // create collision manifold
         return {
             cell: cell,
@@ -611,58 +589,51 @@ class Server {
     }
     // Checks if collision is rigid body collision
     checkRigidCollision(m) {
-        if (!m.cell.owner || !m.check.owner)
-            return false;
+        if (!m.cell.owner || !m.check.owner) return false;
         if (m.cell.owner != m.check.owner) {
             // Minions don't collide with their team when the config value is 0
             if (this.mode.haveTeams && m.check.owner.isMi || m.cell.owner.isMi && this.config.minionCollideTeam === 0) {
                 return false;
-            }
-            else {
+            } else {
                 // Different owners => same team
                 return this.mode.haveTeams &&
                     m.cell.owner.team == m.check.owner.team;
             }
         }
-        var r = this.config.mobilePhysics ? 1 : 13;
-        if (m.cell.getAge() < r || m.check.getAge() < r) {
-            return false; // just splited => ignore
-        }
+        const age = this.config.mobilePhysics ? 1 : 13;
+        // just split => ignore
+        if (m.cell.getAge() < age || m.check.getAge() < age) return false;
         return !m.cell._canRemerge || !m.check._canRemerge;
     }
     // Resolves rigid body collisions
     resolveRigidCollision(m) {
+        if (m.d == 0) return;
         var push = (m.cell._size + m.check._size - m.d) / m.d;
-        if (push <= 0 || m.d == 0)
-            return; // do not extrude
+        if (push <= 0) return; // do not extrude
         // body impulse
-        var rt = m.cell.radius + m.check.radius;
-        var r1 = push * m.cell.radius / rt;
-        var r2 = push * m.check.radius / rt;
+        const massSum = m.cell.radius + m.check.radius;
+        const r1 = push * m.cell.radius / massSum;
+        const r2 = push * m.check.radius / massSum;
         // apply extrusion force
         m.cell.position.subtract(m.p.product(r2));
         m.check.position.add(m.p.product(r1));
     }
     // Resolves non-rigid body collision
     resolveCollision(m) {
-        var cell = m.cell;
-        var check = m.check;
+        let cell = m.cell;
+        let check = m.check;
+        if (cell.isRemoved || check.isRemoved) return;
         if (cell._size > check._size) {
             cell = m.check;
             check = m.cell;
         }
-        // Do not resolve removed
-        if (cell.isRemoved || check.isRemoved)
-            return;
         // check eating distance
-        check.div = this.config.mobilePhysics ? 20 : 3;
-        if (m.d >= check._size - cell._size / check.div) {
-            return; // too far => can't eat
-        }
+        const div = this.config.mobilePhysics ? 20 : 3;
+        if (m.d >= check._size - cell._size / div) return; // too far => can't eat
         // collision owned => ignore, resolve, or remerge
         if (cell.owner && cell.owner == check.owner) {
             if (cell.getAge() < 13 || check.getAge() < 13)
-                return; // just splited => ignore
+                return; // just split => ignore
         }
         else if (check._size < cell._size * 1.15 || !check.canEat(cell))
             return; // Cannot eat or cell refuses to be eaten
@@ -862,16 +833,13 @@ class Server {
                     list.splice(i, 1);
                     continue;
                 }
-                if (item.ip)
-                    item.ip = item.ip.trim();
+                if (item.ip) item.ip = item.ip.trim();
                 item.password = item.password.trim();
                 if (!UserRoleEnum.hasOwnProperty(item.role)) {
                     Logger.warn("Unknown user role: " + item.role);
                     item.role = UserRoleEnum.USER;
                 }
-                else {
-                    item.role = UserRoleEnum[item.role];
-                }
+                else item.role = UserRoleEnum[item.role];
                 item.name = (item.name || "").trim();
                 i++;
             }
@@ -887,16 +855,12 @@ class Server {
         try {
             if (fs.existsSync(fileNameIpBan)) {
                 // Load and input the contents of the ipbanlist file
-                this.ipBanList = fs.readFileSync(fileNameIpBan, "utf8").split(/[\r\n]+/).filter(function (x) {
-                    return x != ''; // filter empty lines
-                });
+                this.ipBanList = fs.readFileSync(fileNameIpBan, "utf8")
+                    .split(/[\r\n]+/)
+                    .filter(x => x != ''); // filter empty lines
                 Logger.info(this.ipBanList.length + " IP ban records loaded.");
-            }
-            else {
-                Logger.warn(fileNameIpBan + " is missing.");
-            }
-        }
-        catch (err) {
+            } else Logger.warn(fileNameIpBan + " is missing.");
+        } catch (err) {
             Logger.error(err.stack);
             Logger.error("Failed to load " + fileNameIpBan + ": " + err.message);
         }
@@ -999,7 +963,7 @@ class Server {
             method: 'POST'
         }, 'application/x-www-form-urlencoded', data);
     }
-};
+}
 
 function trackerRequest(options, type, body) {
     if (options.headers == null) options.headers = {};

@@ -22,22 +22,17 @@ class MotherCell extends Virus {
 
         if (!this._size) {
             this.setSize(this.motherCellMinSize);
-        };
-    };
-
+        }
+    }
     canEat(cell) {
         const maxMass = this.server.config.motherCellMaxMass;
-        if (maxMass && this._mass >= maxMass)
-            return false;
+        if (maxMass && this._mass >= maxMass) return false;
         return cell.type == 0 || // can eat player cell
             cell.type == 2 || // can eat virus
             cell.type == 3; // can eat ejected mass
-    };
-
+    }
     onUpdate() {
-        if (this._size == this.motherCellMinSize) {
-            return;
-        };
+        if (this._size == this.motherCellMinSize) return;
 
         let size1 = this._size;
         let size2 = this.server.config.foodMinSize;
@@ -56,10 +51,9 @@ class MotherCell extends Virus {
 
             // Eject to random distance
             food.setBoost(32 + 42 * Math.random(), angle);
-        };
-
+        }
         this.server.updateNodeQuad(this);
-    };
-};
+    }
+}
 
 module.exports = MotherCell;

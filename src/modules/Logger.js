@@ -1,45 +1,36 @@
 class Logger {
     debug() {
 
-    };
-
+    }
     info(text) {
         console.log(`[\x1b[34mInfo\x1b[0m] ${text}`);
-    };
-
+    }
     warn(text) {
         console.log(`[\x1b[33mWarning\x1b[0m] ${text}`);
-    };
-
+    }
     error(text) {
         console.log(`[\x1b[31mError\x1b[0m] ${text}`);
-    };
-
+    }
     fatal(text) {
         console.log("Process stopped as a result of an error:");
         console.log(`${text}`);
-    };
-
+    }
     success(text) {
         console.log(text);
-    };
-
+    }
     print(text) {
         console.log(`${text}`);
-    };
-
+    }
     // TODO: error writing
     write(text) {
-    };
-
+    }
     start(text) {
 
-    };
-
+    }
     shutdown(text) {
 
-    };
-};
+    }
+}
 
 module.exports = new Logger;
 /*var fs = require("fs");
@@ -85,44 +76,44 @@ var logFileVerbosity = LogLevelEnum.DEBUG;
 function debug(message) {
     writeCon(colorscheme.debug, LogLevelEnum.DEBUG, message);
     writeLog(LogLevelEnum.DEBUG, message);
-};
+}
 
 function info(message) {
     writeCon(colorscheme.info, LogLevelEnum.INFO, message);
     writeLog(LogLevelEnum.INFO, message);
-};
+}
 
 function warn(message) {
     writeCon(colorscheme.warn, LogLevelEnum.WARN, message);
     writeLog(LogLevelEnum.WARN, message);
-};
+}
 
 function error(message) {
     writeCon(colorscheme.error, LogLevelEnum.ERROR, message);
     writeLog(LogLevelEnum.ERROR, message);
-};
+}
 
 function fatal(message) {
     writeCon(colorscheme.fatal, LogLevelEnum.FATAL, message);
     writeLog(LogLevelEnum.FATAL, message);
-};
+}
 
 function print(message) {
     writeCon(colorscheme.print, LogLevelEnum.NONE, message);
     writeLog(LogLevelEnum.NONE, message);
-};
+}
 
 function write(message) {
     writeLog(LogLevelEnum.NONE, message);
-};
+}
 
 function writeDebug(message) {
     writeLog(LogLevelEnum.DEBUG, message);
-};
+}
 
 function writeError(message) {
     writeLog(LogLevelEnum.ERROR, message);
-};
+}
 
 
 // --- utils ---
@@ -144,7 +135,7 @@ function getDateTimeString() {
     ts = ("00" + ts).slice(-2);
     tz = ("000" + tz).slice(-3);
     return dy + "-" + dm + "-" + dd + "T" + th + "-" + tm + "-" + ts + "-" + tz;
-};
+}
 
 function getTimeString() {
     var date = new Date();
@@ -155,7 +146,7 @@ function getTimeString() {
     tm = ("00" + tm).slice(-2);
     ts = ("00" + ts).slice(-2);
     return th + ":" + tm + ":" + ts;
-};
+}
 
 function writeCon(color, level, message) {
     if (level > logVerbosity) return;
@@ -172,7 +163,7 @@ function writeCon(color, level, message) {
     else if (level == LogLevelEnum.FATAL)
         prefix = "| [FATAL] ";
     process.stdout.write(color + prefix + message + "\u001B[0m" + EOL);
-};
+}
 
 function writeLog(level, message) {
     if (level > logFileVerbosity || writeError)
@@ -201,7 +192,7 @@ function writeLog(level, message) {
             flushAsync();
         }
     }
-};
+}
 
 var writeError = false;
 var writeCounter = 0;
@@ -214,7 +205,7 @@ function flushAsync() {
         return;
     writeCounter++;
     consoleLog.write(writeQueue.shift(), function () { writeCounter--; flushAsync(); });
-};
+}
 
 function flushSync() {
     try {
@@ -229,7 +220,7 @@ function flushSync() {
         writeCon(colorRed + colorBright, LogLevelEnum.ERROR, err.message);
         writeCon(colorRed + colorBright, LogLevelEnum.ERROR, "Failed to append log file!");
     }
-};
+}
 
 function start() {
     if (writeStarted)
@@ -287,7 +278,7 @@ function shutdown() {
     }
     writeQueue.push("=== Shutdown " + getDateTimeString() + " ===" + EOL);
     flushSync();
-};
+}
 
 var logFolder = "./logs";
 var logBackupFolder = "./logs/LogBackup";

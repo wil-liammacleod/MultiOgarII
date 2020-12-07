@@ -88,15 +88,13 @@ class CommandsList {
             client.hasMinions = true;
 
             return Logger.success(`Gave ${amount} minions to ${client._name}`);
-        };
+        }
     }
     addbot(server, args) {
         const amount = parseInt(args[1]) || 1;
 
         // Add the provide amount of bots to the server.
-        for (let i = 0; i != amount; i++) {
-            server.bots.addBot();
-        };
+        for (let i = 0; i != amount; i++) server.bots.addBot();
 
         return Logger.success(`Added ${amount} player bot${amount > 1 ? "s"  : ""} to the game. Use the rmbot command to remove them.`);
     }
