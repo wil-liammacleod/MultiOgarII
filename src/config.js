@@ -185,16 +185,5 @@ module.exports = Object.seal({
 
 // [Gamemode]
 // Custom gamemode settings
-// tourneyTimeLimit: Time limit of the game, in minutes.
-// tourneyAutoFill: If set to a value higher than 0, the tournament match will automatically fill up with bots after value seconds
-// tourneyAutoFillPlayers: The timer for filling the server with bots will not count down unless there is this amount of real players
-// tourneyLeaderboardToggle Time for toggling the leaderboard, in seconds. If value set to 0, leaderboard will not toggle.
-"tourneyMaxPlayers": 12,
-"tourneyPrepTime": 10,
-"tourneyEndTime": 30,
-"tourneyTimeLimit": 20,
-"tourneyAutoFill": 0,
-"tourneyAutoFillPlayers": 1,
-"tourneyLeaderboardToggleTime": 0
 
 })
