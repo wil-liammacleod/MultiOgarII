@@ -1,6 +1,7 @@
 const WebSocket = require("ws");
 const Packet = require('./packet');
 const BinaryReader = require('./packet/BinaryReader');
+const fs = require("fs");
 
 class Client {
     constructor(server, socket) {
@@ -235,7 +236,6 @@ class Client {
     }
     getRandomSkin() {
         var randomSkins = [];
-        var fs = require("fs");
         if (fs.existsSync("../src/randomskins.txt")) {
             // Read and parse the Skins - filter out whitespace-only Skins
             randomSkins = fs.readFileSync("../src/randomskins.txt", "utf8").split(/[\r\n]+/).filter(function (x) {

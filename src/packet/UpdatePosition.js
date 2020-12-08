@@ -1,4 +1,4 @@
-var BinaryWriter = require("./BinaryWriter");
+const BinaryWriter = require("./BinaryWriter");
 
 class UpdatePosition {
     constructor(player, x, y, scale) {

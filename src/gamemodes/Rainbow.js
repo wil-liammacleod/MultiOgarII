@@ -1,4 +1,4 @@
-var FFA = require('./FFA'); // Base gamemode
+const FFA = require('./FFA'); // Base gamemode
 
 class Rainbow extends FFA{
     constructor() {

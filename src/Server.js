@@ -2,6 +2,7 @@
 const http = require('http');
 const https = require("https");
 const fs = require("fs");
+let os;
 const WebSocket = require("ws");
 
 // Project imports
@@ -12,6 +13,10 @@ const {QuadNode, Quad} = require('./modules/QuadNode.js');
 const Player = require('./Player');
 const Client = require('./Client');
 const PlayerCommand = require('./modules/PlayerCommand');
+const BotLoader = require('./ai/BotLoader');
+const Gamemode = require('./gamemodes');
+const Packet = require('./packet');
+const UserRoleEnum = require('./enum/UserRoleEnum');
 
 // Server implementation
 class Server {
@@ -36,7 +41,6 @@ class Server {
         this.movingNodes = []; // For move engine
         this.leaderboard = []; // For leaderboard
         this.leaderboardType = -1; // No type
-        var BotLoader = require('./ai/BotLoader');
         this.bots = new BotLoader(this);
 
         // Main loop tick
@@ -66,7 +70,6 @@ class Server {
         this.timerLoopBind = this.timerLoop.bind(this);
         this.mainLoopBind = this.mainLoop.bind(this);
         // Set up gamemode(s)
-        var Gamemode = require('./gamemodes');
         this.mode = Gamemode.get(this.config.serverGamemode);
         this.mode.onServerInit(this);
         // Client Binding
@@ -416,7 +419,6 @@ class Server {
             if (!this.clients[i])
                 continue;
             if (!to || to == this.clients[i].player) {
-                var Packet = require('./packet');
                 if (this.config.separateChatForTeams && this.mode.haveTeams) {
                     //  from equals null if message from server
                     if (from == null || from.team === this.clients[i].player.team) {
@@ -782,7 +784,6 @@ class Server {
         this.addNode(newVirus);
     }
     loadFiles() {
-        const fs = require("fs")
         //Logger.setVerbosity(this.config.logVerbosity);
         //Logger.setFileVerbosity(this.config.logFileVerbosity);
         // Load bad words
@@ -809,7 +810,6 @@ class Server {
             Logger.error("Failed to load " + fileNameBadWords + ": " + err.message);
         }
         // Load user list
-        var UserRoleEnum = require(this.srcFiles + '/enum/UserRoleEnum');
         var fileNameUsers = this.srcFiles + '/enum/userRoles.json';
         try {
             this.userList = [];
@@ -923,7 +923,7 @@ class Server {
     // To list us on the server tracker located at http://ogar.mivabe.nl/master
     pingServerTracker() {
         // Get server statistics
-        var os = require('os');
+        if (!os) os = require('os');
         var totalPlayers = 0;
         var alivePlayers = 0;
         var spectatePlayers = 0;

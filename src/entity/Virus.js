@@ -1,4 +1,4 @@
-var Cell = require('./Cell');
+const Cell = require('./Cell');
 
 class Virus extends Cell {
     constructor(server, owner, position, size) {

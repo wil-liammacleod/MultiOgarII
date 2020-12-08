@@ -1,5 +1,5 @@
-var FFA = require('./FFA'); // Base gamemode
-var Entity = require('../entity');
+const FFA = require('./FFA'); // Base gamemode
+const Entity = require('../entity');
 
 class Experimental extends FFA {
     constructor() {

@@ -1,3 +1,5 @@
+const BinaryWriter = require("./BinaryWriter");
+
 class UpdateNodes {
     constructor(player, addNodes, updNodes, eatNodes, delNodes) {
         this.player = player;
@@ -9,7 +11,6 @@ class UpdateNodes {
     build(protocol) {
         if (!protocol)
             return null;
-        var BinaryWriter = require("./BinaryWriter");
         var writer = new BinaryWriter();
         writer.writeUInt8(0x10); // Packet ID
         this.writeEatItems(writer);

@@ -1,7 +1,8 @@
-var Packet = require('./packet');
-var Vec2 = require('./modules/Vec2');
-var BinaryWriter = require("./packet/BinaryWriter");
-var {Quad} = require("./modules/QuadNode.js");
+const Packet = require('./packet');
+const Vec2 = require('./modules/Vec2');
+const BinaryWriter = require("./packet/BinaryWriter");
+const {Quad} = require("./modules/QuadNode.js");
+const UserRoleEnum = require("./enum/UserRoleEnum");
 
 class Player {
     constructor(server, socket) {
@@ -62,7 +63,6 @@ class Player {
             // Only scramble if enabled in config
             this.scramble();
         }
-        var UserRoleEnum = require("./enum/UserRoleEnum");
         this.userRole = UserRoleEnum.GUEST;
     }
     // Setters/Getters

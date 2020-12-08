@@ -1,3 +1,6 @@
+const UserRoleEnum = require("../enum/UserRoleEnum");
+const BinaryWriter = require("./BinaryWriter");
+
 class ChatMessage {
     constructor(sender, message) {
         this.sender = sender;
@@ -23,8 +26,6 @@ class ChatMessage {
             }
         }
 
-        var UserRoleEnum = require("../enum/UserRoleEnum");
-        var BinaryWriter = require("./BinaryWriter");
         var writer = new BinaryWriter();
         writer.writeUInt8(0x63); // message id (decimal 99)
 

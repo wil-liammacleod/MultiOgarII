@@ -1,3 +1,5 @@
+const BinaryWriter = require("./BinaryWriter");
+
 class SetBorder {
     constructor(player, border, gameType, serverName) {
         this.player = player;
@@ -17,7 +19,6 @@ class SetBorder {
             buffer.writeDoubleLE(this.border.maxy + scrambleY, 25, true);
             return buffer;
         }
-        var BinaryWriter = require("./BinaryWriter");
         var writer = new BinaryWriter();
         writer.writeUInt8(0x40); // Packet ID
         writer.writeDouble(this.border.minx + scrambleX);

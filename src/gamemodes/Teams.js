@@ -1,4 +1,4 @@
-var Mode = require('./Mode');
+const Mode = require('./Mode');
 
 class Teams extends Mode{
     constructor() {

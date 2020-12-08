@@ -1,5 +1,5 @@
 // Import
-var BinaryWriter = require("./BinaryWriter");
+const BinaryWriter = require("./BinaryWriter");
 
 function writeCount(writer, flag1, flag2) {
     writer.writeUInt8(flag1); // Packet ID
