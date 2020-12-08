@@ -1,13 +1,6 @@
 // An object representing a 2D vector.
 // Based on the Vector2 class from LibGDX.
 // Written by Rahat Ahmed (http://rahatah.me/d).
-// Edited by Tom Burris (https://github.com/Tombez)
-
-const addition = (a, b) => a + b;
-const subtraction = (a, b) => a - b;
-const multiplication = (a, b) => a * b;
-const division = (a, b) => a / b;
-const assign = (a, b) => b;
 
 const isNumber = n => typeof n === "number" && n === n; // NaN is not equal to itself
 
@@ -23,47 +16,100 @@ class Vec2 {
             throw new TypeError(`Cannot create Vec2 from non-number: ${angle}.`);
         return new Vec2(Math.cos(angle), Math.sin(angle));
     }
-    executeOperation(operation, vecOrNum) {
+    add(vecOrNum) {
         if (vecOrNum instanceof Vec2) {
-            this.x = operation(this.x, vecOrNum.x);
-            this.y = operation(this.y, vecOrNum.y);
+            this.x += vecOrNum.x;
+            this.y += vecOrNum.y;
         } else if (isNumber(vecOrNum)) {
-            this.x = operation(this.x, vecOrNum);
-            this.y = operation(this.y, vecOrNum);
+            this.x += vecOrNum;
+            this.y += vecOrNum;
+        } else {
+            throw new TypeError(`Tried to do math with ${vecOrNum}.`);
+        }
+        return this;
+    }
+    sum(vecOrNum) {
+        if (vecOrNum instanceof Vec2) {
+            return new Vec2(this.x + vecOrNum.x, this.y + vecOrNum.y);
+        } else if (isNumber(vecOrNum)) {
+            return new Vec2(this.x + vecOrNum, this.y + vecOrNum);
         } else {
             throw new TypeError(`Tried to do math with ${vecOrNum}.`);
         }
     }
-    add(vecOrNum) {
-        this.executeOperation(addition, vecOrNum);
-        return this;
-    }
-    sum(vecOrNum) {
-        return this.clone().add(vecOrNum);
-    }
     subtract(vecOrNum) {
-        this.executeOperation(subtraction, vecOrNum);
+        if (vecOrNum instanceof Vec2) {
+            this.x -= vecOrNum.x;
+            this.y -= vecOrNum.y;
+        } else if (isNumber(vecOrNum)) {
+            this.x -= vecOrNum;
+            this.y -= vecOrNum;
+        } else {
+            throw new TypeError(`Tried to do math with ${vecOrNum}.`);
+        }
         return this;
     }
     difference(vecOrNum) {
-        return this.clone().subtract(vecOrNum);
+        if (vecOrNum instanceof Vec2) {
+            return new Vec2(this.x - vecOrNum.x, this.y - vecOrNum.y);
+        } else if (isNumber(vecOrNum)) {
+            return new Vec2(this.x - vecOrNum, this.y - vecOrNum);
+        } else {
+            throw new TypeError(`Tried to do math with ${vecOrNum}.`);
+        }
     }
     multiply(vecOrNum) {
-        this.executeOperation(multiplication, vecOrNum);
+        if (vecOrNum instanceof Vec2) {
+            this.x *= vecOrNum.x;
+            this.y *= vecOrNum.y;
+        } else if (isNumber(vecOrNum)) {
+            this.x *= vecOrNum;
+            this.y *= vecOrNum;
+        } else {
+            throw new TypeError(`Tried to do math with ${vecOrNum}.`);
+        }
         return this;
     }
     product(vecOrNum) {
-        return this.clone().multiply(vecOrNum);
+        if (vecOrNum instanceof Vec2) {
+            return new Vec2(this.x * vecOrNum.x, this.y * vecOrNum.y);
+        } else if (isNumber(vecOrNum)) {
+            return new Vec2(this.x * vecOrNum, this.y * vecOrNum);
+        } else {
+            throw new TypeError(`Tried to do math with ${vecOrNum}.`);
+        }
     }
     divide(vecOrNum) {
-        this.executeOperation(division, vecOrNum);
+        if (vecOrNum instanceof Vec2) {
+            this.x /= vecOrNum.x;
+            this.y /= vecOrNum.y;
+        } else if (isNumber(vecOrNum)) {
+            this.x /= vecOrNum;
+            this.y /= vecOrNum;
+        } else {
+            throw new TypeError(`Tried to do math with ${vecOrNum}.`);
+        }
         return this;
     }
     quotient(vecOrNum) {
-        return this.clone().divide(vecOrNum);
+        if (vecOrNum instanceof Vec2) {
+            return new Vec2(this.x / vecOrNum.x, this.y / vecOrNum.y);
+        } else if (isNumber(vecOrNum)) {
+            return new Vec2(this.x / vecOrNum, this.y / vecOrNum);
+        } else {
+            throw new TypeError(`Tried to do math with ${vecOrNum}.`);
+        }
     }
     assign(vecOrNum) {
-        this.executeOperation(assign, vecOrNum);
+        if (vecOrNum instanceof Vec2) {
+            this.x = vecOrNum.x;
+            this.y = vecOrNum.y;
+        } else if (isNumber(vecOrNum)) {
+            this.x = vecOrNum;
+            this.y = vecOrNum;
+        } else {
+            throw new TypeError(`Tried to do math with ${vecOrNum}.`);
+        }
         return this;
     }
     angle() {
