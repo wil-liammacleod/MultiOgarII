@@ -71,18 +71,15 @@ class Player {
             this.scrambleId = 0;
             this.scrambleX = 0;
             this.scrambleY = 0;
-        }
-        else {
+        } else {
             this.scrambleId = (Math.random() * 0xFFFFFFFF) >>> 0;
             // avoid mouse packet limitations
             var maxx = Math.max(0, 31767 - this.server.border.width);
             var maxy = Math.max(0, 31767 - this.server.border.height);
             var x = maxx * Math.random();
             var y = maxy * Math.random();
-            if (Math.random() >= 0.5)
-                x = -x;
-            if (Math.random() >= 0.5)
-                y = -y;
+            if (Math.random() >= 0.5) x = -x;
+            if (Math.random() >= 0.5) y = -y;
             this.scrambleX = x;
             this.scrambleY = y;
         }
@@ -113,18 +110,13 @@ class Player {
             scale += cell.radius;
             this._score += cell._mass;
         }
-        if (!scale)
-            return scale = this._score = 0.4; // reset scale
-        else
-            return this._scale = Math.pow(Math.min(64 / scale, 1), 0.4);
+        if (!scale) return scale = this._score = 0.4; // reset scale
+        else return this._scale = Math.pow(Math.min(64 / scale, 1), 0.4);
     }
     joinGame(name, skin) {
-        if (this.cells.length)
-            return;
-        if (skin)
-            this.setSkin(skin);
-        if (!name)
-            name = "";
+        if (this.cells.length) return;
+        if (skin) this.setSkin(skin);
+        if (!name) name = "";
         this.setName(name);
         this.spectate = false;
         this.freeRoam = false;
@@ -142,8 +134,7 @@ class Player {
             if (this.server.config.serverScrambleLevel < 2) {
                 // no scramble / lightweight scramble
                 client.sendPacket(new Packet.SetBorder(this, this.server.border));
-            }
-            else if (this.server.config.serverScrambleLevel == 3) {
+            } else if (this.server.config.serverScrambleLevel == 3) {
                 var ran = 10065536 * Math.random();
                 // Ruins most known minimaps (no border)
                 var border = new Quad(
@@ -190,7 +181,7 @@ class Player {
         this.socket.client.process();
         if (this.isMi) return;
         // update viewbox
-        this.updateSpecView(this.cells.length);
+        this.updateView(this.cells.length);
         const scale = Math.max(this.getScale(), this.server.config.serverMinScale);
         const halfWidth = (this.server.config.serverViewBaseX + 100) / scale / 2;
         const halfHeight = (this.server.config.serverViewBaseY + 100) / scale / 2;
@@ -266,15 +257,14 @@ class Player {
                 client.sendPacket(new Packet.UpdateLeaderboard(this, this.server.leaderboard, this.server.leaderboardType));
         }
     }
-    updateSpecView(len) {
+    updateView(len) {
         if (!this.spectate || len) {
             // in game
-            this.centerPos = this.cells.reduce(
+            if (len) this.centerPos = this.cells.reduce(
                 (average, current) => average.add(current.position.quotient(len)),
                 new Vec2(0, 0)
             );
-        }
-        else {
+        } else {
             if (this.freeRoam || this.getSpecTarget() == null) {
                 // free roam
                 var mouseVec = this.mouse.difference(this.centerPos);
@@ -283,8 +273,7 @@ class Player {
                     this.setCenterPos(this.centerPos.add(mouseVec.product(32 / mouseDist)));
                 }
                 var scale = this.server.config.serverSpectatorScale;
-            }
-            else {
+            } else {
                 // spectate target
                 var player = this.getSpecTarget();
                 if (player) {
