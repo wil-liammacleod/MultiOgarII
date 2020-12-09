@@ -97,10 +97,10 @@ class Client {
         this.setNickname(text);
     }
     message_onSpectate(message) {
-        if (message.length !== 1 || this.socket.player.cells.length !== 0) {
+        if (message.length !== 1 || this.socket.player.cells.length !== 0)
             return;
-        }
         this.socket.player.spectate = true;
+        this.socket.player.freeRoam = false;
     }
     message_onMouse(message) {
         if (message.length !== 13 && message.length !== 9 && message.length !== 21) {
@@ -117,20 +117,15 @@ class Client {
         }
     }
     message_onKeyQ(message) {
-        if (message.length !== 1)
-            return;
+        if (message.length !== 1) return;
         var tick = this.server.tickCoutner;
         var dt = tick - this.lastQTick;
-        if (dt < this.server.config.ejectCooldown) {
-            return;
-        }
+        if (dt < this.server.config.ejectCooldown) return;
         this.lastQTick = tick;
-        if (!this.server.config.disableQ) {
-            this.socket.player.miQ = !this.socket.player.miQ;
-        }
-        else {
-            this.pressQ = true;
-        }
+        if (this.socket.player.cells.length) {
+            if (!this.server.config.disableQ)
+                this.socket.player.miQ = !this.socket.player.miQ;
+        } else this.pressQ = true;
     }
     message_onKeyW(message) {
         if (message.length !== 1)

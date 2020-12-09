@@ -265,7 +265,7 @@ class Player {
                 new Vec2(0, 0)
             );
         } else {
-            if (this.freeRoam || this.getSpecTarget() == null) {
+            if (this.freeRoam) {
                 // free roam
                 var mouseVec = this.mouse.difference(this.centerPos);
                 var mouseDist = mouseVec.dist();
@@ -316,20 +316,14 @@ class Player {
     pressQ() {
         if (this.spectate) {
             // Check for spam first (to prevent too many add/del updates)
-            if (this.server.ticks - this.lastKeypressTick < 40)
-                return;
+            if (this.server.ticks - this.lastKeypressTick < 40) return;
             this.lastKeypressTick = this.server.ticks;
-            if (this.spectateTarget == null)
-                this.freeRoam = !this.freeRoam;
-            this.spectateTarget = null;
+            this.freeRoam = !this.freeRoam;
         }
     }
     getSpecTarget() {
-        if (this.spectateTarget == null || this.spectateTarget.isRemoved) {
-            this.spectateTarget = null;
-            return this.server.largestClient;
-        }
-        return this.spectateTarget;
+        if (this.spectateTarget?.isRemoved) this.spectateTarget = null;
+        return this.spectateTarget ?? this.server.largestClient;
     }
     setCenterPos(p) {
         p.x = Math.max(p.x, this.server.border.minx);
