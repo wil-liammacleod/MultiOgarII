@@ -130,7 +130,7 @@ const commands = [
         const id = parseInt(args[1]);
         let p = isNaN(id) ? player : findPlayer(player.server, id);
         if (!p) return send(player, "Didn't find player with id " + id);
-        p.hasMinions = p.miQ = false;
+        p.hasMinions = false;
         send(player, "Succesfully removed minions for " + p._name);
         if (p != player) send(p, player._name + " removed all of your minions.");
     }),

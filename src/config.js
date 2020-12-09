@@ -169,16 +169,12 @@ module.exports = Object.seal({
 // minionStartSize: Start size of minions (mass: val*val/100: 10 mass)
 // minionMaxStartSize: Maximum value of random start size for minions (set value higher than minionStartSize to enable)
 // minionCollideTeam: Determines whether minions colide with their team in the Teams gamemode (0: OFF, 1: ON)
-// disableERTP: Whether or not to disable ERTP controls for minions. (must use ERTPcontrol script in /scripts) (Set to 0 to enable)
-// disableQ: Whether or not to disable Q controls for minions. (Set 0 to enable)
 // serverMinions: Amount of minions each player gets once they spawn
 // defaultName: Default name for all minions if name is not specified using command (put <r> before the name for random skins!)
 // minionsOnLeaderboard: Whether or not to show minions on the leaderboard. (Set 0 to disable)
 "minionStartSize": 31.6227766017,
 "minionMaxStartSize": 31.6227766017,
 "minionCollideTeam": 0,
-"disableERTP": 1,
-"disableQ": 0,
 "serverMinions": 0,
 "defaultName": "minion",
 "minionsOnLeaderboard": 0,

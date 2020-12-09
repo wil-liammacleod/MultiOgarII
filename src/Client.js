@@ -13,25 +13,21 @@ class Client {
         this.lastJoinTick = 0;
         this.lastChatTick = 0;
         this.lastStatTick = 0;
-        this.lastQTick = 0;
-        this.lastSpaceTick = 0;
-        this.pressQ = false;
-        this.pressW = false;
-        this.pressSpace = false;
+        this.toggleSpectate = false;
+        this.ejectRequested = false;
+        this.splitRequested = false;
         this.mouseData = null;
         this.handler = {
             254: this.handshake_onProtocol.bind(this),
         };
     }
     handleMessage(message) {
-        if (!this.handler.hasOwnProperty(message[0]))
-            return;
+        if (!this.handler.hasOwnProperty(message[0])) return;
         this.handler[message[0]](message);
         this.socket.lastAliveTime = this.server.stepDateTime;
     }
     handshake_onProtocol(message) {
-        if (message.length !== 5)
-            return;
+        if (message.length !== 5) return;
         this.handshakeProtocol = message[1] | (message[2] << 8) | (message[3] << 16) | (message[4] << 24);
         if (this.handshakeProtocol < 1 || this.handshakeProtocol > 18) {
             this.socket.close(1002, "Not supported protocol: " + this.handshakeProtocol);
@@ -42,8 +38,7 @@ class Client {
         };
     }
     handshake_onKey(message) {
-        if (message.length !== 5)
-            return;
+        if (message.length !== 5) return;
         this.handshakeKey = message[1] | (message[2] << 8) | (message[3] << 16) | (message[4] << 24);
         if (this.handshakeProtocol > 6 && this.handshakeKey !== 0) {
             this.socket.close(1002, "Not supported protocol");
@@ -56,12 +51,12 @@ class Client {
             0: this.message_onJoin.bind(this),
             1: this.message_onSpectate.bind(this),
             16: this.message_onMouse.bind(this),
-            17: this.message_onKeySpace.bind(this),
-            18: this.message_onKeyQ.bind(this),
-            21: this.message_onKeyW.bind(this),
-            22: this.message_onKeyE.bind(this),
-            23: this.message_onKeyR.bind(this),
-            24: this.message_onKeyT.bind(this),
+            17: this.msg_split.bind(this),
+            18: this.msg_spectateToggle.bind(this),
+            21: this.msg_eject.bind(this),
+            22: this.msg_minionSplit.bind(this),
+            23: this.msg_minionEject.bind(this),
+            24: this.msg_minionFreezeToggle.bind(this),
             99: this.message_onChat.bind(this),
             254: this.message_onStat.bind(this),
         };
@@ -78,22 +73,18 @@ class Client {
         if (this.server.config.serverChat == 0)
             this.server.sendChatMessage(null, this.socket.player, "This server's chat is disabled.");
         if (this.protocol < 4)
-            this.server.sendChatMessage(null, this.socket.player, "WARNING: Protocol " + this.protocol + " assumed as 4!");
+            this.server.sendChatMessage(null, this.socket.player, `WARNING: Protocol ${this.protocol} assumed as 4!`);
     }
     message_onJoin(message) {
-        var tick = this.server.ticks;
-        var dt = tick - this.lastJoinTick;
+        const tick = this.server.ticks;
+        const dt = tick - this.lastJoinTick;
         this.lastJoinTick = tick;
-        if (dt < 25 || this.socket.player.cells.length !== 0) {
-            return;
-        }
+        if (dt < 25 || this.socket.player.cells.length !== 0) return;
         var reader = new BinaryReader(message);
         reader.skipBytes(1);
         var text = null;
-        if (this.protocol < 6)
-            text = reader.readStringZeroUnicode();
-        else
-            text = reader.readStringZeroUtf8();
+        if (this.protocol < 6) text = reader.readStringZeroUnicode();
+        else text = reader.readStringZeroUtf8();
         this.setNickname(text);
     }
     message_onSpectate(message) {
@@ -103,139 +94,98 @@ class Client {
         this.socket.player.freeRoam = false;
     }
     message_onMouse(message) {
-        if (message.length !== 13 && message.length !== 9 && message.length !== 21) {
-            return;
-        }
+        if (message.length !== 13 && message.length !== 9
+            && message.length !== 21) return;
         this.mouseData = Buffer.concat([message]);
     }
-    message_onKeySpace(message) {
-        if (this.socket.player.miQ) {
-            this.socket.player.minionSplit = true;
-        }
-        else {
-            this.pressSpace = true;
-        }
+    msg_split(message) {
+        this.splitRequested = true;
     }
-    message_onKeyQ(message) {
+    msg_spectateToggle(message) {
         if (message.length !== 1) return;
-        var tick = this.server.tickCoutner;
-        var dt = tick - this.lastQTick;
-        if (dt < this.server.config.ejectCooldown) return;
-        this.lastQTick = tick;
-        if (this.socket.player.cells.length) {
-            if (!this.server.config.disableQ)
-                this.socket.player.miQ = !this.socket.player.miQ;
-        } else this.pressQ = true;
+        else this.toggleSpectate = true;
     }
-    message_onKeyW(message) {
-        if (message.length !== 1)
-            return;
-        if (this.socket.player.miQ) {
-            this.socket.player.minionEject = true;
-        }
-        else {
-            this.pressW = true;
-        }
+    msg_eject(message) {
+        if (message.length !== 1) return;
+        else this.ejectRequested = true;
     }
-    message_onKeyE(message) {
-        if (this.server.config.disableERTP)
-            return;
+    msg_minionSplit(message) {
         this.socket.player.minionSplit = true;
     }
-    message_onKeyR(message) {
-        if (this.server.config.disableERTP)
-            return;
+    msg_minionEject(message) {
         this.socket.player.minionEject = true;
     }
-    message_onKeyT(message) {
-        if (this.server.config.disableERTP)
-            return;
+    msg_minionFreezeToggle(message) {
         this.socket.player.minionFrozen = !this.socket.player.minionFrozen;
     }
     message_onChat(message) {
-        if (message.length < 3)
-            return;
-        var tick = this.server.ticks;
-        var dt = tick - this.lastChatTick;
+        if (message.length < 3) return;
+        const tick = this.server.ticks
+        const dt = tick - this.lastChatTick;
         this.lastChatTick = tick;
-        if (dt < 25 * 2) {
-            return;
-        }
-        var flags = message[1]; // flags
-        var rvLength = (flags & 2 ? 4 : 0) + (flags & 4 ? 8 : 0) + (flags & 8 ? 16 : 0);
-        if (message.length < 3 + rvLength) // second validation
-            return;
-        var reader = new BinaryReader(message);
+        if (dt < 25 * 2) return;
+        const flags = message[1]; // flags
+        const rvLength = (flags & 0b1110) * 2;
+        if (message.length < 3 + rvLength) return; // second validation
+        let reader = new BinaryReader(message);
         reader.skipBytes(2 + rvLength); // reserved
-        var text = null;
-        if (this.protocol < 6)
-            text = reader.readStringZeroUnicode();
-        else
-            text = reader.readStringZeroUtf8();
+        let text = null;
+        if (this.protocol < 6) text = reader.readStringZeroUnicode();
+        else text = reader.readStringZeroUtf8();
         this.server.onChatMessage(this.socket.player, null, text);
     }
     message_onStat(message) {
-        if (message.length !== 1)
-            return;
-        var tick = this.server.ticks;
-        var dt = tick - this.lastStatTick;
-        this.lastStatTick = tick;
-        if (dt < 25) {
-            return;
-        }
+        if (message.length !== 1) return;
+        const dt = this.server.ticks - this.lastStatTick;
+        this.lastStatTick = this.server.ticks;
+        if (dt < 25) return;
         this.sendPacket(new Packet.ServerStat(this.socket.player));
     }
     processMouse() {
-        if (this.mouseData == null)
-            return;
-        var client = this.socket.player;
+        if (this.mouseData == null) return;
+        let player = this.socket.player;
         var reader = new BinaryReader(this.mouseData);
         reader.skipBytes(1);
         if (this.mouseData.length === 13) {
             // protocol late 5, 6, 7
-            client.mouse.x = reader.readInt32() - client.scrambleX;
-            client.mouse.y = reader.readInt32() - client.scrambleY;
-        }
-        else if (this.mouseData.length === 9) {
+            player.mouse.x = reader.readInt32() - player.scrambleX;
+            player.mouse.y = reader.readInt32() - player.scrambleY;
+        } else if (this.mouseData.length === 9) {
             // early protocol 5
-            client.mouse.x = reader.readInt16() - client.scrambleX;
-            client.mouse.y = reader.readInt16() - client.scrambleY;
-        }
-        else if (this.mouseData.length === 21) {
+            player.mouse.x = reader.readInt16() - player.scrambleX;
+            player.mouse.y = reader.readInt16() - player.scrambleY;
+        } else if (this.mouseData.length === 21) {
             // protocol 4
-            client.mouse.x = ~~reader.readDouble() - client.scrambleX;
-            client.mouse.y = ~~reader.readDouble() - client.scrambleY;
+            player.mouse.x = ~~reader.readDouble() - player.scrambleX;
+            player.mouse.y = ~~reader.readDouble() - player.scrambleY;
         }
         this.mouseData = null;
     }
     process() {
-        if (this.pressSpace) { // Split cell
-            this.socket.player.pressSpace();
-            this.pressSpace = false;
+        if (this.splitRequested) {
+            this.socket.player.split();
+            this.splitRequested = false;
         }
-        if (this.pressW) { // Eject mass
-            this.socket.player.pressW();
-            this.pressW = false;
+        if (this.ejectRequested) {
+            this.socket.player.eject();
+            this.ejectRequested = false;
         }
-        if (this.pressQ) { // Q Press
-            this.socket.player.pressQ();
-            this.pressQ = false;
+        if (this.toggleSpectate) {
+            this.socket.player.spectateToggle();
+            this.toggleSpectate = false;
         }
-        if (this.socket.player.minionSplit) {
+        if (this.socket.player.minionSplit)
             this.socket.player.minionSplit = false;
-        }
-        if (this.socket.player.minionEject) {
+        if (this.socket.player.minionEject)
             this.socket.player.minionEject = false;
-        }
         this.processMouse();
     }
     getRandomSkin() {
         var randomSkins = [];
         if (fs.existsSync("../src/randomskins.txt")) {
             // Read and parse the Skins - filter out whitespace-only Skins
-            randomSkins = fs.readFileSync("../src/randomskins.txt", "utf8").split(/[\r\n]+/).filter(function (x) {
-                return x != ''; // filter empty Skins
-            });
+            randomSkins = fs.readFileSync("../src/randomskins.txt", "utf8")
+                .split(/[\r\n]+/).filter(x => x != ''); // filter empty Skins
         }
         // Picks a random skin
         if (randomSkins.length > 0) {
@@ -252,8 +202,7 @@ class Client {
                 var inner = text.slice(1, n);
                 if (n > 1)
                     skinName = (inner == "r") ? this.getRandomSkin() : inner;
-                else
-                    skinName = "";
+                else skinName = "";
                 userName = text.slice(n + 1);
             }
             skin = skinName;
@@ -273,10 +222,8 @@ class Client {
             socket.player.isBot) return;
         if (socket.readyState == WebSocket.OPEN) {
             var buffer = packet.build(this.protocol);
-            if (buffer)
-                socket.send(buffer, { binary: true });
-        }
-        else {
+            if (buffer) socket.send(buffer, { binary: true });
+        } else {
             socket.readyState = WebSocket.CLOSED;
             socket.emit('close');
         }

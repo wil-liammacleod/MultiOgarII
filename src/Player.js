@@ -48,7 +48,6 @@ class Player {
         this.customspeed = 0;
         this.rec = false;
         // Minions
-        this.miQ = false;
         this.isMi = false;
         this.minionSplit = false;
         this.minionEject = false;
@@ -103,15 +102,15 @@ class Player {
         writer1.writeStringZeroUtf8("%" + skin);
         this._skinUtf8protocol11 = writer1.toBuffer();
     }
-    getScale() {
+    getLivingScale() {
         this._score = 0; // reset to not cause bugs with leaderboard
-        var scale = 0; // reset to not cause bugs with viewbox
+        let scale = 0; // reset to not cause bugs with viewbox
         for (const cell of this.cells) {
             scale += cell.radius;
             this._score += cell._mass;
         }
-        if (!scale) return scale = this._score = 0.4; // reset scale
-        else return this._scale = Math.pow(Math.min(64 / scale, 1), 0.4);
+        if (scale) scale = Math.pow(Math.min(64 / scale, 1), 0.4);
+        return Math.max(scale, this.server.config.serverMinScale)
     }
     joinGame(name, skin) {
         if (this.cells.length) return;
@@ -162,9 +161,9 @@ class Player {
             this.cells = [];
             this.isRemoved = true;
             this.mouse = null;
-            this.socket.client.pressSpace = false;
-            this.socket.client.pressQ = false;
-            this.socket.client.pressW = false;
+            this.socket.client.splitRequested = false;
+            this.socket.client.toggleSpectate = false;
+            this.socket.client.ejectRequested = false;
             return;
         }
         // Check timeout
@@ -180,11 +179,12 @@ class Player {
         if (this.isRemoved || this.isMinion) return; // do not update
         this.socket.client.process();
         if (this.isMi) return;
-        // update viewbox
         this.updateView(this.cells.length);
-        const scale = Math.max(this.getScale(), this.server.config.serverMinScale);
-        const halfWidth = (this.server.config.serverViewBaseX + 100) / scale / 2;
-        const halfHeight = (this.server.config.serverViewBaseY + 100) / scale / 2;
+        const posPacket = new Packet.UpdatePosition(this, this.centerPos.x,
+            this.centerPos.y, this._scale)
+        this.socket.client.sendPacket(posPacket);
+        const halfWidth = (this.server.config.serverViewBaseX + 100) / this._scale / 2;
+        const halfHeight = (this.server.config.serverViewBaseY + 100) / this._scale / 2;
         this.viewBox = new Quad(
             this.centerPos.x - halfWidth,
             this.centerPos.y - halfHeight,
@@ -214,8 +214,7 @@ class Player {
                 );
                 client.sendPacket(new Packet.SetBorder(this, bound));
             }
-            if (++this.borderCounter >= 20)
-                this.borderCounter = 0;
+            if (++this.borderCounter >= 20) this.borderCounter = 0;
         }
         const delNodes = [];
         const eatNodes = [];
@@ -233,9 +232,8 @@ class Player {
                 (clientNode.isRemoved ? eatNodes : delNodes).push(clientNode);
                 ++clientIndex;
             } else {
-                if (viewNode.isRemoved) {
-                    eatNodes.push(viewNode);
-                } else if (viewNode.isMoving || viewNode.type == 0 ||
+                if (viewNode.isRemoved) eatNodes.push(viewNode);
+                else if (viewNode.isMoving || viewNode.type == 0 ||
                     viewNode.type == 2 ||
                     this.server.config.serverGamemode == 3 &&
                     viewNode.type == 1) updNodes.push(viewNode);
@@ -258,62 +256,50 @@ class Player {
         }
     }
     updateView(len) {
-        if (!this.spectate || len) {
-            // in game
+        if (len) { // in game
             if (len) this.centerPos = this.cells.reduce(
-                (average, current) => average.add(current.position.quotient(len)),
+                (average, current) => average.add(current.position),
                 new Vec2(0, 0)
-            );
-        } else {
-            if (this.freeRoam) {
+            ).divide(len);
+            this._scale = this.getLivingScale();
+        } else if (this.spectate) {
+            let player = this.getSpecTarget();
+            if (player && !this.freeRoam) {
+                this.setCenterPos(player.centerPos);
+                this._scale = player.getLivingScale();
+                this.place = player.place;
+                this.viewBox = player.viewBox;
+                this.viewNodes = player.viewNodes;
+            } else {
                 // free roam
                 var mouseVec = this.mouse.difference(this.centerPos);
                 var mouseDist = mouseVec.dist();
-                if (mouseDist != 0) {
+                if (mouseDist != 0)
                     this.setCenterPos(this.centerPos.add(mouseVec.product(32 / mouseDist)));
-                }
-                var scale = this.server.config.serverSpectatorScale;
-            } else {
-                // spectate target
-                var player = this.getSpecTarget();
-                if (player) {
-                    this.setCenterPos(player.centerPos);
-                    var scale = player.getScale();
-                    this.place = player.place;
-                    this.viewBox = player.viewBox;
-                    this.viewNodes = player.viewNodes;
-                }
+                this._scale = this.server.config.serverSpectatorScale;
             }
-            // sends camera packet
-            this.socket.client.sendPacket(new Packet.UpdatePosition(this, this.centerPos.x, this.centerPos.y, scale));
         }
     }
-    pressSpace() {
+    split() {
         if (this.spectate) {
             // Check for spam first (to prevent too many add/del updates)
-            if (this.server.ticks - this.lastKeypressTick < 40)
-                return;
+            if (this.server.ticks - this.lastKeypressTick < 40) return;
             this.lastKeypressTick = this.server.ticks;
             // Space doesn't work for freeRoam mode
-            if (this.freeRoam || this.server.largestClient == null)
-                return;
-        }
-        else if (this.server.run) {
+            if (this.freeRoam || this.server.largestClient == null) return;
+        } else if (this.server.run) {
             // Disable mergeOverride on the last merging cell
-            if (this.cells.length <= 2)
-                this.mergeOverride = false;
+            if (this.cells.length <= 2) this.mergeOverride = false;
             // Cant split if merging or frozen
-            if (this.mergeOverride || this.frozen)
-                return;
+            if (this.mergeOverride || this.frozen) return;
             this.server.splitCells(this);
         }
     }
-    pressW() {
-        if (this.spectate || !this.server.run)
-            return;
+    eject() {
+        if (this.spectate || !this.server.run) return;
         this.server.ejectMass(this);
     }
-    pressQ() {
+    spectateToggle() {
         if (this.spectate) {
             // Check for spam first (to prevent too many add/del updates)
             if (this.server.ticks - this.lastKeypressTick < 40) return;
