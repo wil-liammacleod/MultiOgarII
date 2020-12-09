@@ -223,9 +223,6 @@ class Client {
         if (socket.readyState == WebSocket.OPEN) {
             var buffer = packet.build(this.protocol);
             if (buffer) socket.send(buffer, { binary: true });
-        } else {
-            socket.readyState = WebSocket.CLOSED;
-            socket.emit('close');
         }
     }
 }
