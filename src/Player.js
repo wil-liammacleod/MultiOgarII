@@ -222,14 +222,22 @@ class Player {
         const updNodes = [];
         let clientIndex = 0;
         let viewIndex = 0;
-        while (viewIndex < this.viewNodes.length && clientIndex < this.clientNodes.length) {
+        const viewNodesLength = this.viewNodes.length; // don't count nodes added in the loop
+        while (viewIndex < viewNodesLength &&
+            clientIndex < this.clientNodes.length)
+        {
             const viewNode = this.viewNodes[viewIndex];
             const clientNode = this.clientNodes[clientIndex];
             if (viewNode.nodeId < clientNode.nodeId) {
                 if (!viewNode.isRemoved) addNodes.push(viewNode);
                 ++viewIndex;
             } else if (viewNode.nodeId > clientNode.nodeId) {
-                (clientNode.isRemoved ? eatNodes : delNodes).push(clientNode);
+                if (clientNode.isRemoved) eatNodes.push(clientNode);
+                else if (clientNode.owner != this) delNodes.push(clientNode);
+                else {
+                    updNodes.push(clientNode);
+                    this.viewNodes.push(clientNode);
+                }
                 ++clientIndex;
             } else {
                 if (viewNode.isRemoved) eatNodes.push(viewNode);
@@ -241,11 +249,16 @@ class Player {
                 ++clientIndex;
             }
         }
-        for (; viewIndex < this.viewNodes.length; viewIndex++)
+        for (; viewIndex < viewNodesLength; viewIndex++)
             addNodes.push(this.viewNodes[viewIndex]);
         for (; clientIndex < this.clientNodes.length; clientIndex++) {
             const node = this.clientNodes[clientIndex];
-            (node.isRemoved ? eatNodes : delNodes).push(node);
+            if (node.isRemoved) eatNodes.push(node);
+            else if (node.owner != this) delNodes.push(node);
+            else {
+                updNodes.push(node);
+                this.viewNodes.push(node);
+            }
         }
         this.clientNodes = this.viewNodes;
         client.sendPacket(new Packet.UpdateNodes(this, addNodes, updNodes, eatNodes, delNodes));
