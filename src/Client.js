@@ -3,6 +3,14 @@ const Packet = require('./packet');
 const BinaryReader = require('./packet/BinaryReader');
 const fs = require("fs");
 
+const randomSkinsFile = "../src/randomskins.txt";
+let randomSkins = [];
+if (fs.existsSync(randomSkinsFile)) {
+    // Read and parse the Skins - filter out whitespace-only Skins
+    randomSkins = fs.readFileSync(randomSkinsFile, "utf8")
+        .split(/[\r\n]+/).filter(x => x != ''); // filter empty Skins
+}
+
 class Client {
     constructor(server, socket) {
         this.server = server;
@@ -181,18 +189,12 @@ class Client {
         this.processMouse();
     }
     getRandomSkin() {
-        var randomSkins = [];
-        if (fs.existsSync("../src/randomskins.txt")) {
-            // Read and parse the Skins - filter out whitespace-only Skins
-            randomSkins = fs.readFileSync("../src/randomskins.txt", "utf8")
-                .split(/[\r\n]+/).filter(x => x != ''); // filter empty Skins
-        }
         // Picks a random skin
         if (randomSkins.length > 0) {
-            var index = (randomSkins.length * Math.random()) >>> 0;
-            var rSkin = randomSkins[index];
+            const index = randomSkins.length * Math.random() | 0;
+            return randomSkins[index];
         }
-        return rSkin;
+        return '';
     }
     setNickname(text) {
         var name = "", skin = null;
