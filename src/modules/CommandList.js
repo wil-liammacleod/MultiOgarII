@@ -4,7 +4,7 @@ class CommandsList {
     constructor() {
         // Command descriptions
         this.help.description = "List of currently available commands.";
-        this.playerlist.description = "Produce a list of clients currently connected to the server.";
+        this.player.description = "List the stats of a particular player or get a list of players and their respective IDs.";
         this.minion.description = "Give minions to a player.";
         this.addbot.description = "Add player bots to this server.";
         this.rmbot.description = "Remove bots from the server";
@@ -15,7 +15,7 @@ class CommandsList {
         this.stats.description = "Generate current server stats";
         this.aliases.description = "Generate command aliases.";
     }
-    help() {
+    help(server, args) {
         const commands = Object.getOwnPropertyNames(CommandsList.prototype); // List of methods.
         commands.shift(); // Remove constructor.
 
@@ -28,29 +28,41 @@ class CommandsList {
             // Ignore aliases, only print commands.
             if (CommandsList.prototype[commandObj.name] && !CommandsList.prototype[commandObj.name].isAlias) {
                 console.log(`${commands.indexOf(command) + 1}. ${command}: ${commandObj.description}`);
-            }
+            };
+        };
+    };
+    player(server, args) {
+        // Check if user needs list
+        if(!args[1]) {
+            Logger.warn(`Usage: player <player ID || "list">`);
+            return;
+        } else if(!server.clients.length) {
+            Logger.warn("There are no clients currently connected.");
         }
-    }
-    playerlist(server) {
+
         // Sort client IDs in descending order.
         server.clients.sort((a, b) => a.player.pID - b.player.pID);
 
         for(const socket of server.clients) {
             const client = socket.player;
 
-            // Ignore disconnnected sockets.
-            if (!socket.isConnected) return;
+            // Ignore disconnnected sockets and minions.
+            if (!socket.isConnected || client.isMi) 
+                return;
 
-            Logger.info(`Info record for client ${client.pID}: `);
-            console.log(`- isMinion: ${client.isMi}`);
-            console.log(`- protocol:  ${client.protocol || "none"}`);
-            console.log(`- remoteAdress: ${client.remoteAddress || "none"}`);
-            console.log(`- spectate: ${client.spectate}`);
-            console.log(`- name: ${client._name || "none"}`);
-            console.log(`- cells: ${client.cells.length}`);
-            console.log(`- score: ${Math.floor(client._score)}`);
-            console.log(`- position: {x: ${Math.floor(client.centerPos.x)}, y: ${Math.floor(client.centerPos.y)}}`);
-            console.log(`\n`);
+            if(args[1] && parseInt(args[1]) == client.pID) {
+                Logger.info(`Info record for client ${client.pID}: `);
+                console.log(`- isMinion: ${client.isMinion}`);
+                console.log(`- protocol:  ${client.protocol || "none"}`);
+                console.log(`- remoteAdress: ${client.remoteAddress || "none"}`);
+                console.log(`- spectate: ${client.spectate}`);
+                console.log(`- name: ${client._name || "none"}`);
+                console.log(`- cells: ${client.cells.length}`);
+                console.log(`- score: ${Math.floor(client._score)}`);
+                console.log(`- position: {x: ${Math.floor(client.centerPos.x)}, y: ${Math.floor(client.centerPos.y)}}`);
+            } else if(args[1] == "list") {
+                console.log(`ID ${client.pID} | "${client._name || "An unnamed cell"}"`);
+            }
         }
     }
     minion(server, args) {
