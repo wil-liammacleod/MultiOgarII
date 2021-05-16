@@ -26,7 +26,7 @@ class Server {
 
         // Startup
         this.run = true;
-        this.version = '1.6.2';
+        this.version = '1.6.3';
         this.httpServer = null;
         this.lastNodeId = 1;
         this.lastPlayerId = 1;
@@ -663,6 +663,22 @@ class Server {
         return new Vec2(this.border.minx + this.border.width * Math.random(),
             this.border.miny + this.border.height * Math.random());
     }
+    safeSpawn(cell) {
+        const maxAttempts = 10;
+
+        var spawnSuccess = false;
+        var attempts = 0;
+        while (!spawnSuccess && attempts < maxAttempts) {
+            if (!this.willCollide(cell)) {
+                spawnSuccess = true;
+            }
+            else {
+                cell.position = this.randomPos();
+                attempts++;
+            }
+        }
+        this.addNode(cell);
+    }
     spawnFood() {
         var cell = new Entity.Food(this, null, this.randomPos(), this.config.foodMinSize);
         if (this.config.foodMassGrow) {
@@ -674,8 +690,8 @@ class Server {
     }
     spawnVirus() {
         var virus = new Entity.Virus(this, null, this.randomPos(), this.config.virusMinSize);
-        if (!this.willCollide(virus))
-            this.addNode(virus);
+        this.safeSpawn(virus);
+        
     }
     spawnCells(virusCount, foodCount) {
         for (var i = 0; i < foodCount; i++) {
@@ -704,9 +720,13 @@ class Server {
         }
         // Spawn player safely (do not check minions)
         var cell = new Entity.PlayerCell(this, player, pos, size);
-        if (this.willCollide(cell) && !player.isMi)
-            pos = this.randomPos(); // Not safe => retry
-        this.addNode(cell);
+        if (!player.isMi) {
+            this.addNode(cell);
+        }
+        else {
+            this.safeSpawn(cell);
+        }
+        
         // Set initial mouse coords
         player.mouse.assign(pos);
     }

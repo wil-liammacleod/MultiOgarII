@@ -21,8 +21,7 @@ class Experimental extends FFA {
         }
         // Spawn if no cells are colliding
         var mother = new Entity.MotherCell(server, null, server.randomPos(), 149);
-        if (!server.willCollide(mother))
-            server.addNode(mother);
+        server.safeSpawn(mother);
     }
     // Override
     onServerInit(server) {
