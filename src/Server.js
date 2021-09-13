@@ -691,7 +691,7 @@ class Server {
     spawnVirus() {
         var virus = new Entity.Virus(this, null, this.randomPos(), this.config.virusMinSize);
         this.safeSpawn(virus);
-        
+
     }
     spawnCells(virusCount, foodCount) {
         for (var i = 0; i < foodCount; i++) {
@@ -720,13 +720,7 @@ class Server {
         }
         // Spawn player safely (do not check minions)
         var cell = new Entity.PlayerCell(this, player, pos, size);
-        if (!player.isMi) {
-            this.addNode(cell);
-        }
-        else {
-            this.safeSpawn(cell);
-        }
-        
+        player.isMi ? this.addNode(cell) : this.safeSpawn(cell);
         // Set initial mouse coords
         player.mouse.assign(pos);
     }
