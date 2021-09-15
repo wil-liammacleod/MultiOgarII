@@ -13,14 +13,13 @@ class Experimental extends FFA {
         this.motherAmount = 10;
     }
     // Gamemode Specific Functions
-    spawnMotherCell(server) {
+    spawnMotherCells(server) {
         var mother = new Entity.MotherCell(server, null, server.randomPos(), 149);
-        server.safeSpawn(mother);
+        let diff = this.motherAmount - this.nodesMother.length;
+        while (--diff >= 0) server.safeSpawn(mother);
     }
     spawnCells(server) {
-        for (var i = 0; i < this.motherAmount; i++) {
-            this.spawnMotherCell(server);
-        }
+        this.spawnMotherCells(server);
     }
     // Override
     onServerInit(server) {
@@ -37,7 +36,7 @@ class Experimental extends FFA {
         };
         Entity.MotherCell.prototype.onRemove = function () {
             self.nodesMother.removeUnsorted(this);
-            self.spawnMotherCell(server);
+            self.spawnMotherCells(server);
         };
         self.spawnCells(server);
     }
